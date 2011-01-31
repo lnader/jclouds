@@ -30,7 +30,7 @@ our current version is 1.0-beta-8
 our dev version is 1.0-SNAPSHOT
  
 our compute api supports: aws-ec2, gogrid, cloudservers (generic), cloudservers-us,
-                          cloudservers-uk, vcloud (generic), ec2 (generic),
+                          cloudservers-uk, vcloud (generic), ec2 (generic), byon,
                           trmk-ecloud, trmk-vcloudexpress, eucalyptus (generic),
                           cloudsigma-zrh, elasticstack(generic), bluelock-vclouddirector,
                           slicehost, eucalyptus-partnercloud-ec2, elastichosts-lon-p (Peer 1), 
@@ -42,7 +42,7 @@ our compute api supports: aws-ec2, gogrid, cloudservers (generic), cloudservers-
            to all of these providers
 
 our blobstore api supports: aws-s3, cloudfiles (generic), cloudfiles-us, cloudfiles-uk,
-                            azureblob, atmos (generic), synaptic-storage, 
+                            azureblob, atmos (generic), synaptic-storage, scaleup-storage,
                             cloudonestorage, s3 (generic), walrus(generic), googlestorage, 
                             eucalyptus-partnercloud-s3, swift (generic), transient (in-mem), 
                             filesystem (on-disk)

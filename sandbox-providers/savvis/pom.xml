@@ -40,6 +40,9 @@
         <repository>
             <id>jclouds-sonatype-snapshots-nexus</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
@@ -90,7 +93,6 @@
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.44</version>
             <scope>test</scope>
         </dependency>
         <dependency>

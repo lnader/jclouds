@@ -47,6 +47,10 @@ public class CloudStackAsyncClientTest extends BaseCloudStackAsyncClientTest<Clo
       assert syncClient.getTemplateClient() != null;
       assert syncClient.getOfferingClient() != null;
       assert syncClient.getNetworkClient() != null;
+      assert syncClient.getVirtualMachineClient() != null;
+      assert syncClient.getSecurityGroupClient() != null;
+      assert syncClient.getAsyncJobClient() != null;
+      assert syncClient.getAddressClient() != null;
    }
 
    public void testAsync() throws SecurityException, NoSuchMethodException, InterruptedException, ExecutionException {
@@ -54,6 +58,10 @@ public class CloudStackAsyncClientTest extends BaseCloudStackAsyncClientTest<Clo
       assert asyncClient.getTemplateClient() != null;
       assert asyncClient.getOfferingClient() != null;
       assert asyncClient.getNetworkClient() != null;
+      assert asyncClient.getVirtualMachineClient() != null;
+      assert asyncClient.getSecurityGroupClient() != null;
+      assert asyncClient.getAsyncJobClient() != null;
+      assert asyncClient.getAddressClient() != null;
    }
 
    @Override

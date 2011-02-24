@@ -19,7 +19,11 @@
 
 package org.jclouds.cloudstack;
 
+import org.jclouds.cloudstack.features.AddressAsyncClient;
 import org.jclouds.cloudstack.features.AsyncJobAsyncClient;
+import org.jclouds.cloudstack.features.FirewallAsyncClient;
+import org.jclouds.cloudstack.features.LoadBalancerAsyncClient;
+import org.jclouds.cloudstack.features.NATAsyncClient;
 import org.jclouds.cloudstack.features.NetworkAsyncClient;
 import org.jclouds.cloudstack.features.OfferingAsyncClient;
 import org.jclouds.cloudstack.features.SecurityGroupAsyncClient;
@@ -79,4 +83,28 @@ public interface CloudStackAsyncClient {
     */
    @Delegate
    AsyncJobAsyncClient getAsyncJobClient();
+
+   /**
+    * Provides asynchronous access to Address features.
+    */
+   @Delegate
+   AddressAsyncClient getAddressClient();
+
+   /**
+    * Provides asynchronous access to NAT features.
+    */
+   @Delegate
+   NATAsyncClient getNATClient();
+
+   /**
+    * Provides asynchronous access to Firewall features.
+    */
+   @Delegate
+   FirewallAsyncClient getFirewallClient();
+
+   /**
+    * Provides asynchronous access to LoadBalancer features.
+    */
+   @Delegate
+   LoadBalancerAsyncClient getLoadBalancerClient();
 }

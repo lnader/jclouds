@@ -21,7 +21,11 @@ package org.jclouds.cloudstack;
 
 import java.util.concurrent.TimeUnit;
 
+import org.jclouds.cloudstack.features.AddressClient;
 import org.jclouds.cloudstack.features.AsyncJobClient;
+import org.jclouds.cloudstack.features.FirewallClient;
+import org.jclouds.cloudstack.features.LoadBalancerClient;
+import org.jclouds.cloudstack.features.NATClient;
 import org.jclouds.cloudstack.features.NetworkClient;
 import org.jclouds.cloudstack.features.OfferingClient;
 import org.jclouds.cloudstack.features.SecurityGroupClient;
@@ -82,4 +86,28 @@ public interface CloudStackClient {
     */
    @Delegate
    AsyncJobClient getAsyncJobClient();
+
+   /**
+    * Provides synchronous access to Address features.
+    */
+   @Delegate
+   AddressClient getAddressClient();
+
+   /**
+    * Provides synchronous access to NAT features.
+    */
+   @Delegate
+   NATClient getNATClient();
+
+   /**
+    * Provides synchronous access to Firewall features.
+    */
+   @Delegate
+   FirewallClient getFirewallClient();
+
+   /**
+    * Provides synchronous access to LoadBalancer features.
+    */
+   @Delegate
+   LoadBalancerClient getLoadBalancerClient();
 }

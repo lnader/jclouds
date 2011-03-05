@@ -58,6 +58,7 @@ import org.jclouds.rest.annotations.Endpoint;
 import org.jclouds.rest.annotations.EndpointParam;
 import org.jclouds.rest.annotations.ExceptionParser;
 import org.jclouds.rest.annotations.RequestFilters;
+import org.jclouds.rest.annotations.VirtualHost;
 import org.jclouds.rest.annotations.XMLResponseParser;
 import org.jclouds.rest.functions.ReturnEmptyMultimapOnNotFoundOr404;
 import org.jclouds.rest.functions.ReturnEmptySetOnNotFoundOr404;
@@ -76,6 +77,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 @RequestFilters(BasicAuthentication.class)
 @Consumes(MediaType.APPLICATION_XML)
+@VirtualHost
 public interface DeltacloudAsyncClient {
 
    /**

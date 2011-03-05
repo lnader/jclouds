@@ -20,11 +20,13 @@
 package org.jclouds.predicates;
 
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
 import org.jclouds.logging.Logger;
+import org.jclouds.util.Throwables2;
 
 import com.google.common.base.Predicate;
 
@@ -37,30 +39,33 @@ import com.google.common.base.Predicate;
 public class RetryablePredicate<T> implements Predicate<T> {
    private final long maxWait;
    private final long period;
+   private final long maxPeriod;
    private final Predicate<T> predicate;
 
    @Resource
    protected Logger logger = Logger.NULL;
 
-   public RetryablePredicate(Predicate<T> predicate, long maxWait, long period,
-         TimeUnit unit) {
+   public RetryablePredicate(Predicate<T> predicate, long maxWait, long period, long maxPeriod, TimeUnit unit) {
       this.predicate = predicate;
       this.maxWait = unit.toMillis(maxWait);
       this.period = unit.toMillis(period);
+      this.maxPeriod = unit.toMillis(maxPeriod);
+   }
+
+   public RetryablePredicate(Predicate<T> predicate, long maxWait, long period, TimeUnit unit) {
+      this(predicate, maxWait, period, period * 10l, unit);
    }
 
    public RetryablePredicate(Predicate<T> predicate, long maxWait) {
-      this.predicate = predicate;
-      this.maxWait = maxWait;
-      this.period = 50l;
+      this(predicate, maxWait, 50l, 1000l, TimeUnit.MILLISECONDS);
    }
 
    @Override
    public boolean apply(T input) {
       try {
          long i = 1l;
-         for (Date end = new Date(System.currentTimeMillis() + maxWait); before(end); Thread
-               .sleep(nextMaxInterval(i++, end))) {
+         for (Date end = new Date(System.currentTimeMillis() + maxWait); before(end); Thread.sleep(nextMaxInterval(i++,
+                  end))) {
             if (predicate.apply(input)) {
                return true;
             } else if (atOrAfter(end)) {
@@ -68,14 +73,20 @@ public class RetryablePredicate<T> implements Predicate<T> {
             }
          }
       } catch (InterruptedException e) {
-         logger.warn(e, "predicate %s on %s interrupted, returning false",
-               input, predicate);
+         logger.warn(e, "predicate %s on %s interrupted, returning false", input, predicate);
+      } catch (RuntimeException e) {
+         ExecutionException exec = Throwables2.getFirstThrowableOfType(e, ExecutionException.class);
+         if (exec != null)
+            logger.warn(exec, "predicate %s on %s error, returning false", input, predicate);
+         else
+            throw e;
       }
       return false;
    }
 
    long nextMaxInterval(long attempt, Date end) {
       long interval = (period * (long) Math.pow(attempt, 1.5));
+      interval = interval > maxPeriod ? maxPeriod : interval;
       long max = end.getTime() - System.currentTimeMillis();
       return (interval > max) ? max : interval;
    }

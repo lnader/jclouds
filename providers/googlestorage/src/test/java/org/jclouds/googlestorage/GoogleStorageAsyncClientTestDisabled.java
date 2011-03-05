@@ -19,18 +19,28 @@
 
 package org.jclouds.googlestorage;
 
+import org.jclouds.rest.internal.RestAnnotationProcessor;
+import org.jclouds.s3.S3AsyncClient;
 import org.testng.annotations.Test;
+
+import com.google.inject.TypeLiteral;
 
 /**
  * @author Adrian Cole
  */
 // NOTE:without testName, this will not call @Before* and fail w/NPE during surefire
 @Test(enabled = false, groups = "unit", testName = "GoogleStorageAsyncClientTest")
-public class GoogleStorageAsyncClientTestDisabled extends org.jclouds.s3.S3AsyncClientTest {
+public class GoogleStorageAsyncClientTestDisabled extends org.jclouds.s3.S3AsyncClientTest<S3AsyncClient> {
 
    public GoogleStorageAsyncClientTestDisabled() {
       this.provider = "googlestorage";
       this.url = "commondatastorage.googleapis.com";
+   }
+
+   @Override
+   protected TypeLiteral<RestAnnotationProcessor<S3AsyncClient>> createTypeLiteral() {
+      return new TypeLiteral<RestAnnotationProcessor<S3AsyncClient>>() {
+      };
    }
 
    // TODO parameterize this test so that it can pass

@@ -21,34 +21,41 @@ package org.jclouds.cloudstack.features;
 
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.or;
+import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.get;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import org.jclouds.cloudstack.CloudStackClient;
 import org.jclouds.cloudstack.domain.AsyncCreateResponse;
+import org.jclouds.cloudstack.domain.AsyncJob;
 import org.jclouds.cloudstack.domain.GuestIPType;
 import org.jclouds.cloudstack.domain.NIC;
 import org.jclouds.cloudstack.domain.Network;
-import org.jclouds.cloudstack.domain.NetworkType;
 import org.jclouds.cloudstack.domain.SecurityGroup;
 import org.jclouds.cloudstack.domain.ServiceOffering;
 import org.jclouds.cloudstack.domain.Template;
 import org.jclouds.cloudstack.domain.VirtualMachine;
-import org.jclouds.cloudstack.domain.Zone;
 import org.jclouds.cloudstack.options.DeployVirtualMachineOptions;
 import org.jclouds.cloudstack.options.ListVirtualMachinesOptions;
+import org.jclouds.net.IPSocket;
 import org.jclouds.predicates.RetryablePredicate;
+import org.jclouds.util.InetAddresses2;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+import com.google.common.net.HostSpecifier;
 
 /**
  * Tests behavior of {@code VirtualMachineClientLiveTest}
@@ -68,32 +75,11 @@ public class VirtualMachineClientLiveTest extends BaseCloudStackClientLiveTest {
 
    public static VirtualMachine createVirtualMachine(CloudStackClient client, RetryablePredicate<Long> jobComplete,
             RetryablePredicate<VirtualMachine> virtualMachineRunning) {
-      final Zone zone = get(client.getZoneClient().listZones(), 0);
-
-      long serviceOfferingId = DEFAULT_SIZE_ORDERING.min(client.getOfferingClient().listServiceOfferings()).getId();
-
-      long templateId = find(client.getTemplateClient().listTemplates(), new Predicate<Template>() {
-
-         @Override
-         public boolean apply(Template arg0) {
-            return arg0.getZoneId() == zone.getId() && arg0.isFeatured() && arg0.isReady()
-                     && or(equalTo("Ubuntu 10.04 (64-bit)"), equalTo("CentOS 5.3 (32-bit)")).apply(arg0.getOSType());
-         }
-
-      }).getId();
-
-      DeployVirtualMachineOptions options = new DeployVirtualMachineOptions();
-      if (zone.getNetworkType() == NetworkType.ADVANCED) {
-         options.networkId(find(client.getNetworkClient().listNetworks(), new Predicate<Network>() {
-
-            @Override
-            public boolean apply(Network arg0) {
-               return arg0.getZoneId() == zone.getId();
-            }
-
-         }).getId());
+      Set<Network> networks = client.getNetworkClient().listNetworks();
+      if (networks.size() > 0) {
+         return createVirtualMachineInNetwork(Iterables.get(networks, 0), client, jobComplete, virtualMachineRunning);
       } else {
-         options.securityGroupId(find(client.getSecurityGroupClient().listSecurityGroups(),
+         return createVirtualMachineWithSecurityGroup(find(client.getSecurityGroupClient().listSecurityGroups(),
                   new Predicate<SecurityGroup>() {
 
                      @Override
@@ -101,27 +87,100 @@ public class VirtualMachineClientLiveTest extends BaseCloudStackClientLiveTest {
                         return arg0.getName().equals("default");
                      }
 
-                  }).getId());
+                  }), client, jobComplete, virtualMachineRunning);
       }
+   }
+
+   public static VirtualMachine createVirtualMachineWithSecurityGroup(SecurityGroup group, CloudStackClient client,
+            RetryablePredicate<Long> jobComplete, RetryablePredicate<VirtualMachine> virtualMachineRunning) {
+      return createVirtualMachineWithOptionsInZone(new DeployVirtualMachineOptions().securityGroupId(group.getId()),
+               get(client.getZoneClient().listZones(), 0).getId(), client, jobComplete, virtualMachineRunning);
+   }
+
+   public static VirtualMachine createVirtualMachineInNetwork(Network network, CloudStackClient client,
+            RetryablePredicate<Long> jobComplete, RetryablePredicate<VirtualMachine> virtualMachineRunning) {
+      DeployVirtualMachineOptions options = new DeployVirtualMachineOptions();
+      long zoneId = network.getZoneId();
+      options.networkId(network.getId());
+      return createVirtualMachineWithOptionsInZone(options, zoneId, client, jobComplete, virtualMachineRunning);
+   }
+
+   public static VirtualMachine createVirtualMachineWithOptionsInZone(DeployVirtualMachineOptions options,
+            final long zoneId, CloudStackClient client, RetryablePredicate<Long> jobComplete,
+            RetryablePredicate<VirtualMachine> virtualMachineRunning) {
+
+      long serviceOfferingId = DEFAULT_SIZE_ORDERING.min(client.getOfferingClient().listServiceOfferings()).getId();
+
+      Iterable<Template> templates = filter(client.getTemplateClient().listTemplates(), new Predicate<Template>() {
+
+         @Override
+         public boolean apply(Template arg0) {
+            return arg0.isReady() && (arg0.isCrossZones() || arg0.getZoneId() == zoneId)
+                     && or(equalTo("Ubuntu 10.04 (64-bit)"), equalTo("CentOS 5.3 (64-bit)")).apply(arg0.getOSType());
+         }
+
+      });
+      if (Iterables.size(templates) == 0) {
+         throw new NoSuchElementException();
+      }
+      long templateId;
+      try {
+         // prefer password enabled
+         templateId = find(templates, new Predicate<Template>() {
+
+            @Override
+            public boolean apply(Template arg0) {
+               return arg0.isPasswordEnabled();
+            }
+
+         }).getId();
+      } catch (NoSuchElementException e) {
+         templateId = get(templates, 0).getId();
+      }
+
       System.out.printf("serviceOfferingId %d, templateId %d, zoneId %d, options %s%n", serviceOfferingId, templateId,
-               zone.getId(), options);
+               zoneId, options);
       AsyncCreateResponse job = client.getVirtualMachineClient().deployVirtualMachine(serviceOfferingId, templateId,
-               zone.getId(), options);
+               zoneId, options);
       assert jobComplete.apply(job.getJobId());
-      VirtualMachine vm = client.getVirtualMachineClient().getVirtualMachine(job.getId());
-      if (vm.isPasswordEnabled())
+      AsyncJob<VirtualMachine> jobWithResult = client.getAsyncJobClient().<VirtualMachine> getAsyncJob(job.getJobId());
+      if (jobWithResult.getError() != null)
+         Throwables.propagate(new ExecutionException(String.format("job %s failed with exception %s", job.getId(),
+                  jobWithResult.getError().toString())) {
+            private static final long serialVersionUID = 4371112085613620239L;
+         });
+      VirtualMachine vm = jobWithResult.getResult();
+      if (vm.isPasswordEnabled()) {
          assert vm.getPassword() != null : vm;
+      }
       assert virtualMachineRunning.apply(vm);
       assertEquals(vm.getServiceOfferingId(), serviceOfferingId);
       assertEquals(vm.getTemplateId(), templateId);
-      assertEquals(vm.getZoneId(), zone.getId());
+      assertEquals(vm.getZoneId(), zoneId);
       return vm;
    }
 
    public void testCreateVirtualMachine() throws Exception {
       vm = createVirtualMachine(client, jobComplete, virtualMachineRunning);
+      if (vm.getPassword() != null) {
+         conditionallyCheckSSH();
+      }
       assert or(equalTo("NetworkFilesystem"), equalTo("IscsiLUN")).apply(vm.getRootDeviceType()) : vm;
       checkVm(vm);
+   }
+
+   private void conditionallyCheckSSH() {
+      password = vm.getPassword();
+      assert HostSpecifier.isValid(vm.getIPAddress());
+      if (!InetAddresses2.isPrivateIPAddress(vm.getIPAddress())) {
+         // not sure if the network is public or not, so we have to test
+         IPSocket socket = new IPSocket(vm.getIPAddress(), 22);
+         System.err.printf("testing socket %s%n", socket);
+         System.err.printf("testing ssh %s%n", socket);
+         this.checkSSH(socket);
+      } else {
+         System.err.printf("skipping ssh %s, as private%n", vm.getIPAddress());
+      }
    }
 
    @Test(dependsOnMethods = "testCreateVirtualMachine")
@@ -133,8 +192,10 @@ public class VirtualMachineClientLiveTest extends BaseCloudStackClientLiveTest {
 
       job = client.getVirtualMachineClient().resetPasswordForVirtualMachine(vm.getId());
       assert jobComplete.apply(job);
-      vm = client.getVirtualMachineClient().getVirtualMachine(vm.getId());
-      // TODO: check if error or not base on isPasswordEnabled
+      vm = client.getAsyncJobClient().<VirtualMachine> getAsyncJob(job).getResult();
+      if (vm.getPassword() != null) {
+         conditionallyCheckSSH();
+      }
 
       job = client.getVirtualMachineClient().startVirtualMachine(vm.getId());
       assert jobComplete.apply(job);
@@ -184,7 +245,6 @@ public class VirtualMachineClientLiveTest extends BaseCloudStackClientLiveTest {
       assert vm.getZoneName() != null : vm;
       assert vm.getTemplateId() > 0 : vm;
       assert vm.getTemplateName() != null : vm;
-      assert vm.getTemplateDisplayText() != null : vm;
       assert vm.getServiceOfferingId() > 0 : vm;
       assert vm.getServiceOfferingName() != null : vm;
       assert vm.getCpuCount() > 0 : vm;

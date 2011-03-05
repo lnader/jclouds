@@ -28,11 +28,13 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.cloudstack.domain.AsyncJob;
 import org.jclouds.cloudstack.filters.QuerySigner;
+import org.jclouds.cloudstack.functions.ParseAsyncJobFromHttpResponse;
+import org.jclouds.cloudstack.functions.ParseAsyncJobsFromHttpResponse;
 import org.jclouds.cloudstack.options.ListAsyncJobsOptions;
 import org.jclouds.rest.annotations.ExceptionParser;
 import org.jclouds.rest.annotations.QueryParams;
 import org.jclouds.rest.annotations.RequestFilters;
-import org.jclouds.rest.annotations.Unwrap;
+import org.jclouds.rest.annotations.ResponseParser;
 import org.jclouds.rest.functions.ReturnEmptySetOnNotFoundOr404;
 import org.jclouds.rest.functions.ReturnNullOnNotFoundOr404;
 
@@ -55,19 +57,18 @@ public interface AsyncJobAsyncClient {
     */
    @GET
    @QueryParams(keys = "command", values = "listAsyncJobs")
-   @Unwrap(depth = 2)
-   @Consumes(MediaType.APPLICATION_JSON)
+   @ResponseParser(ParseAsyncJobsFromHttpResponse.class)
    @ExceptionParser(ReturnEmptySetOnNotFoundOr404.class)
-   ListenableFuture<Set<AsyncJob>> listAsyncJobs(ListAsyncJobsOptions... options);
-  
+   ListenableFuture<Set<AsyncJob<?>>> listAsyncJobs(ListAsyncJobsOptions... options);
+
    /**
     * @see AsyncJobClient#getAsyncJob
     */
    @GET
    @QueryParams(keys = "command", values = "queryAsyncJobResult")
-   @Unwrap
    @Consumes(MediaType.APPLICATION_JSON)
+   @ResponseParser(ParseAsyncJobFromHttpResponse.class)
    @ExceptionParser(ReturnNullOnNotFoundOr404.class)
-   ListenableFuture<AsyncJob> getAsyncJob(@QueryParam("jobid") long id);
+   <T> ListenableFuture<AsyncJob<T>> getAsyncJob(@QueryParam("jobid") long id);
 
 }

@@ -44,13 +44,13 @@ import org.jclouds.rest.ConfiguresRestClient;
 import org.jclouds.rest.functions.ReturnVoidOnNotFoundOr404;
 import org.jclouds.s3.config.S3RestClientModule;
 import org.jclouds.s3.domain.AccessControlList;
+import org.jclouds.s3.domain.AccessControlList.EmailAddressGrantee;
+import org.jclouds.s3.domain.AccessControlList.Grant;
+import org.jclouds.s3.domain.AccessControlList.Permission;
 import org.jclouds.s3.domain.BucketLogging;
 import org.jclouds.s3.domain.CannedAccessPolicy;
 import org.jclouds.s3.domain.Payer;
 import org.jclouds.s3.domain.S3Object;
-import org.jclouds.s3.domain.AccessControlList.EmailAddressGrantee;
-import org.jclouds.s3.domain.AccessControlList.Grant;
-import org.jclouds.s3.domain.AccessControlList.Permission;
 import org.jclouds.s3.functions.ParseObjectFromHeadersAndHttpContent;
 import org.jclouds.s3.functions.ParseObjectMetadataFromHeaders;
 import org.jclouds.s3.functions.ReturnFalseIfBucketAlreadyOwnedByYouOrIllegalState;
@@ -80,14 +80,14 @@ import com.google.inject.Module;
  */
 // NOTE:without testName, this will not call @Before* and fail w/NPE during surefire
 @Test(groups = "unit", testName = "S3AsyncClientTest")
-public class S3AsyncClientTest extends BaseS3AsyncClientTest {
+public abstract class S3AsyncClientTest<T extends S3AsyncClient> extends BaseS3AsyncClientTest<T> {
 
    protected String url = "s3.amazonaws.com";
 
    public void testAllRegions() throws SecurityException, NoSuchMethodException, IOException {
       Method method = S3AsyncClient.class.getMethod("putBucketInRegion", String.class, String.class, Array.newInstance(
                PutBucketOptions.class, 0).getClass());
-      for (String region : Region.ALL_S3) {
+      for (String region : Region.DEFAULT_S3) {
          processor.createRequest(method, region, "bucket-name");
       }
    }
@@ -388,7 +388,7 @@ public class S3AsyncClientTest extends BaseS3AsyncClientTest {
 
       checkFilters(request);
    }
-   
+
    public void testPutObject() throws ArrayIndexOutOfBoundsException, SecurityException, IllegalArgumentException,
             NoSuchMethodException, IOException {
 

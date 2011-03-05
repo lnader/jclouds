@@ -26,12 +26,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.core.HttpHeaders;
 
-import org.jclouds.s3.blobstore.functions.ObjectToBlob;
-import org.jclouds.s3.domain.S3Object;
-import org.jclouds.blobstore.binders.BindUserMetadataToHeadersWithPrefix;
+import org.jclouds.blobstore.binders.BindMapToHeadersWithPrefix;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.utils.ModifyRequest;
 import org.jclouds.rest.Binder;
+import org.jclouds.s3.domain.S3Object;
 
 /**
  * 
@@ -39,13 +38,11 @@ import org.jclouds.rest.Binder;
  */
 @Singleton
 public class BindS3ObjectMetadataToRequest implements Binder {
-   private final BindUserMetadataToHeadersWithPrefix blobBinder;
-   private final ObjectToBlob object2Blob;
+   protected final BindMapToHeadersWithPrefix metadataPrefixer;
 
    @Inject
-   public BindS3ObjectMetadataToRequest(ObjectToBlob object2Blob, BindUserMetadataToHeadersWithPrefix blobBinder) {
-      this.blobBinder = checkNotNull(blobBinder, "blobBinder");
-      this.object2Blob = checkNotNull(object2Blob, "object2Blob");
+   public BindS3ObjectMetadataToRequest(BindMapToHeadersWithPrefix metadataPrefixer) {
+      this.metadataPrefixer = checkNotNull(metadataPrefixer, "metadataPrefixer");
    }
 
    @Override
@@ -59,7 +56,8 @@ public class BindS3ObjectMetadataToRequest implements Binder {
             "contentLength must be set, streaming not supported");
       checkArgument(s3Object.getPayload().getContentMetadata().getContentLength() <= 5l * 1024 * 1024 * 1024,
             "maximum size for put object is 5GB");
-      request = blobBinder.bindToRequest(request, object2Blob.apply(s3Object));
+      
+      request = metadataPrefixer.bindToRequest(request, s3Object.getMetadata().getUserMetadata());
 
       if (s3Object.getMetadata().getCacheControl() != null) {
          request = ModifyRequest.replaceHeader(request, HttpHeaders.CACHE_CONTROL, s3Object.getMetadata()

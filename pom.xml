@@ -48,6 +48,7 @@
         <module>allcompute</module>
         <module>allblobstore</module>
         <module>all</module>
+        <module>sandbox-providers/aws-elb</module>
     </modules>
     <build>
         <plugins>

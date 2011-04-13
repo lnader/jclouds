@@ -129,4 +129,17 @@ public interface ELBAsyncClient {
             @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
             @BinderParam(BindLoadBalancerNamesToIndexedFormParams.class) String... loadbalancerNames);
 
+   /**
+    * @see ELBClient#enableAvailabilityZonesForLoadBalancerInRegion
+    */
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "EnableAvailabilityZonesForLoadBalancer")
+   @Beta
+   // TODO:The way this handles arguments needs to be refactored. it needs to deal with collections
+   // of listeners.
+   ListenableFuture<String> enableAvailabilityZonesForLoadBalancerInRegion(
+            @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+            @FormParam("LoadBalancerName") String name,
+            @BinderParam(BindAvailabilityZonesToIndexedFormParams.class) String... availabilityZones);
 }

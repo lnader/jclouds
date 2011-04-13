@@ -108,4 +108,18 @@ public interface ELBClient {
     */
    Set<? extends LoadBalancer> describeLoadBalancersInRegion(@Nullable String region, String... loadbalancerNames);
 
+   /**
+    *  Adds one or more EC2 Availability Zones to the LoadBalancer.  The LoadBalancer evenly distributes 
+    *  requests across all its registered Availability Zones that contain instances. As a result, the 
+    *  client must ensure that its LoadBalancer is appropriately scaled for each registered Availability Zone.
+    *  Note: The new EC2 Availability Zones to be added must be in the same EC2 Region as the Availability 
+    *  Zones for which the LoadBalancer was created. 
+    *  
+    * @param region
+    * @param name
+    * @param availabilityZones
+    */
+    void enableAvailabilityZonesForLoadBalancerInRegion(String region, String name,
+        String... availabilityZones);
+
 }

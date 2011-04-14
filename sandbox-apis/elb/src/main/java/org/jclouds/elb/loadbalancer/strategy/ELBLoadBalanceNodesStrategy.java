@@ -22,9 +22,7 @@ package org.jclouds.elb.loadbalancer.strategy;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.jclouds.aws.util.AWSUtils.getRegionFromLocationOrNull;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -84,15 +82,9 @@ public class ELBLoadBalanceNodesStrategy implements LoadBalanceNodesStrategy
                     }
                 }));
 
-        Set<? extends LoadBalancer> loadBalancers = client
-                .describeLoadBalancersInRegion(region, name);
-        if (loadBalancers.isEmpty())
-            client.createLoadBalancerInRegion(region, name, protocol,
-                    loadBalancerPort, instancePort,
-                    availabilityZones.toArray(new String[] {}));
-        else
-            client.enableAvailabilityZonesForLoadBalancerInRegion(region, name,
-                    availabilityZones.toArray(new String[] {}));
+        client.createLoadBalancerInRegion(region, name, protocol,
+                loadBalancerPort, instancePort,
+                availabilityZones.toArray(new String[] {}));
 
         List<String> instanceIds = Lists.newArrayList(Iterables.transform(
                 nodes, new Function<NodeMetadata, String>()
@@ -107,24 +99,8 @@ public class ELBLoadBalanceNodesStrategy implements LoadBalanceNodesStrategy
 
         String[] instanceIdArray = instanceIds.toArray(new String[] {});
 
-        Set<String> registeredInstanceIds = client
-                .registerInstancesWithLoadBalancerInRegion(region, name,
+        client.registerInstancesWithLoadBalancerInRegion(region, name,
                         instanceIdArray);
-
-        // deregister instances
-        boolean changed = registeredInstanceIds.removeAll(instanceIds);
-        if (changed)
-        {
-            List<String> list = new ArrayList<String>(registeredInstanceIds);
-            instanceIdArray = new String[list.size()];
-            for (int i = 0; i < list.size(); i++)
-            {
-                instanceIdArray[i] = list.get(i);
-            }
-            if (instanceIdArray.length > 0)
-                client.deregisterInstancesWithLoadBalancerInRegion(region,
-                        name, instanceIdArray);
-        }
         return converter.apply(Iterables.getOnlyElement(client
                 .describeLoadBalancersInRegion(region, name)));
     }

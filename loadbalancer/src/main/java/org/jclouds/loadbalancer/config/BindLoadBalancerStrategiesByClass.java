@@ -23,6 +23,7 @@ import org.jclouds.loadbalancer.strategy.DestroyLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.GetLoadBalancerMetadataStrategy;
 import org.jclouds.loadbalancer.strategy.ListLoadBalancersStrategy;
 import org.jclouds.loadbalancer.strategy.LoadBalanceNodesStrategy;
+import org.jclouds.loadbalancer.strategy.UpdateLoadBalancerStrategy;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -38,6 +39,7 @@ public abstract class BindLoadBalancerStrategiesByClass extends AbstractModule {
       bindListLoadBalancersStrategy(defineListLoadBalancersStrategy());
       bindGetLoadBalancerMetadataStrategy(defineGetLoadBalancerMetadataStrategy());
       bindDestroyLoadBalancerStrategy(defineDestroyLoadBalancerStrategy());
+      bindUpdateLoadBalancerStrategy(defineUpdateLoadBalancerStrategy());
    }
 
    protected void bindLoadBalanceNodesStrategy(Class<? extends LoadBalanceNodesStrategy> clazz) {
@@ -55,6 +57,10 @@ public abstract class BindLoadBalancerStrategiesByClass extends AbstractModule {
    protected void bindListLoadBalancersStrategy(Class<? extends ListLoadBalancersStrategy> clazz) {
       bind(ListLoadBalancersStrategy.class).to(clazz).in(Scopes.SINGLETON);
    }
+   
+   protected void bindUpdateLoadBalancerStrategy(Class<? extends UpdateLoadBalancerStrategy> clazz) {
+       bind(UpdateLoadBalancerStrategy.class).to(clazz).in(Scopes.SINGLETON);
+    }
 
    protected abstract Class<? extends LoadBalanceNodesStrategy> defineLoadBalanceNodesStrategy();
 
@@ -63,4 +69,6 @@ public abstract class BindLoadBalancerStrategiesByClass extends AbstractModule {
    protected abstract Class<? extends GetLoadBalancerMetadataStrategy> defineGetLoadBalancerMetadataStrategy();
 
    protected abstract Class<? extends ListLoadBalancersStrategy> defineListLoadBalancersStrategy();
+   
+   protected abstract Class<? extends UpdateLoadBalancerStrategy> defineUpdateLoadBalancerStrategy();
 }

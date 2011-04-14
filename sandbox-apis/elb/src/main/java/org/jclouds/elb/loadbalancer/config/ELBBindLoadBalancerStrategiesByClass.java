@@ -23,11 +23,13 @@ import org.jclouds.elb.loadbalancer.strategy.ELBDestroyLoadBalancerStrategy;
 import org.jclouds.elb.loadbalancer.strategy.ELBGetLoadBalancerMetadataStrategy;
 import org.jclouds.elb.loadbalancer.strategy.ELBListLoadBalancersStrategy;
 import org.jclouds.elb.loadbalancer.strategy.ELBLoadBalanceNodesStrategy;
+import org.jclouds.elb.loadbalancer.strategy.ELBUpdateLoadBalancerStrategy;
 import org.jclouds.loadbalancer.config.BindLoadBalancerStrategiesByClass;
 import org.jclouds.loadbalancer.strategy.DestroyLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.GetLoadBalancerMetadataStrategy;
 import org.jclouds.loadbalancer.strategy.ListLoadBalancersStrategy;
 import org.jclouds.loadbalancer.strategy.LoadBalanceNodesStrategy;
+import org.jclouds.loadbalancer.strategy.UpdateLoadBalancerStrategy;
 
 /**
  * @author Adrian Cole
@@ -52,5 +54,10 @@ public class ELBBindLoadBalancerStrategiesByClass extends BindLoadBalancerStrate
    @Override
    protected Class<? extends ListLoadBalancersStrategy> defineListLoadBalancersStrategy() {
       return ELBListLoadBalancersStrategy.class;
+   }
+   
+   @Override
+   protected Class<? extends UpdateLoadBalancerStrategy> defineUpdateLoadBalancerStrategy() {
+      return ELBUpdateLoadBalancerStrategy.class;
    }
 }

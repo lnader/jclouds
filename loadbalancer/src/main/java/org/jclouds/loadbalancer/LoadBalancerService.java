@@ -81,6 +81,9 @@ public interface LoadBalancerService {
 
    @Beta
    void destroyLoadBalancer(String id);
+   
+   @Beta
+   LoadBalancerMetadata updateLoadBalancer(String id, Iterable<? extends NodeMetadata> nodes);
 
    @Beta
    Set<? extends LoadBalancerMetadata> listLoadBalancers();

@@ -44,6 +44,7 @@ import org.jclouds.loadbalancer.strategy.DestroyLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.GetLoadBalancerMetadataStrategy;
 import org.jclouds.loadbalancer.strategy.ListLoadBalancersStrategy;
 import org.jclouds.loadbalancer.strategy.LoadBalanceNodesStrategy;
+import org.jclouds.loadbalancer.strategy.UpdateLoadBalancerStrategy;
 import org.jclouds.logging.Logger;
 import org.jclouds.predicates.RetryablePredicate;
 
@@ -68,13 +69,14 @@ public class BaseLoadBalancerService implements LoadBalancerService {
    protected final LoadBalanceNodesStrategy loadBalancerStrategy;
    protected final GetLoadBalancerMetadataStrategy getLoadBalancerMetadataStrategy;
    protected final DestroyLoadBalancerStrategy destroyLoadBalancerStrategy;
+   protected final UpdateLoadBalancerStrategy updateLoadBalancerStrategy;
    protected final ListLoadBalancersStrategy listLoadBalancersStrategy;
    protected final Supplier<Set<? extends Location>> locations;
 
    @Inject
    protected BaseLoadBalancerService(Supplier<Location> defaultLocationSupplier, LoadBalancerServiceContext context,
          LoadBalanceNodesStrategy loadBalancerStrategy,
-         GetLoadBalancerMetadataStrategy getLoadBalancerMetadataStrategy,
+         GetLoadBalancerMetadataStrategy getLoadBalancerMetadataStrategy, UpdateLoadBalancerStrategy updateLoadBalancerStrategy,
          DestroyLoadBalancerStrategy destroyLoadBalancerStrategy, ListLoadBalancersStrategy listLoadBalancersStrategy,
          @Memoized Supplier<Set<? extends Location>> locations) {
       this.defaultLocationSupplier = checkNotNull(defaultLocationSupplier, "defaultLocationSupplier");
@@ -82,6 +84,7 @@ public class BaseLoadBalancerService implements LoadBalancerService {
       this.loadBalancerStrategy = checkNotNull(loadBalancerStrategy, "loadBalancerStrategy");
       this.getLoadBalancerMetadataStrategy = checkNotNull(getLoadBalancerMetadataStrategy,
             "getLoadBalancerMetadataStrategy");
+      this.updateLoadBalancerStrategy = checkNotNull(updateLoadBalancerStrategy, "updateLoadBalancerStrategy");
       this.destroyLoadBalancerStrategy = checkNotNull(destroyLoadBalancerStrategy, "destroyLoadBalancerStrategy");
       this.listLoadBalancersStrategy = checkNotNull(listLoadBalancersStrategy, "listLoadBalancersStrategy");
       this.locations = checkNotNull(locations, "locations");
@@ -118,6 +121,18 @@ public class BaseLoadBalancerService implements LoadBalancerService {
       LoadBalancerMetadata lb = loadBalancerStrategy.createLoadBalancerInLocation(location, loadBalancerName, protocol,
             loadBalancerPort, instancePort, nodes);
       logger.debug("<< created load balancer (%s)", loadBalancerName, lb);
+      return lb;
+   }
+   
+   @Override
+   public LoadBalancerMetadata updateLoadBalancer(String loadBalancerId,
+          Iterable<? extends NodeMetadata> nodes) {
+
+      checkNotNull(loadBalancerId, "loadBalancerId");
+
+      logger.debug(">> updating load balancer (%s)", loadBalancerId);
+      LoadBalancerMetadata lb = updateLoadBalancerStrategy.updateLoadBalancer(loadBalancerId,  nodes);
+      logger.debug("<< updated load balancer (%s)", loadBalancerId, lb);
       return lb;
    }
 

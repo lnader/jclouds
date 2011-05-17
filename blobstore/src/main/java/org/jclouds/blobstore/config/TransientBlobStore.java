@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.config;
 
 import java.util.concurrent.TimeUnit;
@@ -24,6 +23,6 @@ import java.util.concurrent.TimeUnit;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.concurrent.Timeout;
 
-@Timeout(duration = 30, timeUnit = TimeUnit.SECONDS) interface TransientBlobStore extends BlobStore {
+@Timeout(duration = 2, timeUnit = TimeUnit.MINUTES) interface TransientBlobStore extends BlobStore {
 
 }

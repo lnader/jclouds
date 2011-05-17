@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.filesystem.strategy.internal;
 
 import static org.testng.Assert.assertEquals;
@@ -41,6 +40,7 @@ import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.BlobBuilder;
 import org.jclouds.blobstore.domain.internal.BlobBuilderImpl;
 import org.jclouds.blobstore.options.ListContainerOptions;
+import org.jclouds.encryption.internal.JCECrypto;
 import org.jclouds.filesystem.predicates.validators.internal.FilesystemBlobKeyValidatorImpl;
 import org.jclouds.filesystem.predicates.validators.internal.FilesystemContainerNameValidatorImpl;
 import org.jclouds.filesystem.strategy.FilesystemStorageStrategy;
@@ -76,7 +76,11 @@ public class FilesystemStorageStrategyImplTest {
       storageStrategy = new FilesystemStorageStrategyImpl(new Provider<BlobBuilder>() {
          @Override
          public BlobBuilder get() {
-            return new BlobBuilderImpl();
+            try {
+               return new BlobBuilderImpl(new JCECrypto());
+            } catch (Exception e) {
+               return null;
+            }
          }
 
       }, TestUtils.TARGET_BASE_DIR, new FilesystemContainerNameValidatorImpl(), new FilesystemBlobKeyValidatorImpl());
@@ -139,10 +143,9 @@ public class FilesystemStorageStrategyImplTest {
 
    public void testDeleteDirectory() throws IOException {
       TestUtils.createContainerAsDirectory(CONTAINER_NAME);
-      TestUtils.createBlobsInContainer(
-            CONTAINER_NAME,
-            new String[] { TestUtils.createRandomBlobKey("lev1" + FS + "lev2" + FS + "lev3" + FS, ".txt"),
-                  TestUtils.createRandomBlobKey("lev1" + FS + "lev2" + FS + "lev4" + FS, ".jpg") });
+      TestUtils.createBlobsInContainer(CONTAINER_NAME, new String[] {
+               TestUtils.createRandomBlobKey("lev1" + FS + "lev2" + FS + "lev3" + FS, ".txt"),
+               TestUtils.createRandomBlobKey("lev1" + FS + "lev2" + FS + "lev4" + FS, ".jpg") });
 
       // delete directory in different ways
       storageStrategy.deleteDirectory(CONTAINER_NAME, "lev1" + FS + "lev2" + FS + "lev4");
@@ -158,10 +161,9 @@ public class FilesystemStorageStrategyImplTest {
       TestUtils.directoryExists(TARGET_CONTAINER_NAME, true);
 
       // delete the directory and all the files inside
-      TestUtils.createBlobsInContainer(
-            CONTAINER_NAME,
-            new String[] { TestUtils.createRandomBlobKey("lev1" + FS + "lev2" + FS + "lev3" + FS, ".txt"),
-                  TestUtils.createRandomBlobKey("lev1" + FS + "lev2" + FS + "lev4" + FS, ".jpg") });
+      TestUtils.createBlobsInContainer(CONTAINER_NAME, new String[] {
+               TestUtils.createRandomBlobKey("lev1" + FS + "lev2" + FS + "lev3" + FS, ".txt"),
+               TestUtils.createRandomBlobKey("lev1" + FS + "lev2" + FS + "lev4" + FS, ".jpg") });
       storageStrategy.deleteDirectory(CONTAINER_NAME, null);
       TestUtils.directoryExists(TARGET_CONTAINER_NAME, false);
    }
@@ -208,10 +210,9 @@ public class FilesystemStorageStrategyImplTest {
 
    public void testClearContainer() throws IOException {
       storageStrategy.createContainer(CONTAINER_NAME);
-      Set<String> blobs = TestUtils.createBlobsInContainer(
-            CONTAINER_NAME,
-            new String[] { TestUtils.createRandomBlobKey("clean_container-", ".jpg"),
-                  TestUtils.createRandomBlobKey("bf" + FS + "sd" + FS + "as" + FS + "clean_container-", ".jpg") });
+      Set<String> blobs = TestUtils.createBlobsInContainer(CONTAINER_NAME, new String[] {
+               TestUtils.createRandomBlobKey("clean_container-", ".jpg"),
+               TestUtils.createRandomBlobKey("bf" + FS + "sd" + FS + "as" + FS + "clean_container-", ".jpg") });
       // test if file exits
       for (String blob : blobs) {
          TestUtils.fileExists(TARGET_CONTAINER_NAME + FS + blob, true);
@@ -238,10 +239,9 @@ public class FilesystemStorageStrategyImplTest {
 
    public void testClearContainerAndThenDeleteContainer() throws IOException {
       storageStrategy.createContainer(CONTAINER_NAME);
-      Set<String> blobs = TestUtils.createBlobsInContainer(
-            CONTAINER_NAME,
-            new String[] { TestUtils.createRandomBlobKey("clean_container-", ".jpg"),
-                  TestUtils.createRandomBlobKey("bf" + FS + "sd" + FS + "as" + FS + "clean_container-", ".jpg") });
+      Set<String> blobs = TestUtils.createBlobsInContainer(CONTAINER_NAME, new String[] {
+               TestUtils.createRandomBlobKey("clean_container-", ".jpg"),
+               TestUtils.createRandomBlobKey("bf" + FS + "sd" + FS + "as" + FS + "clean_container-", ".jpg") });
       // test if file exits
       for (String blob : blobs) {
          TestUtils.fileExists(TARGET_CONTAINER_NAME + FS + blob, true);
@@ -266,7 +266,7 @@ public class FilesystemStorageStrategyImplTest {
    public void testDeleteContainer() throws IOException {
       final String BLOB_KEY1 = "blobName.jpg";
       final String BLOB_KEY2 = "aa" + FS + "bb" + FS + "cc" + FS + "dd" + FS + "ee" + FS + "ff" + FS + "23" + FS
-            + "blobName.jpg";
+               + "blobName.jpg";
       boolean result;
 
       result = storageStrategy.createContainer(CONTAINER_NAME);
@@ -399,12 +399,16 @@ public class FilesystemStorageStrategyImplTest {
 
       // create storageStrategy with an absolute path
       FilesystemStorageStrategy storageStrategyAbsolute = new FilesystemStorageStrategyImpl(
-            new Provider<BlobBuilder>() {
-               @Override
-               public BlobBuilder get() {
-                  return new BlobBuilderImpl();
-               }
-            }, absoluteBasePath, new FilesystemContainerNameValidatorImpl(), new FilesystemBlobKeyValidatorImpl());
+               new Provider<BlobBuilder>() {
+                  @Override
+                  public BlobBuilder get() {
+                     try {
+                        return new BlobBuilderImpl(new JCECrypto());
+                     } catch (Exception e) {
+                        return null;
+                     }
+                  }
+               }, absoluteBasePath, new FilesystemContainerNameValidatorImpl(), new FilesystemBlobKeyValidatorImpl());
       TestUtils.cleanDirectoryContent(absoluteContainerPath);
 
       String blobKey;
@@ -422,8 +426,8 @@ public class FilesystemStorageStrategyImplTest {
 
    public void testBlobExists() throws IOException {
       String[] sourceBlobKeys = new String[] { TestUtils.createRandomBlobKey("blobExists-", ".jpg"),
-            TestUtils.createRandomBlobKey("blobExists-", ".jpg"),
-            TestUtils.createRandomBlobKey("afasd" + FS + "asdma" + FS + "blobExists-", ".jpg") };
+               TestUtils.createRandomBlobKey("blobExists-", ".jpg"),
+               TestUtils.createRandomBlobKey("afasd" + FS + "asdma" + FS + "blobExists-", ".jpg") };
 
       for (String blobKey : sourceBlobKeys) {
          assertFalse(storageStrategy.blobExists(CONTAINER_NAME, blobKey), "Blob " + blobKey + " exists");
@@ -436,12 +440,11 @@ public class FilesystemStorageStrategyImplTest {
 
    public void testRemoveBlob() throws IOException {
       storageStrategy.createContainer(CONTAINER_NAME);
-      Set<String> blobKeys = TestUtils.createBlobsInContainer(
-            CONTAINER_NAME,
-            new String[] { TestUtils.createRandomBlobKey("removeBlob-", ".jpg"),
-                  TestUtils.createRandomBlobKey("removeBlob-", ".jpg"),
-                  TestUtils.createRandomBlobKey("346" + FS + "g3sx2" + FS + "removeBlob-", ".jpg"),
-                  TestUtils.createRandomBlobKey("346" + FS + "g3sx2" + FS + "removeBlob-", ".jpg") });
+      Set<String> blobKeys = TestUtils.createBlobsInContainer(CONTAINER_NAME, new String[] {
+               TestUtils.createRandomBlobKey("removeBlob-", ".jpg"),
+               TestUtils.createRandomBlobKey("removeBlob-", ".jpg"),
+               TestUtils.createRandomBlobKey("346" + FS + "g3sx2" + FS + "removeBlob-", ".jpg"),
+               TestUtils.createRandomBlobKey("346" + FS + "g3sx2" + FS + "removeBlob-", ".jpg") });
 
       Set<String> remainingBlobKeys = new HashSet<String>();
       for (String key : blobKeys) {
@@ -478,12 +481,11 @@ public class FilesystemStorageStrategyImplTest {
 
       // create blobs
       storageStrategy.createContainer(CONTAINER_NAME);
-      Set<String> createBlobKeys = TestUtils.createBlobsInContainer(
-            CONTAINER_NAME,
-            new String[] { TestUtils.createRandomBlobKey("GetBlobKeys-", ".jpg"),
-                  TestUtils.createRandomBlobKey("GetBlobKeys-", ".jpg"),
-                  TestUtils.createRandomBlobKey("563" + FS + "g3sx2" + FS + "removeBlob-", ".jpg"),
-                  TestUtils.createRandomBlobKey("563" + FS + "g3sx2" + FS + "removeBlob-", ".jpg") });
+      Set<String> createBlobKeys = TestUtils.createBlobsInContainer(CONTAINER_NAME, new String[] {
+               TestUtils.createRandomBlobKey("GetBlobKeys-", ".jpg"),
+               TestUtils.createRandomBlobKey("GetBlobKeys-", ".jpg"),
+               TestUtils.createRandomBlobKey("563" + FS + "g3sx2" + FS + "removeBlob-", ".jpg"),
+               TestUtils.createRandomBlobKey("563" + FS + "g3sx2" + FS + "removeBlob-", ".jpg") });
       storageStrategy.getBlobKeysInsideContainer(CONTAINER_NAME);
 
       List<String> retrievedBlobKeys = new ArrayList<String>();

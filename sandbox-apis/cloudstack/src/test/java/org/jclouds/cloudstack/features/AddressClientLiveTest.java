@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -30,21 +29,31 @@ import org.jclouds.cloudstack.domain.AsyncCreateResponse;
 import org.jclouds.cloudstack.domain.PublicIPAddress;
 import org.jclouds.cloudstack.options.ListPublicIPAddressesOptions;
 import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Iterables;
 
 /**
- * Tests behavior of {@code PublicIPAddressClientLiveTest}
+ * Tests behavior of {@code AddressClient}
  * 
  * @author Adrian Cole
  */
-@Test(groups = "live", sequential = true, testName = "PublicIPAddressClientLiveTest")
+@Test(groups = "live", singleThreaded = true, testName = "AddressClientLiveTest")
 public class AddressClientLiveTest extends BaseCloudStackClientLiveTest {
+   private boolean networksEnabled;
+
+   @BeforeGroups(groups = "live")
+   void networksEnabled() {
+      networksEnabled = client.getNetworkClient().listNetworks().size() > 0;
+   }
+
    private PublicIPAddress ip = null;
 
    public void testAssociateDisassociatePublicIPAddress() throws Exception {
-      AsyncCreateResponse job = client.getAddressClient().associateIPAddress(
+      if (!networksEnabled)
+         return;
+      AsyncCreateResponse job = client.getAddressClient().associateIPAddressInZone(
                Iterables.get(client.getNetworkClient().listNetworks(), 0).getZoneId());
       checkState(jobComplete.apply(job.getJobId()), "job %d failed to complete", job.getJobId());
       ip = client.getAsyncJobClient().<PublicIPAddress> getAsyncJob(job.getJobId()).getResult();
@@ -60,6 +69,8 @@ public class AddressClientLiveTest extends BaseCloudStackClientLiveTest {
    }
 
    public void testListPublicIPAddresss() throws Exception {
+      if (!networksEnabled)
+         return;
       Set<PublicIPAddress> response = client.getAddressClient().listPublicIPAddresses();
       assert null != response;
       assertTrue(response.size() >= 0);

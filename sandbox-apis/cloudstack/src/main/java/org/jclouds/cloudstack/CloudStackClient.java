@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +16,17 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack;
 
 import java.util.concurrent.TimeUnit;
 
+import org.jclouds.cloudstack.features.AccountClient;
 import org.jclouds.cloudstack.features.AddressClient;
 import org.jclouds.cloudstack.features.AsyncJobClient;
+import org.jclouds.cloudstack.features.ConfigurationClient;
 import org.jclouds.cloudstack.features.FirewallClient;
 import org.jclouds.cloudstack.features.GuestOSClient;
+import org.jclouds.cloudstack.features.HypervisorClient;
 import org.jclouds.cloudstack.features.LoadBalancerClient;
 import org.jclouds.cloudstack.features.NATClient;
 import org.jclouds.cloudstack.features.NetworkClient;
@@ -117,4 +119,22 @@ public interface CloudStackClient {
     */
    @Delegate
    GuestOSClient getGuestOSClient();
+
+   /**
+    * Provides synchronous access to Hypervisor features.
+    */
+   @Delegate
+   HypervisorClient getHypervisorClient();
+
+   /**
+    * Provides synchronous access to Configuration features.
+    */
+   @Delegate
+   ConfigurationClient getConfigurationClient();
+
+   /**
+    * Provides synchronous access to Account features.
+    */
+   @Delegate
+   AccountClient getAccountClient();
 }

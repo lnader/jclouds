@@ -102,7 +102,8 @@ final class Streams {
       if (serializeNulls) {
         writer.nullValue();
       }
-//BEGIN JCLOUDS PATCH
+    //BEGIN JCLOUDS PATCH
+    // * @see <a href="http://code.google.com/p/google-gson/issues/detail?id=326"/>
     } else if (element instanceof JsonLiteral ) {
        writer.value(JsonLiteral.class.cast(element));
        //END JCLOUDS PATCH

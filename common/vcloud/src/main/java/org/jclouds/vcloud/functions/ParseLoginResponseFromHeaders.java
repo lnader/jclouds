@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.functions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,7 +28,6 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import javax.ws.rs.core.HttpHeaders;
 
 import org.jclouds.http.HttpResponse;
 import org.jclouds.http.HttpResponseException;
@@ -50,36 +48,35 @@ import com.google.common.base.Function;
  */
 @Singleton
 public class ParseLoginResponseFromHeaders implements Function<HttpResponse, VCloudSession> {
-   static final Pattern pattern = Pattern.compile("vcloud-token=([^;]+);.*");
+   static final Pattern pattern = Pattern.compile("(vcloud-token=)?([^;]+)(;.*)?");
 
    private final ParseSax.Factory factory;
    private final Provider<OrgListHandler> orgHandlerProvider;
 
    @Inject
-   private ParseLoginResponseFromHeaders(Factory factory,
-            Provider<OrgListHandler> orgHandlerProvider) {
+   private ParseLoginResponseFromHeaders(Factory factory, Provider<OrgListHandler> orgHandlerProvider) {
       this.factory = factory;
       this.orgHandlerProvider = orgHandlerProvider;
    }
 
    /**
-    * parses the http response headers to create a new {@link VCloudSession} object.
+    * parses the http response headers to create a new {@link VCloudSession}
+    * object.
     */
    public VCloudSession apply(HttpResponse from) {
-      String cookieHeader = checkNotNull(from.getFirstHeaderOrNull(HttpHeaders.SET_COOKIE),
-               HttpHeaders.SET_COOKIE);
+      String cookieHeader = checkNotNull(from.getFirstHeaderOrNull("x-vcloud-authorization"), "x-vcloud-authorization");
 
       final Matcher matcher = pattern.matcher(cookieHeader);
       boolean matchFound = matcher.find();
       try {
          if (matchFound) {
             final Map<String, ReferenceType> org = factory.create(orgHandlerProvider.get()).parse(
-                     from.getPayload().getInput());
+                  from.getPayload().getInput());
 
             return new VCloudSession() {
                @VCloudToken
                public String getVCloudToken() {
-                  return matcher.group(1);
+                  return matcher.group(2);
                }
 
                @Org
@@ -92,6 +89,6 @@ public class ParseLoginResponseFromHeaders implements Function<HttpResponse, VCl
       } finally {
          releasePayload(from);
       }
-      throw new HttpResponseException("not found ", null, from);
+      throw new HttpResponseException("x-vcloud-authorization not found ", null, from);
    }
 }

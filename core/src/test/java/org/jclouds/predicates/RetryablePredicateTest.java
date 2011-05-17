@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,18 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.predicates;
 
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.testng.annotations.Test;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.base.Supplier;
 
 /**
  * 
@@ -34,7 +36,57 @@ import com.google.common.base.Predicates;
  */
 @Test(groups = "unit", sequential = true)
 public class RetryablePredicateTest {
-   public static int SLOW_BUILD_SERVER_GRACE = 50;
+   public static int SLOW_BUILD_SERVER_GRACE = 100;
+
+   @Test
+   void testFalseOnIllegalStateExeception() {
+      ensureImmediateReturnFor(new IllegalStateException());
+   }
+
+   @SuppressWarnings("serial")
+   @Test
+   void testFalseOnExecutionException() {
+      ensureImmediateReturnFor(new ExecutionException() {
+      });
+   }
+
+   @SuppressWarnings("serial")
+   @Test
+   void testFalseOnTimeoutException() {
+      ensureImmediateReturnFor(new TimeoutException() {
+      });
+   }
+
+   @SuppressWarnings("serial")
+   @Test(expectedExceptions = RuntimeException.class)
+   void testPropagateOnException() {
+      ensureImmediateReturnFor(new Exception() {
+      });
+   }
+
+   private void ensureImmediateReturnFor(final Exception ex) {
+      RetryablePredicate<Supplier<String>> predicate = new RetryablePredicate<Supplier<String>>(
+               new Predicate<Supplier<String>>() {
+
+                  @Override
+                  public boolean apply(Supplier<String> input) {
+                     return "goo".equals(input.get());
+                  }
+
+               }, 3, 1, TimeUnit.SECONDS);
+      Date startPlusThird = new Date(System.currentTimeMillis() + 1000);
+      assert !predicate.apply(new Supplier<String>() {
+
+         @Override
+         public String get() {
+            throw new RuntimeException(ex);
+         }
+
+      });
+      Date now = new Date();
+      assert now.compareTo(startPlusThird) < 0 : String.format("%s should be less than %s", now.getTime(),
+               startPlusThird.getTime());
+   }
 
    @Test
    void testAlwaysTrue() {

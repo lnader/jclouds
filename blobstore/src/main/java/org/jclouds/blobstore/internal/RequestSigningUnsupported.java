@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,13 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.internal;
 
 import javax.inject.Singleton;
 
 import org.jclouds.blobstore.BlobRequestSigner;
 import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.options.GetOptions;
 import org.jclouds.http.HttpRequest;
 
 /**
@@ -44,6 +44,11 @@ public class RequestSigningUnsupported implements BlobRequestSigner {
 
    @Override
    public HttpRequest signRemoveBlob(String container, String name) {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public HttpRequest signGetBlob(String container, String name, GetOptions options) {
       throw new UnsupportedOperationException();
    }
 

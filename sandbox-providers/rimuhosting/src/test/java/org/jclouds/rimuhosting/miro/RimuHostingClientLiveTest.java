@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.rimuhosting.miro;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -92,7 +91,7 @@ public class RimuHostingClientLiveTest {
    public void testPricingPlans() {
       Set<? extends PricingPlan> plans = connection.getPricingPlanList();
       for (PricingPlan plan : plans) {
-         if (plan.getId().equalsIgnoreCase("miro1")) {
+         if (plan.getId().equalsIgnoreCase("MIRO4B")) {
             assertTrue(true);
             return;
          }

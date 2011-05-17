@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -27,6 +26,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.jclouds.logging.Logger;
+import org.jclouds.rest.internal.GeneratedHttpRequest;
 
 import com.google.common.base.Function;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -54,7 +54,7 @@ public class TransformingHttpCommandImpl<T> implements TransformingHttpCommand<T
 
    @Inject
    public TransformingHttpCommandImpl(TransformingHttpCommandExecutorService executorService, HttpRequest request,
-         Function<HttpResponse, T> transformer) {
+            Function<HttpResponse, T> transformer) {
       this.request = checkNotNull(request, "request");
       this.executorService = checkNotNull(executorService, "executorService");
       this.transformer = checkNotNull(transformer, "transformer");
@@ -146,7 +146,12 @@ public class TransformingHttpCommandImpl<T> implements TransformingHttpCommand<T
 
    @Override
    public String toString() {
-      return "[request=" + request.getRequestLine() + "]";
+      if (request instanceof GeneratedHttpRequest<?>)
+         return String.format("[method=%s.%s, request=%s]", GeneratedHttpRequest.class.cast(request).getDeclaring()
+                  .getSimpleName(), GeneratedHttpRequest.class.cast(request).getJavaMethod().getName(), request
+                  .getRequestLine());
+      else
+         return "[request=" + request.getRequestLine() + "]";
    }
 
 }

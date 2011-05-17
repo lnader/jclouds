@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.scriptbuilder;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -134,7 +133,7 @@ public class ScriptBuilder implements Statement {
                new Function<Statement, Iterable<String>>() {
                   @Override
                   public Iterable<String> apply(Statement from) {
-                     return from.functionDependecies(osFamily);
+                     return from.functionDependencies(osFamily);
                   }
                }));
       List<String> unresolvedFunctions = Lists.newArrayList(dependentFunctions);
@@ -145,7 +144,7 @@ public class ScriptBuilder implements Statement {
    }
 
    @Override
-   public Iterable<String> functionDependecies(OsFamily family) {
+   public Iterable<String> functionDependencies(OsFamily family) {
       return ImmutableSet.<String> of();
    }
 }

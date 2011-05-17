@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.rimuhosting.miro.compute.functions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -101,7 +100,11 @@ public class ServerToNodeMetadata implements Function<Server, NodeMetadata> {
       builder.imageId(from.getImageId() + "");
       builder.operatingSystem(parseOperatingSystem(from, location));
       builder.hardware(null);// TODO
-      builder.state(runningStateToNodeState.get(from.getState()));
+      if (from.getBillingData() != null && from.getBillingData().getDateCancelled() != null
+               && RunningState.NOTRUNNING == from.getState())
+         builder.state(NodeState.TERMINATED);
+      else
+         builder.state(runningStateToNodeState.get(from.getState()));
       builder.publicAddresses(getPublicAddresses.apply(from));
       builder.credentials(credentialStore.get("node#" + from.getId()));
       return builder.build();

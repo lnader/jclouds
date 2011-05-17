@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -31,6 +30,52 @@ import javax.annotation.Nullable;
  * @author Adrian Cole
  */
 public class KeyPair implements Comparable<KeyPair> {
+   @Override
+   public String toString() {
+      return "[region=" + region + ", keyName=" + keyName + ", keyFingerprint=" + keyFingerprint + ", keyMaterial?="
+            + (keyMaterial != null) + "]";
+   }
+
+   public static Builder builder() {
+      return new Builder();
+   }
+
+   public static class Builder {
+      private String region;
+      private String keyName;
+      private String keyFingerprint;
+      private String keyMaterial;
+
+      public Builder region(String region) {
+         this.region = region;
+         return this;
+      }
+
+      public Builder keyName(String keyName) {
+         this.keyName = keyName;
+         return this;
+      }
+
+      public Builder keyFingerprint(String keyFingerprint) {
+         this.keyFingerprint = keyFingerprint;
+         return this;
+      }
+
+      public Builder keyMaterial(String keyMaterial) {
+         this.keyMaterial = keyMaterial;
+         return this;
+      }
+
+      public KeyPair build() {
+         return new KeyPair(region, keyName, keyFingerprint, keyMaterial);
+      }
+
+      public static Builder fromKeyPair(KeyPair in) {
+         return new Builder().region(in.getRegion()).keyName(in.getKeyName()).keyFingerprint(in.getKeyFingerprint())
+               .keyMaterial(in.getKeyMaterial());
+      }
+   }
+
    private final String region;
    private final String keyName;
    private final String keyFingerprint;
@@ -122,4 +167,7 @@ public class KeyPair implements Comparable<KeyPair> {
       return true;
    }
 
+   public Builder toBuilder() {
+      return Builder.fromKeyPair(this);
+   }
 }

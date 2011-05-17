@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.azureblob;
 
 import java.util.Map;
@@ -29,24 +28,26 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
+import org.jclouds.azure.storage.domain.BoundedSet;
+import org.jclouds.azure.storage.filters.SharedKeyLiteAuthentication;
+import org.jclouds.azure.storage.options.ListOptions;
+import org.jclouds.azure.storage.reference.AzureStorageHeaders;
 import org.jclouds.azureblob.binders.BindAzureBlobMetadataToRequest;
 import org.jclouds.azureblob.domain.BlobProperties;
 import org.jclouds.azureblob.domain.ContainerProperties;
 import org.jclouds.azureblob.domain.ListBlobsResponse;
+import org.jclouds.azureblob.domain.PublicAccess;
 import org.jclouds.azureblob.functions.BlobName;
 import org.jclouds.azureblob.functions.ParseBlobFromHeadersAndHttpContent;
 import org.jclouds.azureblob.functions.ParseBlobPropertiesFromHeaders;
 import org.jclouds.azureblob.functions.ParseContainerPropertiesFromHeaders;
+import org.jclouds.azureblob.functions.ParsePublicAccessHeader;
 import org.jclouds.azureblob.functions.ReturnFalseIfContainerAlreadyExists;
 import org.jclouds.azureblob.options.CreateContainerOptions;
 import org.jclouds.azureblob.options.ListBlobsOptions;
 import org.jclouds.azureblob.predicates.validators.ContainerNameValidator;
 import org.jclouds.azureblob.xml.AccountNameEnumerationResultsHandler;
 import org.jclouds.azureblob.xml.ContainerNameEnumerationResultsHandler;
-import org.jclouds.azure.storage.domain.BoundedSet;
-import org.jclouds.azure.storage.filters.SharedKeyLiteAuthentication;
-import org.jclouds.azure.storage.options.ListOptions;
-import org.jclouds.azure.storage.reference.AzureStorageHeaders;
 import org.jclouds.blobstore.binders.BindMapToHeadersWithPrefix;
 import org.jclouds.blobstore.functions.ReturnFalseOnContainerNotFound;
 import org.jclouds.blobstore.functions.ReturnFalseOnKeyNotFound;
@@ -68,6 +69,7 @@ import org.jclouds.rest.annotations.XMLResponseParser;
 import org.jclouds.rest.functions.ReturnVoidOnNotFoundOr404;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.inject.Provides;
 
 /**
  * Provides asynchronous access to Azure Blob via their REST API.
@@ -85,7 +87,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 @Headers(keys = AzureStorageHeaders.VERSION, values = "2009-09-19")
 @Path("/")
 public interface AzureBlobAsyncClient {
-
+   @Provides
    public org.jclouds.azureblob.domain.AzureBlob newBlob();
 
    /**
@@ -94,8 +96,7 @@ public interface AzureBlobAsyncClient {
    @GET
    @XMLResponseParser(AccountNameEnumerationResultsHandler.class)
    @QueryParams(keys = "comp", values = "list")
-   ListenableFuture<? extends BoundedSet<ContainerProperties>> listContainers(
-            ListOptions... listOptions);
+   ListenableFuture<? extends BoundedSet<ContainerProperties>> listContainers(ListOptions... listOptions);
 
    /**
     * @see AzureBlobClient#createContainer
@@ -107,6 +108,17 @@ public interface AzureBlobAsyncClient {
    ListenableFuture<Boolean> createContainer(
             @PathParam("container") @ParamValidators( { ContainerNameValidator.class }) String container,
             CreateContainerOptions... options);
+
+   /**
+    * @see AzureBlobClient#getPublicAccessForContainer
+    */
+   @HEAD
+   @Path("{container}")
+   @QueryParams(keys = { "restype", "comp" }, values = { "container", "acl" })
+   @ResponseParser(ParsePublicAccessHeader.class)
+   @ExceptionParser(ReturnNullOnContainerNotFound.class)
+   ListenableFuture<PublicAccess> getPublicAccessForContainer(
+            @PathParam("container") @ParamValidators( { ContainerNameValidator.class }) String container);
 
    /**
     * @see AzureBlobClient#getContainerProperties
@@ -237,8 +249,7 @@ public interface AzureBlobAsyncClient {
    @QueryParams(keys = { "comp" }, values = { "metadata" })
    ListenableFuture<Void> setBlobMetadata(
             @PathParam("container") @ParamValidators( { ContainerNameValidator.class }) String container,
-            @PathParam("name") String name,
-            @BinderParam(BindMapToHeadersWithPrefix.class) Map<String, String> metadata);
+            @PathParam("name") String name, @BinderParam(BindMapToHeadersWithPrefix.class) Map<String, String> metadata);
 
    /**
     * @see AzureBlobClient#deleteBlob

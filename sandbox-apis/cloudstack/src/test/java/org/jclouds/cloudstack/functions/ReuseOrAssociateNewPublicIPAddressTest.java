@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.functions;
 
 import static org.easymock.EasyMock.expect;
@@ -93,7 +92,7 @@ public class ReuseOrAssociateNewPublicIPAddressTest {
 
       AsyncCreateResponse job = new AsyncCreateResponse(1, 2);
       // make sure we created the job relating to a new ip
-      expect(addressClient.associateIPAddress(zoneId, networkId(networkId))).andReturn(job);
+      expect(addressClient.associateIPAddressInZone(zoneId, networkId(networkId))).andReturn(job);
 
       AsyncJobClient jobClient = createMock(AsyncJobClient.class);
       expect(client.getAsyncJobClient()).andReturn(jobClient).atLeastOnce();
@@ -133,7 +132,7 @@ public class ReuseOrAssociateNewPublicIPAddressTest {
 
       AsyncCreateResponse job = new AsyncCreateResponse(1, 2);
       // make sure we created the job relating to a new ip
-      expect(addressClient.associateIPAddress(zoneId, networkId(networkId))).andReturn(job);
+      expect(addressClient.associateIPAddressInZone(zoneId, networkId(networkId))).andReturn(job);
 
       // the alwaysfalse predicate above should blow up with IllegalStateException
 

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,12 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.compute.strategy;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.all;
 import static com.google.common.collect.Iterables.transform;
 import static org.jclouds.ec2.compute.util.EC2ComputeUtils.getZoneFromLocationOrNull;
-import static org.jclouds.ec2.compute.util.EC2ComputeUtils.instanceToId;
 
 import java.util.Map;
 import java.util.Set;
@@ -31,17 +30,21 @@ import java.util.concurrent.Future;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.jclouds.aws.util.AWSUtils;
 import org.jclouds.compute.config.CustomizationResponse;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.Template;
+import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.reference.ComputeServiceConstants;
 import org.jclouds.compute.strategy.CreateNodesInGroupThenAddToSet;
 import org.jclouds.compute.util.ComputeUtils;
 import org.jclouds.domain.Credentials;
 import org.jclouds.ec2.EC2Client;
+import org.jclouds.ec2.compute.domain.RegionAndName;
+import org.jclouds.ec2.compute.predicates.InstancePresent;
 import org.jclouds.ec2.domain.RunningInstance;
 import org.jclouds.ec2.options.RunInstancesOptions;
 import org.jclouds.logging.Logger;
@@ -49,7 +52,6 @@ import org.jclouds.logging.Logger;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -74,39 +76,52 @@ public class EC2CreateNodesInGroupThenAddToSet implements CreateNodesInGroupThen
    final Function<RunningInstance, NodeMetadata> runningInstanceToNodeMetadata;
    @VisibleForTesting
    final ComputeUtils utils;
-   final Predicate<RunningInstance> instancePresent;
+   final InstancePresent instancePresent;
    final Function<RunningInstance, Credentials> instanceToCredentials;
    final Map<String, Credentials> credentialStore;
+   final Provider<TemplateBuilder> templateBuilderProvider;
 
    @Inject
-   EC2CreateNodesInGroupThenAddToSet(
+   protected EC2CreateNodesInGroupThenAddToSet(
             EC2Client client,
+            Provider<TemplateBuilder> templateBuilderProvider,
             CreateKeyPairAndSecurityGroupsAsNeededAndReturnRunOptions createKeyPairAndSecurityGroupsAsNeededAndReturncustomize,
-            @Named("PRESENT") Predicate<RunningInstance> instancePresent,
-            Function<RunningInstance, NodeMetadata> runningInstanceToNodeMetadata,
+            InstancePresent instancePresent, Function<RunningInstance, NodeMetadata> runningInstanceToNodeMetadata,
             Function<RunningInstance, Credentials> instanceToCredentials, Map<String, Credentials> credentialStore,
             ComputeUtils utils) {
-      this.client = client;
-      this.instancePresent = instancePresent;
-      this.createKeyPairAndSecurityGroupsAsNeededAndReturncustomize = createKeyPairAndSecurityGroupsAsNeededAndReturncustomize;
-      this.runningInstanceToNodeMetadata = runningInstanceToNodeMetadata;
-      this.instanceToCredentials = instanceToCredentials;
-      this.credentialStore = credentialStore;
-      this.utils = utils;
+      this.client = checkNotNull(client, "client");
+      this.templateBuilderProvider = checkNotNull(templateBuilderProvider, "templateBuilderProvider");
+      this.instancePresent = checkNotNull(instancePresent, "instancePresent");
+      this.createKeyPairAndSecurityGroupsAsNeededAndReturncustomize = checkNotNull(
+               createKeyPairAndSecurityGroupsAsNeededAndReturncustomize,
+               "createKeyPairAndSecurityGroupsAsNeededAndReturncustomize");
+      this.runningInstanceToNodeMetadata = checkNotNull(runningInstanceToNodeMetadata, "runningInstanceToNodeMetadata");
+      this.instanceToCredentials = checkNotNull(instanceToCredentials, "instanceToCredentials");
+      this.credentialStore = checkNotNull(credentialStore, "credentialStore");
+      this.utils = checkNotNull(utils, "utils");
    }
+
+   public static Function<RunningInstance, RegionAndName> instanceToRegionAndName = new Function<RunningInstance, RegionAndName>() {
+      @Override
+      public RegionAndName apply(RunningInstance from) {
+         return new RegionAndName(from.getRegion(), from.getId());
+      }
+   };
 
    @Override
    public Map<?, Future<Void>> execute(String group, int count, Template template, Set<NodeMetadata> goodNodes,
             Map<NodeMetadata, Exception> badNodes, Multimap<NodeMetadata, CustomizationResponse> customizationResponses) {
+      // ensure we don't mutate the input template
+      template = templateBuilderProvider.get().fromTemplate(template).build();
+      Iterable<? extends RunningInstance> started = createKeyPairAndSecurityGroupsAsNeededThenRunInstances(group,
+               count, template);
 
-      Iterable<? extends RunningInstance> started = createKeyPairAndSecurityGroupsAsNeededThenRunInstances(group, count,
-               template);
-      Iterable<String> ids = transform(started, instanceToId);
+      Iterable<RegionAndName> ids = transform(started, instanceToRegionAndName);
 
       String idsString = Joiner.on(',').join(ids);
       if (Iterables.size(ids) > 0) {
          logger.debug("<< started instances(%s)", idsString);
-         all(started, instancePresent);
+         all(ids, instancePresent);
          logger.debug("<< present instances(%s)", idsString);
          populateCredentials(started);
       }
@@ -125,19 +140,20 @@ public class EC2CreateNodesInGroupThenAddToSet implements CreateNodesInGroupThen
       if (credentials != null)
          for (RunningInstance instance : started)
             credentialStore.put("node#" + instance.getRegion() + "/" + instance.getId(), credentials);
-
    }
 
    // TODO write test for this
-   @VisibleForTesting
-   Iterable<? extends RunningInstance> createKeyPairAndSecurityGroupsAsNeededThenRunInstances(String group, int count,
-            Template template) {
+   protected Iterable<? extends RunningInstance> createKeyPairAndSecurityGroupsAsNeededThenRunInstances(String group,
+            int count, Template template) {
       String region = AWSUtils.getRegionFromLocationOrNull(template.getLocation());
       String zone = getZoneFromLocationOrNull(template.getLocation());
-
       RunInstancesOptions instanceOptions = createKeyPairAndSecurityGroupsAsNeededAndReturncustomize.execute(region,
                group, template);
+      return createNodesInRegionAndZone(region, zone, count, template, instanceOptions);
+   }
 
+   protected Iterable<? extends RunningInstance> createNodesInRegionAndZone(String region, String zone, int count,
+            Template template, RunInstancesOptions instanceOptions) {
       int countStarted = 0;
       int tries = 0;
       Iterable<? extends RunningInstance> started = ImmutableSet.<RunningInstance> of();

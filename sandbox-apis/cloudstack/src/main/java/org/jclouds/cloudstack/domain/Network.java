@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,11 +23,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -268,7 +269,8 @@ public class Network implements Comparable<Network> {
    @SerializedName("zoneid")
    private long zoneId;
    @SerializedName("service")
-   private Set<? extends NetworkService> services = ImmutableSet.<NetworkService> of();
+   // so tests and serialization comes out expected
+   private SortedSet<? extends NetworkService> services = ImmutableSortedSet.<NetworkService> of();
 
    /**
     * present only for serializer
@@ -312,7 +314,7 @@ public class Network implements Comparable<Network> {
       this.VLAN = vLAN;
       this.trafficType = trafficType;
       this.zoneId = zoneId;
-      this.services = ImmutableSet.copyOf(checkNotNull(services, "services"));
+      this.services = ImmutableSortedSet.copyOf(checkNotNull(services, "services"));
    }
 
    /**

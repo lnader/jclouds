@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,19 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Set;
 
 import org.jclouds.compute.domain.internal.ComputeMetadataImpl;
 import org.jclouds.domain.Location;
 import org.jclouds.domain.ResourceMetadataBuilder;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * 
@@ -35,14 +37,19 @@ import org.jclouds.domain.ResourceMetadataBuilder;
 public class ComputeMetadataBuilder extends ResourceMetadataBuilder<ComputeType> {
    protected String id;
    protected ComputeType type;
+   protected Set<String> tags = ImmutableSet.<String>of();
 
    public ComputeMetadataBuilder(ComputeType type) {
-      super();
       this.type = checkNotNull(type, "type");
    }
 
    public ComputeMetadataBuilder id(String id) {
       this.id = id;
+      return this;
+   }
+
+   public ComputeMetadataBuilder tags(Set<String> tags) {
+      this.tags  = ImmutableSet.<String> copyOf(checkNotNull(tags, "tags"));
       return this;
    }
 
@@ -80,11 +87,11 @@ public class ComputeMetadataBuilder extends ResourceMetadataBuilder<ComputeType>
    }
 
    public ComputeMetadata build() {
-      return new ComputeMetadataImpl(type, providerId, name, id, location, uri, userMetadata);
+      return new ComputeMetadataImpl(type, providerId, name, id, location, uri, userMetadata, tags);
    }
 
    public static ComputeMetadataBuilder fromComputeMetadata(ComputeMetadata in) {
       return new ComputeMetadataBuilder(in.getType()).id(in.getId()).location(in.getLocation()).name(in.getName())
-            .uri(in.getUri()).userMetadata(in.getUserMetadata());
+            .uri(in.getUri()).userMetadata(in.getUserMetadata()).tags(in.getTags());
    }
 }

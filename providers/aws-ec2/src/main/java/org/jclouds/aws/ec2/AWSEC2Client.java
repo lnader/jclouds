@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +16,16 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.ec2;
 
 import java.util.concurrent.TimeUnit;
 
 import org.jclouds.aws.ec2.services.AWSAMIClient;
 import org.jclouds.aws.ec2.services.AWSInstanceClient;
+import org.jclouds.aws.ec2.services.AWSKeyPairClient;
 import org.jclouds.aws.ec2.services.MonitoringClient;
 import org.jclouds.aws.ec2.services.PlacementGroupClient;
+import org.jclouds.aws.ec2.services.SpotInstanceClient;
 import org.jclouds.concurrent.Timeout;
 import org.jclouds.ec2.EC2Client;
 import org.jclouds.rest.annotations.Delegate;
@@ -63,4 +64,16 @@ public interface AWSEC2Client extends EC2Client {
    @Delegate
    MonitoringClient getMonitoringServices();
 
+   /**
+    * {@inheritDoc}
+    */
+   @Delegate
+   @Override
+   AWSKeyPairClient getKeyPairServices();
+   
+   /**
+    * Provides synchronous access to SpotInstance services.
+    */
+   @Delegate
+   SpotInstanceClient getSpotInstanceServices();
 }

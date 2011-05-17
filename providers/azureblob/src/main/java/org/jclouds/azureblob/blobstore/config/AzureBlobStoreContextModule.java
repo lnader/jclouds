@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,12 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.azureblob.blobstore.config;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Singleton;
 
 import org.jclouds.azureblob.AzureBlobAsyncClient;
 import org.jclouds.azureblob.AzureBlobClient;
@@ -25,6 +29,7 @@ import org.jclouds.azureblob.blobstore.AzureAsyncBlobStore;
 import org.jclouds.azureblob.blobstore.AzureBlobRequestSigner;
 import org.jclouds.azureblob.blobstore.AzureBlobStore;
 import org.jclouds.azureblob.blobstore.strategy.FindMD5InBlobProperties;
+import org.jclouds.azureblob.domain.PublicAccess;
 import org.jclouds.blobstore.AsyncBlobStore;
 import org.jclouds.blobstore.BlobRequestSigner;
 import org.jclouds.blobstore.BlobStore;
@@ -35,7 +40,10 @@ import org.jclouds.blobstore.internal.BlobStoreContextImpl;
 import org.jclouds.blobstore.strategy.ContainsValueInListStrategy;
 import org.jclouds.location.config.JustProviderLocationModule;
 
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 
@@ -59,4 +67,19 @@ public class AzureBlobStoreContextModule extends AbstractModule {
       bind(BlobRequestSigner.class).to(AzureBlobRequestSigner.class);
    }
 
+   @Provides
+   @Singleton
+   protected Map<String, PublicAccess> containerAcls(final AzureBlobClient client) {
+      return new MapMaker().expireAfterWrite(30, TimeUnit.SECONDS).makeComputingMap(
+               new Function<String, PublicAccess>() {
+                  public PublicAccess apply(String container) {
+                     return client.getPublicAccessForContainer(container);
+                  }
+
+                  @Override
+                  public String toString() {
+                     return "getPublicAccessForContainer()";
+                  }
+               });
+   }
 }

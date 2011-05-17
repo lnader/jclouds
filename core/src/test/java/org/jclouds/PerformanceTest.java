@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds;
 
 import java.util.List;
@@ -26,8 +25,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import org.jclouds.concurrent.DynamicExecutors;
 import org.jclouds.date.DateService;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -40,12 +39,12 @@ import org.testng.annotations.Test;
 @Test(groups="performance")
 public abstract class PerformanceTest {
    protected static int LOOP_COUNT = 1000;
-   protected static int THREAD_COUNT = 1000;
+   protected static int THREAD_COUNT = 100;
    protected ExecutorService exec;
 
    @BeforeTest
    public void setupExecutorService() {
-      exec = Executors.newCachedThreadPool();
+      exec = DynamicExecutors.newScalingThreadPool(1, THREAD_COUNT, 1000);
    }
 
    @AfterTest

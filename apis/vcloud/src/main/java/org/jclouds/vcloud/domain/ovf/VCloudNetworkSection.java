@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,12 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.domain.ovf;
 
 import java.net.URI;
 
-import org.jclouds.vcloud.domain.ovf.network.Network;
+import org.jclouds.ovf.Network;
+import org.jclouds.ovf.NetworkSection;
 
 /**
  * VCloud extension

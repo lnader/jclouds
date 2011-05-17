@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudsigma.functions;
 
 import static com.google.common.collect.Iterables.transform;
@@ -29,7 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jclouds.cloudsigma.compute.functions.ParseOsFamilyVersion64BitFromImageName;
-import org.jclouds.compute.domain.os.OsFamilyVersion64Bit;
+import org.jclouds.compute.domain.OsFamilyVersion64Bit;
 import org.jclouds.json.Json;
 import org.jclouds.json.internal.GsonWrapper;
 import org.jclouds.util.Strings2;

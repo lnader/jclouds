@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.options;
 
-import static org.jclouds.cloudstack.options.ListSecurityGroupsOptions.Builder.account;
+import static org.jclouds.cloudstack.options.ListSecurityGroupsOptions.Builder.accountInDomain;
 import static org.jclouds.cloudstack.options.ListSecurityGroupsOptions.Builder.domainId;
 import static org.jclouds.cloudstack.options.ListSecurityGroupsOptions.Builder.id;
 import static org.jclouds.cloudstack.options.ListSecurityGroupsOptions.Builder.named;
@@ -49,12 +48,12 @@ public class ListSecurityGroupsOptionsTest {
    }
 
    public void testAccount() {
-      ListSecurityGroupsOptions options = new ListSecurityGroupsOptions().account("account");
+      ListSecurityGroupsOptions options = new ListSecurityGroupsOptions().accountInDomain("account", 1);
       assertEquals(ImmutableList.of("account"), options.buildQueryParameters().get("account"));
    }
 
    public void testAccountStatic() {
-      ListSecurityGroupsOptions options = account("account");
+      ListSecurityGroupsOptions options = accountInDomain("account", 1);
       assertEquals(ImmutableList.of("account"), options.buildQueryParameters().get("account"));
    }
 

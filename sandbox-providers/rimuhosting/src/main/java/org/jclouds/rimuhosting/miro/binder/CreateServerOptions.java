@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.rimuhosting.miro.binder;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -25,7 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.jclouds.http.HttpRequest;
+import org.jclouds.json.Json;
 import org.jclouds.rimuhosting.miro.data.CreateOptions;
 import org.jclouds.rimuhosting.miro.data.NewServerData;
 import org.jclouds.rimuhosting.miro.domain.MetaData;
@@ -34,7 +36,11 @@ import org.jclouds.rimuhosting.miro.domain.MetaData;
  * @author Ivan Meredith
  */
 public class CreateServerOptions extends RimuHostingJsonBinder {
-
+   @Inject
+   public CreateServerOptions(Json jsonBinder) {
+      super(jsonBinder);
+   }
+   
    private String password;
    private List<MetaData> metaData = new ArrayList<MetaData>();
 

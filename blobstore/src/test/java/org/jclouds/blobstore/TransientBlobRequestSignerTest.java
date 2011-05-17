@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore;
 
 import static org.testng.Assert.assertEquals;
@@ -24,10 +23,11 @@ import static org.testng.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.inject.Provider;
+
 import org.jclouds.blobstore.domain.Blob;
-import org.jclouds.blobstore.domain.Blob.Factory;
+import org.jclouds.blobstore.domain.BlobBuilder;
 import org.jclouds.http.HttpRequest;
-import org.jclouds.io.payloads.PhantomPayload;
 import org.jclouds.rest.RestClientTest;
 import org.jclouds.rest.RestContextFactory;
 import org.jclouds.rest.RestContextSpec;
@@ -47,7 +47,7 @@ import com.google.inject.TypeLiteral;
 public class TransientBlobRequestSignerTest extends RestClientTest<TransientAsyncBlobStore> {
 
    private BlobRequestSigner signer;
-   private Factory blobFactory;
+   private Provider<BlobBuilder> blobFactory;
 
    public void testSignGetBlob() throws ArrayIndexOutOfBoundsException, SecurityException, IllegalArgumentException,
             NoSuchMethodException, IOException {
@@ -73,12 +73,10 @@ public class TransientBlobRequestSignerTest extends RestClientTest<TransientAsyn
 
    public void testSignPutBlob() throws ArrayIndexOutOfBoundsException, SecurityException, IllegalArgumentException,
             NoSuchMethodException, IOException {
-      Blob blob = blobFactory.create(null);
-      blob.getMetadata().setName("name");
-      blob.setPayload(new PhantomPayload());
-      blob.getPayload().getContentMetadata().setContentLength(2l);
-      blob.getPayload().getContentMetadata().setContentMD5(new byte[] { 0, 2, 4, 8 });
-      blob.getPayload().getContentMetadata().setContentType("text/plain");
+      Blob blob = blobFactory.get().name("name").forSigning().contentLength(2l).contentMD5(new byte[] { 0, 2, 4, 8 })
+               .contentType("text/plain").build();
+
+      assertEquals(blob.getPayload().getContentMetadata().getContentMD5(), new byte[] { 0, 2, 4, 8 });
 
       HttpRequest request = signer.signPutBlob("container", blob);
 
@@ -91,10 +89,29 @@ public class TransientBlobRequestSignerTest extends RestClientTest<TransientAsyn
       assertEquals(request.getFilters().size(), 0);
    }
 
+   public void testSignPutBlobWithGenerate() throws ArrayIndexOutOfBoundsException, SecurityException,
+            IllegalArgumentException, NoSuchMethodException, IOException {
+      Blob blob = blobFactory.get().name("name").payload("foo").calculateMD5().contentType("text/plain").build();
+
+      assertEquals(blob.getPayload().getContentMetadata().getContentMD5(), new byte[] { -84, -67, 24, -37, 76, -62, -8,
+               92, -19, -17, 101, 79, -52, -60, -92, -40 });
+
+      HttpRequest request = signer.signPutBlob("container", blob);
+
+      assertRequestLineEquals(request, "PUT http://localhost/container/name HTTP/1.1");
+      assertNonPayloadHeadersEqual(
+               request,
+               "Authorization: Basic aWRlbnRpdHk6Y3JlZGVudGlhbA==\nContent-Length: 3\nContent-MD5: rL0Y20zC+Fzt72VPzMSk2A==\nContent-Type: text/plain\n");
+      assertContentHeadersEqual(request, "text/plain", null, null, null, (long) 3l, new byte[] { -84, -67, 24, -37, 76,
+               -62, -8, 92, -19, -17, 101, 79, -52, -60, -92, -40 });
+
+      assertEquals(request.getFilters().size(), 0);
+   }
+
    @BeforeClass
    protected void setupFactory() throws IOException {
       super.setupFactory();
-      this.blobFactory = injector.getInstance(Blob.Factory.class);
+      this.blobFactory = injector.getProvider(BlobBuilder.class);
       this.signer = injector.getInstance(BlobRequestSigner.class);
    }
 

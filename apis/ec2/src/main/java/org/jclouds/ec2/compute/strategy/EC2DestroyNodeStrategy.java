@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.compute.strategy;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -41,14 +42,13 @@ public class EC2DestroyNodeStrategy implements DestroyNodeStrategy {
    @Resource
    @Named(ComputeServiceConstants.COMPUTE_LOGGER)
    protected Logger logger = Logger.NULL;
-   protected final EC2Client ec2Client;
+   protected final EC2Client client;
    protected final GetNodeMetadataStrategy getNode;
 
    @Inject
-   protected EC2DestroyNodeStrategy(EC2Client ec2Client,
-         GetNodeMetadataStrategy getNodeMetadataStrategy) {
-      this.ec2Client = ec2Client;
-      this.getNode = getNodeMetadataStrategy;
+   protected EC2DestroyNodeStrategy(EC2Client client, GetNodeMetadataStrategy getNode) {
+      this.client = checkNotNull(client, "client");
+      this.getNode = checkNotNull(getNode, "getNode");
    }
 
    @Override
@@ -56,8 +56,11 @@ public class EC2DestroyNodeStrategy implements DestroyNodeStrategy {
       String[] parts = AWSUtils.parseHandle(id);
       String region = parts[0];
       String instanceId = parts[1];
-      ec2Client.getInstanceServices().terminateInstancesInRegion(region,
-            instanceId);
+      destroyInstanceInRegion(region, instanceId);
       return getNode.getNode(id);
+   }
+
+   protected void destroyInstanceInRegion(String region, String instanceId) {
+      client.getInstanceServices().terminateInstancesInRegion(region, instanceId);
    }
 }

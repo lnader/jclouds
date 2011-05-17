@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,13 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore;
 
 import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.domain.BlobBuilder;
 import org.jclouds.blobstore.internal.RequestSigningUnsupported;
+import org.jclouds.blobstore.options.GetOptions;
 import org.jclouds.http.HttpRequest;
-import org.jclouds.io.payloads.PhantomPayload;
 
 import com.google.inject.ImplementedBy;
 
@@ -48,6 +48,12 @@ public interface BlobRequestSigner {
    HttpRequest signGetBlob(String container, String name);
 
    /**
+    * @param options
+    * @see #signGetBlob(String, String)
+    */
+   HttpRequest signGetBlob(String container, String name, GetOptions options);
+
+   /**
     * gets a signed request, including headers as necessary, to delete a blob from an external
     * client.
     * 
@@ -65,10 +71,8 @@ public interface BlobRequestSigner {
     * client.
     * 
     * <pre>
-    * Blob blob = context.getBlobStore.newBlob();
-    * blob.getMetadata().setName(&quot;name&quot;);
-    * blob.setPayload(new PhantomPayload(length, md5));
-    * blob.getPayload().setContentType(&quot;text/plain&quot;);
+    * Blob blob = context.getBlobStore.blobBuilder().name(&quot;name&quot;).forSigning().contentType(&quot;text/plain&quot;)
+    *          .contentLength(length).build();
     * </pre>
     * 
     * @param container
@@ -77,7 +81,7 @@ public interface BlobRequestSigner {
     *           what to upload
     * @throws UnsupportedOperationException
     *            if not supported by the provider
-    * @see PhantomPayload
+    * @see BlobBuilder#forSigning
     */
    HttpRequest signPutBlob(String container, Blob blob);
 }

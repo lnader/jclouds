@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.ec2.services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -195,10 +194,10 @@ public class PlacementGroupClientLiveTest {
       Template template = context.getComputeService().templateBuilder().fastest().build();
       assert template != null : "The returned template was null, but it should have a value.";
       assertEquals(template.getHardware().getProviderId(), InstanceType.CC1_4XLARGE);
-      assertEquals(template.getImage().getId(), "us-east-1/ami-7ea24a17");
+      assertEquals(template.getImage().getId(), "us-east-1/ami-321eed5b");
 
-      template.getOptions().installPrivateKey(keyPair.get("private")).authorizePublicKey(keyPair.get("public"))
-            .runScript(buildScript(template.getImage().getOperatingSystem()));
+      template.getOptions().overrideLoginCredentialWith(keyPair.get("private"))
+            .authorizePublicKey(keyPair.get("public")).runScript(buildScript(template.getImage().getOperatingSystem()));
 
       String group = PREFIX + "cccluster";
       context.getComputeService().destroyNodesMatching(NodePredicates.inGroup(group));

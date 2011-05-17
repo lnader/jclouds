@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.http;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -90,7 +89,7 @@ public class HttpRequest extends HttpMessage {
 
       public static <X extends HttpRequest> Builder<X> from(X input) {
          return new Builder<X>().method(input.getMethod()).endpoint(input.getEndpoint()).skips(input.getSkips())
-               .filters(input.getFilters()).payload(input.getPayload()).headers(input.getHeaders());
+                  .filters(input.getFilters()).payload(input.getPayload()).headers(input.getHeaders());
       }
 
    }
@@ -120,7 +119,7 @@ public class HttpRequest extends HttpMessage {
    }
 
    public HttpRequest(String method, URI endpoint, char[] skips, List<HttpRequestFilter> requestFilters,
-         @Nullable Payload payload) {
+            @Nullable Payload payload) {
       this(method, endpoint, skips, requestFilters, payload, ImmutableMultimap.<String, String> of());
    }
 
@@ -136,7 +135,7 @@ public class HttpRequest extends HttpMessage {
    }
 
    public HttpRequest(String method, URI endpoint, char[] skips, List<HttpRequestFilter> requestFilters,
-         @Nullable Payload payload, Multimap<String, String> headers) {
+            @Nullable Payload payload, Multimap<String, String> headers) {
       super(payload, headers);
       this.method = checkNotNull(method, "method");
       this.endpoint = checkNotNull(endpoint, "endpoint");
@@ -248,7 +247,7 @@ public class HttpRequest extends HttpMessage {
 
    @Override
    public String toString() {
-      return "[method=" + method + ", endpoint=" + endpoint + ", headers=" + headers + ", payload=" + payload + "]";
+      return String.format("[method=%s, endpoint=%s, headers=%s, payload=%s]", method, endpoint, headers, payload);
    }
 
 }

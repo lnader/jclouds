@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.integration.internal;
 
 import static com.google.common.base.Throwables.propagateIfPossible;
@@ -293,19 +292,6 @@ public class BaseContainerIntegrationTest extends BaseBlobStoreIntegrationTest {
          // this container is now deleted, so we can't reuse it directly
          recycleContainer(containerName);
       }
-   }
-
-   private void assertNotExists(final String containerName) throws InterruptedException {
-      assertConsistencyAware(new Runnable() {
-         public void run() {
-            try {
-               assert !context.getBlobStore().containerExists(containerName) : "container " + containerName
-                     + " still exists";
-            } catch (Exception e) {
-               propagateIfPossible(e);
-            }
-         }
-      });
    }
 
    @Test(groups = { "integration", "live" })

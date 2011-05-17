@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.ec2.compute.strategy;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -32,7 +31,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.jclouds.compute.domain.ImageBuilder;
-import org.jclouds.compute.domain.OperatingSystemBuilder;
+import org.jclouds.compute.domain.OperatingSystem;
 import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.compute.reference.ComputeServiceConstants;
 import org.jclouds.compute.util.ComputeServiceUtils;
@@ -50,7 +49,7 @@ public class AWSEC2ReviseParsedImage implements ReviseParsedImage {
    // amzn-ami-us-east-1/amzn-ami-0.9.7-beta.x86_64.manifest.xml
    // amzn-ami-us-east-1/amzn-ami-0.9.7-beta.i386.manifest.xml
    public static final Pattern AMZN_PATTERN = Pattern
-            .compile(".*/amzn-ami-(.*)\\.(i386|x86_64)(-ebs|\\.manifest.xml)?");
+            .compile(".*/(amzn-hvm-|amzn-)?ami-(.*)\\.(i386|x86_64)(-ebs|\\.manifest.xml)?");
 
    // amazon/EC2 CentOS 5.4 HVM AMI
    public static final Pattern AMAZON_PATTERN = Pattern.compile("amazon/EC2 ([^ ]+) ([^ ]+).*");
@@ -78,13 +77,13 @@ public class AWSEC2ReviseParsedImage implements ReviseParsedImage {
 
    @Override
    public void reviseParsedImage(org.jclouds.ec2.domain.Image from, ImageBuilder builder, OsFamily family,
-            OperatingSystemBuilder osBuilder) {
+            OperatingSystem.Builder osBuilder) {
       try {
          Matcher matcher = getMatcherAndFind(from.getImageLocation());
          if (matcher.pattern() == AMZN_PATTERN) {
             osBuilder.family(OsFamily.AMZN_LINUX);
-            osBuilder.version(matcher.group(1));
-            builder.version(matcher.group(1));
+            osBuilder.version(matcher.group(2));
+            builder.version(matcher.group(2));
          } else if (matcher.pattern() == AMAZON_PATTERN) {
             family = OsFamily.fromValue(matcher.group(1));
             osBuilder.family(family);
@@ -100,7 +99,7 @@ public class AWSEC2ReviseParsedImage implements ReviseParsedImage {
       } catch (IllegalArgumentException e) {
          logger.debug("<< didn't match os(%s)", from.getImageLocation());
       } catch (NoSuchElementException e) {
-         logger.debug("<< didn't match at all(%s)", from.getImageLocation());
+         logger.trace("<< didn't match at all(%s)", from.getImageLocation());
       }
    }
 

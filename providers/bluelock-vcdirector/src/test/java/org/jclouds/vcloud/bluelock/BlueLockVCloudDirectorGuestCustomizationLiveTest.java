@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.bluelock;
 
 import org.jclouds.vcloud.VCloudGuestCustomizationLiveTest;
@@ -34,4 +33,8 @@ public class BlueLockVCloudDirectorGuestCustomizationLiveTest extends VCloudGues
       provider = "bluelock-vcdirector";
    }
 
+   @Override
+   protected void checkApiOutput(String apiOutput) {
+      checkApiOutput1_0_0(apiOutput);
+   }
 }

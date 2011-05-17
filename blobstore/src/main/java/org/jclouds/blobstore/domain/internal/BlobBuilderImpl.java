@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.domain.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -25,11 +24,8 @@ import static org.jclouds.io.Payloads.newPayload;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import org.jclouds.blobstore.domain.Blob;
@@ -38,21 +34,25 @@ import org.jclouds.blobstore.domain.StorageType;
 import org.jclouds.crypto.Crypto;
 import org.jclouds.io.Payload;
 import org.jclouds.io.Payloads;
+import org.jclouds.io.payloads.PhantomPayload;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 
 /**
  * @author Adrian Cole
  */
 public class BlobBuilderImpl implements BlobBuilder {
+   private final Crypto crypto;
+
+   @Inject
+   public BlobBuilderImpl(Crypto crypto) {
+      this.crypto = checkNotNull(crypto, "crypto");
+   }
 
    private Payload payload;
    private String name;
    private Map<String, String> userMetadata = Maps.newLinkedHashMap();
    private StorageType type = StorageType.BLOB;
-   @Inject
-   private Crypto crypto;
 
    @Override
    public BlobBuilder name(String name) {
@@ -68,7 +68,8 @@ public class BlobBuilderImpl implements BlobBuilder {
 
    @Override
    public BlobBuilder userMetadata(Map<String, String> userMetadata) {
-      this.userMetadata = Maps.newLinkedHashMap(checkNotNull(userMetadata, "userMetadata"));
+      if (userMetadata != null)
+         this.userMetadata = Maps.newLinkedHashMap(userMetadata);
       return this;
    }
 
@@ -125,17 +126,12 @@ public class BlobBuilderImpl implements BlobBuilder {
    public class PayloadBlobBuilderImpl implements PayloadBlobBuilder {
       private final BlobBuilder builder;
       private final Payload payload;
-      private MessageDigest digest;
+      private final Crypto crypto;
 
-      public PayloadBlobBuilderImpl(BlobBuilder builder, Payload payload, @Nullable Crypto crypto) {
+      public PayloadBlobBuilderImpl(BlobBuilder builder, Payload payload, Crypto crypto) {
          this.builder = checkNotNull(builder, "builder");
          this.payload = checkNotNull(payload, "payload");
-         try {
-            this.digest = crypto != null ? crypto.md5() : MessageDigest.getInstance("MD5");
-         } catch (NoSuchAlgorithmException e) {
-            Throwables.propagate(e);
-            this.digest = null;
-         }
+         this.crypto = checkNotNull(crypto, "crypto");
       }
 
       @Override
@@ -160,7 +156,7 @@ public class BlobBuilderImpl implements BlobBuilder {
 
       @Override
       public PayloadBlobBuilder calculateMD5() throws IOException {
-         return builder.payload(Payloads.calculateMD5(payload, digest));
+         return builder.payload(Payloads.calculateMD5(payload, crypto.md5()));
       }
 
       @Override
@@ -225,5 +221,15 @@ public class BlobBuilderImpl implements BlobBuilder {
          return this;
       }
 
+      @Override
+      public PayloadBlobBuilder forSigning() {
+         return builder.forSigning();
+      }
+
+   }
+
+   @Override
+   public PayloadBlobBuilder forSigning() {
+      return payload(new PhantomPayload());
    }
 }

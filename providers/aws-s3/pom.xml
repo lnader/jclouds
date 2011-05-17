@@ -33,6 +33,7 @@
     <artifactId>aws-s3</artifactId>
     <name>jclouds Amazon Simple Storage Service (S3) provider</name>
     <description>Simple Storage Service (S3) implementation targeted to Amazon Web Services</description>
+    <packaging>bundle</packaging>
 
     <properties>
         <test.initializer>org.jclouds.aws.s3.blobstore.integration.AWSS3TestInitializer</test.initializer>
@@ -40,7 +41,23 @@
         <test.aws-s3.apiversion>2006-03-01</test.aws-s3.apiversion>
         <test.aws-s3.identity>${test.aws.identity}</test.aws-s3.identity>
         <test.aws-s3.credential>${test.aws.credential}</test.aws-s3.credential>
+        <test.blobstore.container-count>25</test.blobstore.container-count>
     </properties>
+
+    <!-- temporary -->
+    <repositories>
+        <repository>
+            <id>jboss-public-releases</id>
+            <url>https://repository.jboss.org/nexus/content/groups/public-jboss</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
 
     <dependencies>
         <dependency>
@@ -72,26 +89,20 @@
         </dependency>
         <dependency>
             <groupId>org.jclouds.driver</groupId>
-            <artifactId>jclouds-apachehc</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jclouds.driver</groupId>
             <artifactId>jclouds-log4j</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <groupId>org.jclouds.driver</groupId>
+            <artifactId>jclouds-apachehc</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jclouds.driver</groupId>
+            <artifactId>jclouds-enterprise</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -141,6 +152,10 @@
                                             <name>jclouds.blobstore.httpstream.md5</name>
                                             <value>${jclouds.blobstore.httpstream.md5}</value>
                                         </property>
+                                        <property>
+                                            <name>test.blobstore.container-count</name>
+                                            <value>${test.blobstore.container-count}</value>
+                                        </property>
                                     </systemProperties>
                                 </configuration>
                             </execution>
@@ -151,6 +166,21 @@
         </profile>
     </profiles>
 
+    <build>
+        <plugins>
+            <plugin>    
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>org.jclouds.aws.s3.*;version="${project.version}"</Export-Package>
+                        <Import-Package>org.jclouds.*;version="${project.version}",*</Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
 

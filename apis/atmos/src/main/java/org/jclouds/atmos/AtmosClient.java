@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.atmos;
 
 import java.net.URI;
@@ -31,6 +30,8 @@ import org.jclouds.atmos.options.ListOptions;
 import org.jclouds.concurrent.Timeout;
 import org.jclouds.http.options.GetOptions;
 
+import com.google.inject.Provides;
+
 /**
  * Provides access to EMC Atmos Online Storage resources via their REST API.
  * <p/>
@@ -44,6 +45,7 @@ public interface AtmosClient {
    /**
     * Creates a default implementation of AtmosObject
     */
+   @Provides
    AtmosObject newObject();
 
    BoundedSet<? extends DirectoryEntry> listDirectories(ListOptions... options);

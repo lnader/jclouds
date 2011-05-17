@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.rest.internal;
 
 /**
@@ -24,13 +23,16 @@ package org.jclouds.rest.internal;
  * 
  * @author Adrian Cole
  */
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
 import javax.inject.Named;
+import javax.inject.Qualifier;
 import javax.inject.Singleton;
 
 import org.jclouds.Constants;
@@ -46,10 +48,16 @@ import org.jclouds.rest.annotations.Delegate;
 import org.jclouds.util.Throwables2;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Provides;
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 
 @Singleton
@@ -73,13 +81,22 @@ public class AsyncRestClientProxy<T> implements InvocationHandler {
    @SuppressWarnings("unchecked")
    @Inject
    public AsyncRestClientProxy(Injector injector, Factory factory, RestAnnotationProcessor<T> util,
-         TypeLiteral<T> typeLiteral, @Named("async") ConcurrentMap<ClassMethodArgs, Object> delegateMap) {
+            TypeLiteral<T> typeLiteral, @Named("async") ConcurrentMap<ClassMethodArgs, Object> delegateMap) {
       this.injector = injector;
       this.annotationProcessor = util;
       this.declaring = (Class<T>) typeLiteral.getRawType();
       this.commandFactory = factory;
       this.delegateMap = delegateMap;
    }
+
+   private static final Predicate<Annotation> isQualifierPresent = new Predicate<Annotation>() {
+
+      @Override
+      public boolean apply(Annotation input) {
+         return input.annotationType().isAnnotationPresent(Qualifier.class);
+      }
+
+   };
 
    public Object invoke(Object o, Method method, Object[] args) throws Throwable {
       if (method.getName().equals("equals")) {
@@ -88,24 +105,36 @@ public class AsyncRestClientProxy<T> implements InvocationHandler {
          return this.toString();
       } else if (method.getName().equals("hashCode")) {
          return this.hashCode();
-      } else if (method.getName().startsWith("new")) {
-         return injector.getInstance(method.getReturnType());
+      } else if (method.isAnnotationPresent(Provides.class)) {
+         try {
+            try {
+               Annotation qualifier = Iterables.find(ImmutableList.copyOf(method.getAnnotations()), isQualifierPresent);
+               return injector.getInstance(Key.get(method.getGenericReturnType(), qualifier));
+            } catch (NoSuchElementException e) {
+               return injector.getInstance(Key.get(method.getGenericReturnType()));
+            }
+         } catch (ProvisionException e) {
+            AuthorizationException aex = Throwables2.getFirstThrowableOfType(e, AuthorizationException.class);
+            if (aex != null)
+               throw aex;
+            throw e;
+         }
       } else if (method.isAnnotationPresent(Delegate.class)) {
          return delegateMap.get(new ClassMethodArgs(method.getReturnType(), method, args));
       } else if (annotationProcessor.getDelegateOrNull(method) != null
-            && ListenableFuture.class.isAssignableFrom(method.getReturnType())) {
+               && ListenableFuture.class.isAssignableFrom(method.getReturnType())) {
          return createListenableFuture(method, args);
       } else {
          throw new RuntimeException("method is intended solely to set constants: " + method);
       }
    }
 
-   @SuppressWarnings({ "unchecked", "rawtypes" })
+   @SuppressWarnings( { "unchecked", "rawtypes" })
    private ListenableFuture<?> createListenableFuture(Method method, Object[] args) throws ExecutionException {
       method = annotationProcessor.getDelegateOrNull(method);
       logger.trace("Converting %s.%s", declaring.getSimpleName(), method.getName());
       Function<Exception, ?> exceptionParser = annotationProcessor
-            .createExceptionParserOrThrowResourceNotFoundOn404IfNoAnnotation(method);
+               .createExceptionParserOrThrowResourceNotFoundOn404IfNoAnnotation(method);
       // in case there is an exception creating the request, we should at least
       // pass in args
       if (exceptionParser instanceof InvocationContext) {
@@ -121,7 +150,7 @@ public class AsyncRestClientProxy<T> implements InvocationHandler {
 
          Function<HttpResponse, ?> transformer = annotationProcessor.createResponseParser(method, request);
          logger.trace("Response from %s.%s is parsed by %s", declaring.getSimpleName(), method.getName(), transformer
-               .getClass().getSimpleName());
+                  .getClass().getSimpleName());
 
          logger.debug("Invoking %s.%s", declaring.getSimpleName(), method.getName());
          result = commandFactory.create(request, transformer).execute();
@@ -142,7 +171,7 @@ public class AsyncRestClientProxy<T> implements InvocationHandler {
 
       if (exceptionParser != null) {
          logger.trace("Exceptions from %s.%s are parsed by %s", declaring.getSimpleName(), method.getName(),
-               exceptionParser.getClass().getSimpleName());
+                  exceptionParser.getClass().getSimpleName());
          result = new ExceptionParsingListenableFuture(result, exceptionParser);
       }
       return result;

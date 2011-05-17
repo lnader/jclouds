@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.predicates;
 
 import javax.annotation.Resource;
@@ -52,7 +51,6 @@ public class InstanceStateStopped implements Predicate<RunningInstance> {
 
    public boolean apply(RunningInstance instance) {
       logger.trace("looking for state on instance %s", instance);
-
       instance = refresh(instance);
       logger.trace("%s: looking for instance state %s: currently: %s", instance.getId(),
                InstanceState.STOPPED, instance.getInstanceState());

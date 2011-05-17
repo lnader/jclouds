@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.ec2.compute;
 
 import static org.testng.Assert.assertEquals;
@@ -76,6 +75,7 @@ public class AWSEC2ComputeServiceLiveTest extends EC2ComputeServiceLiveTest {
       options.as(AWSEC2TemplateOptions.class).securityGroups(group);
       options.as(AWSEC2TemplateOptions.class).keyPair(group);
       options.as(AWSEC2TemplateOptions.class).enableMonitoring();
+      options.as(AWSEC2TemplateOptions.class).spotPrice(0.3f);
 
       String startedId = null;
       try {
@@ -122,7 +122,7 @@ public class AWSEC2ComputeServiceLiveTest extends EC2ComputeServiceLiveTest {
 
          // make sure our dummy group has no rules
          SecurityGroup secgroup = Iterables.getOnlyElement(securityGroupClient.describeSecurityGroupsInRegion(null,
-                  "jclouds#" +group + "#" + instance.getRegion()));
+                  "jclouds#" + group + "#" + instance.getRegion()));
          assert secgroup.getIpPermissions().size() == 0 : secgroup;
 
          // try to run a script with the original keyPair
@@ -138,43 +138,30 @@ public class AWSEC2ComputeServiceLiveTest extends EC2ComputeServiceLiveTest {
          }
          cleanupExtendedStuff(securityGroupClient, keyPairClient, group);
       }
-      
+
    }
+
    @Test(enabled = true, dependsOnMethods = "testCompareSizes")
-   public void testExtendedOptionsWithSubnetId() throws Exception {
+   public void testSubnetId() throws Exception {
 
       String subnetId = System.getProperty("test.subnetId");
       if (subnetId == null) {
          // Skip test and return
          return;
       }
-      SecurityGroupClient securityGroupClient = EC2Client.class.cast(context.getProviderSpecificContext().getApi())
-            .getSecurityGroupServices();
-
-      KeyPairClient keyPairClient = EC2Client.class.cast(context.getProviderSpecificContext().getApi())
-            .getKeyPairServices();
 
       InstanceClient instanceClient = EC2Client.class.cast(context.getProviderSpecificContext().getApi())
-            .getInstanceServices();
+               .getInstanceServices();
 
       String group = this.group + "g";
 
       TemplateOptions options = client.templateOptions();
 
-      // options.as(AWSEC2TemplateOptions.class).securityGroups(group);
-      options.as(AWSEC2TemplateOptions.class).keyPair(group);
-      options.as(AWSEC2TemplateOptions.class).subnetId(subnetId);
+      options.as(AWSEC2TemplateOptions.class).subnetId(subnetId).spotPrice(0.3f);
 
       String startedId = null;
       String nodeId = null;
       try {
-         cleanupExtendedStuff(securityGroupClient, keyPairClient, group);
-
-         // create the security group
-         // securityGroupClient.createSecurityGroupInRegion(null, group, group);
-
-         // create a keypair to pass in as well
-         keyPairClient.createKeyPairInRegion(null, group);
 
          Set<? extends NodeMetadata> nodes = client.createNodesInGroup(group, 1, options);
 
@@ -192,11 +179,6 @@ public class AWSEC2ComputeServiceLiveTest extends EC2ComputeServiceLiveTest {
       } finally {
          if (nodeId != null)
             client.destroyNode(nodeId);
-         if (startedId != null) {
-            // ensure we didn't delete these resources!
-            assertEquals(keyPairClient.describeKeyPairsInRegion(null, group).size(), 1);
-         }
-         cleanupExtendedStuff(securityGroupClient, keyPairClient, group);
       }
    }
 

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +16,14 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml;
 
-import static org.jclouds.vcloud.util.Utils.cleanseAttributes;
 import static org.jclouds.vcloud.util.Utils.putReferenceType;
 
 import java.util.Map;
 
 import org.jclouds.http.functions.ParseSax;
+import org.jclouds.util.SaxUtils;
 import org.jclouds.vcloud.domain.ReferenceType;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -44,7 +43,7 @@ public class OrgListHandler extends ParseSax.HandlerWithResult<Map<String, Refer
 
    @Override
    public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
-      Map<String, String> attributes = cleanseAttributes(attrs);
+      Map<String, String> attributes = SaxUtils.cleanseAttributes(attrs);
       if (qName.endsWith("Org")) {
          String type = attributes.get("type");
          if (type != null) {

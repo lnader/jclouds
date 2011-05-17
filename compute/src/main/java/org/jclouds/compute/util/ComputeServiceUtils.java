@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.util;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -106,6 +105,8 @@ public class ComputeServiceUtils {
     * @return null if group cannot be parsed
     */
    public static String parseGroupFromName(String from) {
+      if (from == null)
+         return null;
       Matcher matcher = DELIMETED_BY_HYPHEN_ENDING_IN_HYPHEN_HEX.matcher(from);
       return matcher.find() ? matcher.group(1) : null;
    }

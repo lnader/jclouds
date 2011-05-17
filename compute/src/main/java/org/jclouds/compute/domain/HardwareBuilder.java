@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -26,12 +25,14 @@ import static org.jclouds.compute.predicates.ImagePredicates.any;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jclouds.compute.domain.internal.HardwareImpl;
 import org.jclouds.compute.predicates.ImagePredicates;
 import org.jclouds.domain.Location;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 /**
@@ -39,17 +40,22 @@ import com.google.common.collect.Lists;
  * @author Adrian Cole
  */
 public class HardwareBuilder extends ComputeMetadataBuilder {
-   private List<Processor> processors = Lists.newArrayList();
-   private int ram;
-   private List<Volume> volumes = Lists.newArrayList();
-   private Predicate<Image> supportsImage = any();
+   protected List<Processor> processors = Lists.newArrayList();
+   protected int ram;
+   protected List<Volume> volumes = Lists.newArrayList();
+   protected Predicate<Image> supportsImage = any();
 
    public HardwareBuilder() {
       super(ComputeType.HARDWARE);
    }
 
-   public HardwareBuilder processors(List<Processor> processors) {
-      this.processors = checkNotNull(processors, "processors");
+   public HardwareBuilder processor(Processor processor) {
+      this.processors.add(checkNotNull(processor, "processor"));
+      return this;
+   }
+
+   public HardwareBuilder processors(Iterable<Processor> processors) {
+      this.processors = ImmutableList.copyOf(checkNotNull(processors, "processors"));
       return this;
    }
 
@@ -58,8 +64,13 @@ public class HardwareBuilder extends ComputeMetadataBuilder {
       return this;
    }
 
-   public HardwareBuilder volumes(List<Volume> volumes) {
-      this.volumes = checkNotNull(volumes, "volumes");
+   public HardwareBuilder volume(Volume volume) {
+      this.volumes.add(checkNotNull(volume, "volume"));
+      return this;
+   }
+
+   public HardwareBuilder volumes(Iterable<Volume> volumes) {
+      this.volumes = ImmutableList.copyOf(checkNotNull(volumes, "volumes"));
       return this;
    }
 
@@ -76,6 +87,11 @@ public class HardwareBuilder extends ComputeMetadataBuilder {
    @Override
    public HardwareBuilder id(String id) {
       return HardwareBuilder.class.cast(super.id(id));
+   }
+   
+   @Override
+   public HardwareBuilder tags(Set<String> tags) {
+      return HardwareBuilder.class.cast(super.tags(tags));
    }
 
    @Override
@@ -110,15 +126,15 @@ public class HardwareBuilder extends ComputeMetadataBuilder {
 
    @Override
    public Hardware build() {
-      return new HardwareImpl(providerId, name, id, location, uri, userMetadata, processors, ram, volumes,
-            supportsImage);
+      return new HardwareImpl(providerId, name, id, location, uri, userMetadata, tags, processors, ram, volumes,
+               supportsImage);
    }
 
    @SuppressWarnings("unchecked")
    public static HardwareBuilder fromHardware(Hardware in) {
-      return new HardwareBuilder().id(in.getId()).providerId(in.getProviderId()).location(in.getLocation())
-            .name(in.getName()).uri(in.getUri()).userMetadata(in.getUserMetadata())
-            .processors(List.class.cast(in.getProcessors())).ram(in.getRam()).volumes(List.class.cast(in.getVolumes()))
-            .supportsImage(in.supportsImage());
+      return new HardwareBuilder().id(in.getId()).providerId(in.getProviderId()).location(in.getLocation()).name(
+               in.getName()).uri(in.getUri()).userMetadata(in.getUserMetadata()).tags(in.getTags()).processors(
+               List.class.cast(in.getProcessors())).ram(in.getRam()).volumes(List.class.cast(in.getVolumes()))
+               .supportsImage(in.supportsImage());
    }
 }

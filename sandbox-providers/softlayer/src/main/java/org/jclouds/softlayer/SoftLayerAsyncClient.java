@@ -16,25 +16,11 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.softlayer;
 
-import java.util.Set;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.MediaType;
-
-import org.jclouds.http.filters.BasicAuthentication;
-import org.jclouds.rest.annotations.ExceptionParser;
-import org.jclouds.rest.annotations.RequestFilters;
-import org.jclouds.rest.functions.ReturnEmptySetOnNotFoundOr404;
-import org.jclouds.rest.functions.ReturnNullOnNotFoundOr404;
-import org.jclouds.softlayer.domain.VirtualGuest;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import org.jclouds.rest.annotations.Delegate;
+import org.jclouds.softlayer.features.DatacenterAsyncClient;
+import org.jclouds.softlayer.features.VirtualGuestAsyncClient;
 
 /**
  * Provides asynchronous access to SoftLayer via their REST API.
@@ -44,25 +30,17 @@ import com.google.common.util.concurrent.ListenableFuture;
  * @see <a href="http://sldn.softlayer.com/wiki/index.php/REST" />
  * @author Adrian Cole
  */
-@RequestFilters(BasicAuthentication.class)
-@Path("/v{jclouds.api-version}")
 public interface SoftLayerAsyncClient {
 
    /**
-    * @see SoftLayerClient#listVirtualGuests
+    * Provides asynchronous access to VirtualGuest features.
     */
-   @GET
-   @Path("/SoftLayer_Account/VirtualGuests.json")
-   @Consumes(MediaType.APPLICATION_JSON)
-   @ExceptionParser(ReturnEmptySetOnNotFoundOr404.class)
-   ListenableFuture<Set<VirtualGuest>> listVirtualGuests();
+   @Delegate
+   VirtualGuestAsyncClient getVirtualGuestClient();
 
    /**
-    * @see SoftLayerClient#getVirtualGuest
+    * Provides asynchronous access to Datacenter features.
     */
-   @GET
-   @Path("/SoftLayer_Virtual_Guest/{id}.json")
-   @Consumes(MediaType.APPLICATION_JSON)
-   @ExceptionParser(ReturnNullOnNotFoundOr404.class)
-   ListenableFuture<VirtualGuest> getVirtualGuest(@PathParam("id") long id);
+   @Delegate
+   DatacenterAsyncClient getDatacenterClient();
 }

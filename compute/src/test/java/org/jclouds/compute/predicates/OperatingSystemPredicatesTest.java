@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,16 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.predicates;
 
 import static org.jclouds.compute.predicates.OperatingSystemPredicates.supportsApt;
 import static org.jclouds.compute.predicates.OperatingSystemPredicates.supportsYum;
 import static org.jclouds.compute.predicates.OperatingSystemPredicates.supportsZypper;
 
+import org.jclouds.cim.OSType;
+import org.jclouds.compute.domain.CIMOperatingSystem;
 import org.jclouds.compute.domain.OperatingSystem;
 import org.jclouds.compute.domain.OsFamily;
-import org.jclouds.compute.domain.os.CIMOperatingSystem;
-import org.jclouds.compute.domain.os.CIMOperatingSystem.OSType;
 import org.testng.annotations.Test;
 
 /**

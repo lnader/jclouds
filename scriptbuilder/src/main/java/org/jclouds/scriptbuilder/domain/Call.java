@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.scriptbuilder.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -88,7 +87,7 @@ public class Call implements Statement {
    }
 
    @Override
-   public Iterable<String> functionDependecies(OsFamily family) {
+   public Iterable<String> functionDependencies(OsFamily family) {
       return ImmutableList.of(function);
    }
 }

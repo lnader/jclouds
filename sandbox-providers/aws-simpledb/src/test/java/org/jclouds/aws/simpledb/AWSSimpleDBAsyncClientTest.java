@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.simpledb;
 
 import java.io.IOException;
@@ -25,6 +24,7 @@ import java.util.Properties;
 
 import org.jclouds.aws.domain.Region;
 import org.jclouds.rest.RestContextFactory;
+import org.jclouds.rest.RestContextSpec;
 import org.jclouds.simpledb.SimpleDBAsyncClient;
 import org.jclouds.simpledb.SimpleDBAsyncClientTest;
 import org.testng.annotations.Test;
@@ -54,4 +54,8 @@ public class AWSSimpleDBAsyncClientTest extends SimpleDBAsyncClientTest {
       }
    }
 
+   @Override
+   public RestContextSpec<?, ?> createContextSpec() {
+      return new RestContextFactory().createContextSpec(provider, "foo", "bar", getProperties());
+   }
 }

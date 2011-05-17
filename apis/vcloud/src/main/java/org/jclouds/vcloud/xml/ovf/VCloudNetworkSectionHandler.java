@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml.ovf;
 
 import java.util.Map;
@@ -24,8 +23,10 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.jclouds.http.functions.ParseSax;
+import org.jclouds.ovf.NetworkSection;
+import org.jclouds.ovf.xml.NetworkSectionHandler;
+import org.jclouds.util.SaxUtils;
 import org.jclouds.vcloud.domain.ReferenceType;
-import org.jclouds.vcloud.domain.ovf.NetworkSection;
 import org.jclouds.vcloud.domain.ovf.VCloudNetworkSection;
 import org.jclouds.vcloud.util.Utils;
 import org.xml.sax.Attributes;
@@ -49,7 +50,7 @@ public class VCloudNetworkSectionHandler extends ParseSax.HandlerWithResult<VClo
    }
 
    public void startElement(String uri, String localName, String qName, Attributes attrs) {
-      Map<String, String> attributes = Utils.cleanseAttributes(attrs);
+      Map<String, String> attributes = SaxUtils.cleanseAttributes(attrs);
       if (qName.endsWith("NetworkSection")) {
          this.net = Utils.newReferenceType(attributes);
       }

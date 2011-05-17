@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -35,15 +34,16 @@ import java.util.concurrent.TimeoutException;
 import org.jclouds.Constants;
 import org.jclouds.compute.config.BaseComputeServiceContextModule;
 import org.jclouds.compute.domain.OsFamily;
+import org.jclouds.compute.domain.OsFamilyVersion64Bit;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.domain.TemplateBuilder;
-import org.jclouds.compute.domain.os.OsFamilyVersion64Bit;
 import org.jclouds.compute.reference.ComputeServiceConstants;
 import org.jclouds.domain.Location;
 import org.jclouds.domain.LocationScope;
 import org.jclouds.json.Json;
 import org.jclouds.json.config.GsonModule;
 import org.jclouds.logging.log4j.config.Log4JLoggingModule;
+import org.jclouds.rest.RestContextFactory;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -91,10 +91,14 @@ public abstract class BaseTemplateBuilderLiveTest {
       return overrides;
    }
 
+   protected Properties setupRestProperties() {
+      return RestContextFactory.getPropertiesFromResource("/rest.properties");
+   }
+
    @BeforeClass
    public void setupClient() throws InterruptedException, ExecutionException, TimeoutException, IOException {
       setupCredentials();
-      context = new ComputeServiceContextFactory().createContext(provider, ImmutableSet
+      context = new ComputeServiceContextFactory(setupRestProperties()).createContext(provider, ImmutableSet
                .<Module> of(new Log4JLoggingModule()), setupProperties());
    }
 
@@ -163,7 +167,7 @@ public abstract class BaseTemplateBuilderLiveTest {
       Template defaultTemplate = context.getComputeService().templateBuilder().build();
 
       Template template = context.getComputeService().templateBuilder().imageId(defaultTemplate.getImage().getId())
-               .build();
+               .locationId(defaultTemplate.getLocation().getId()).build();
       assertEquals(template.getImage(), defaultTemplate.getImage());
    }
 

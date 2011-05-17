@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack;
 
 import java.io.IOException;
@@ -51,6 +50,13 @@ public class CloudStackAsyncClientTest extends BaseCloudStackAsyncClientTest<Clo
       assert syncClient.getSecurityGroupClient() != null;
       assert syncClient.getAsyncJobClient() != null;
       assert syncClient.getAddressClient() != null;
+      assert syncClient.getNATClient() != null;
+      assert syncClient.getFirewallClient() != null;
+      assert syncClient.getLoadBalancerClient() != null;
+      assert syncClient.getGuestOSClient() != null;
+      assert syncClient.getHypervisorClient() != null;
+      assert syncClient.getConfigurationClient() != null;
+      assert syncClient.getAccountClient() != null;
    }
 
    public void testAsync() throws SecurityException, NoSuchMethodException, InterruptedException, ExecutionException {
@@ -62,6 +68,13 @@ public class CloudStackAsyncClientTest extends BaseCloudStackAsyncClientTest<Clo
       assert asyncClient.getSecurityGroupClient() != null;
       assert asyncClient.getAsyncJobClient() != null;
       assert asyncClient.getAddressClient() != null;
+      assert asyncClient.getNATClient() != null;
+      assert asyncClient.getFirewallClient() != null;
+      assert asyncClient.getLoadBalancerClient() != null;
+      assert asyncClient.getGuestOSClient() != null;
+      assert asyncClient.getHypervisorClient() != null;
+      assert asyncClient.getConfigurationClient() != null;
+      assert asyncClient.getAccountClient() != null;
    }
 
    @Override

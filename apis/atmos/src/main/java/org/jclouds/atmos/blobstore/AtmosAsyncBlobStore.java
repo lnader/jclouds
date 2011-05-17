@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.atmos.blobstore;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -51,6 +50,8 @@ import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.functions.BlobToHttpGetOptions;
 import org.jclouds.blobstore.internal.BaseAsyncBlobStore;
+import org.jclouds.blobstore.options.CreateContainerOptions;
+import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.blobstore.strategy.internal.FetchBlobMetadata;
 import org.jclouds.blobstore.util.BlobUtils;
 import org.jclouds.collect.Memoized;
@@ -82,9 +83,9 @@ public class AtmosAsyncBlobStore extends BaseAsyncBlobStore {
    @Inject
    AtmosAsyncBlobStore(BlobStoreContext context, BlobUtils blobUtils,
             @Named(Constants.PROPERTY_USER_THREADS) ExecutorService service, Supplier<Location> defaultLocation,
-            @Memoized Supplier<Set<? extends Location>> locations, AtmosAsyncClient async,
-            AtmosClient sync, ObjectToBlob object2Blob, ObjectToBlobMetadata object2BlobMd,
-            BlobToObject blob2Object, BlobStoreListOptionsToListOptions container2ContainerListOptions,
+            @Memoized Supplier<Set<? extends Location>> locations, AtmosAsyncClient async, AtmosClient sync,
+            ObjectToBlob object2Blob, ObjectToBlobMetadata object2BlobMd, BlobToObject blob2Object,
+            BlobStoreListOptionsToListOptions container2ContainerListOptions,
             DirectoryEntryListToResourceMetadataList container2ResourceList, Crypto crypto,
             BlobToHttpGetOptions blob2ObjectGetOptions, Provider<FetchBlobMetadata> fetchBlobMetadataProvider) {
       super(context, blobUtils, service, defaultLocation, locations);
@@ -235,9 +236,12 @@ public class AtmosAsyncBlobStore extends BaseAsyncBlobStore {
          @Override
          public String call() throws Exception {
             return AtmosUtils.putBlob(sync, crypto, blob2Object, container, blob);
-
          }
 
+         @Override
+         public String toString() {
+            return "putBlob(" + container + "," + blob.getMetadata().getName() + ")";
+         }
       }), service);
 
    }
@@ -248,6 +252,20 @@ public class AtmosAsyncBlobStore extends BaseAsyncBlobStore {
    @Override
    public ListenableFuture<Void> removeBlob(String container, String key) {
       return async.deletePath(container + "/" + key);
+   }
+
+   @Override
+   public ListenableFuture<String> putBlob(String container, Blob blob, PutOptions options) {
+      // TODO implement options
+      return putBlob(container, blob);
+   }
+
+   @Override
+   public ListenableFuture<Boolean> createContainerInLocation(Location location, String container,
+            CreateContainerOptions options) {
+      if (options.isPublicRead())
+         throw new UnsupportedOperationException("publicRead");
+      return createContainerInLocation(location, container);
    }
 
 }

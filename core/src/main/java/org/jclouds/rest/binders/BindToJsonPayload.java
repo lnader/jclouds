@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.rest.binders;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Map;
 
@@ -37,8 +36,12 @@ import org.jclouds.rest.MapBinder;
  */
 public class BindToJsonPayload implements MapBinder {
 
+   protected final Json jsonBinder;
+
    @Inject
-   protected Json jsonBinder;
+   public BindToJsonPayload(Json jsonBinder) {
+      this.jsonBinder = checkNotNull(jsonBinder, "jsonBinder");
+   }
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, String> postParams) {
@@ -47,8 +50,7 @@ public class BindToJsonPayload implements MapBinder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Object payload) {
-      checkState(jsonBinder != null, "Program error: json should have been injected at this point");
-      String json = jsonBinder.toJson(payload);
+      String json = jsonBinder.toJson(checkNotNull(payload, "payload"));
       request.setPayload(json);
       request.getPayload().getContentMetadata().setContentType(MediaType.APPLICATION_JSON);
       return request;

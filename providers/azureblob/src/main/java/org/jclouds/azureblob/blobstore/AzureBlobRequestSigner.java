@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.azureblob.blobstore;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -32,6 +31,7 @@ import org.jclouds.azureblob.blobstore.functions.BlobToAzureBlob;
 import org.jclouds.azureblob.domain.AzureBlob;
 import org.jclouds.blobstore.BlobRequestSigner;
 import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.functions.BlobToHttpGetOptions;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.options.GetOptions;
 import org.jclouds.rest.internal.RestAnnotationProcessor;
@@ -44,19 +44,21 @@ import org.jclouds.rest.internal.RestAnnotationProcessor;
 public class AzureBlobRequestSigner implements BlobRequestSigner {
    private final RestAnnotationProcessor<AzureBlobAsyncClient> processor;
    private final BlobToAzureBlob blobToBlob;
+   private final BlobToHttpGetOptions blob2HttpGetOptions;
+
    private final Method getMethod;
    private final Method deleteMethod;
    private final Method createMethod;
 
    @Inject
-   public AzureBlobRequestSigner(RestAnnotationProcessor<AzureBlobAsyncClient> processor, BlobToAzureBlob blobToBlob)
-            throws SecurityException, NoSuchMethodException {
+   public AzureBlobRequestSigner(RestAnnotationProcessor<AzureBlobAsyncClient> processor, BlobToAzureBlob blobToBlob,
+            BlobToHttpGetOptions blob2HttpGetOptions) throws SecurityException, NoSuchMethodException {
       this.processor = checkNotNull(processor, "processor");
       this.blobToBlob = checkNotNull(blobToBlob, "blobToBlob");
+      this.blob2HttpGetOptions = checkNotNull(blob2HttpGetOptions, "blob2HttpGetOptions");
       this.getMethod = AzureBlobAsyncClient.class.getMethod("getBlob", String.class, String.class, GetOptions[].class);
       this.deleteMethod = AzureBlobAsyncClient.class.getMethod("deleteBlob", String.class, String.class);
       this.createMethod = AzureBlobAsyncClient.class.getMethod("putBlob", String.class, AzureBlob.class);
-
    }
 
    @Override
@@ -74,4 +76,8 @@ public class AzureBlobRequestSigner implements BlobRequestSigner {
       return cleanRequest(processor.createRequest(deleteMethod, container, name));
    }
 
+   @Override
+   public HttpRequest signGetBlob(String container, String name, org.jclouds.blobstore.options.GetOptions options) {
+      return cleanRequest(processor.createRequest(getMethod, container, name, blob2HttpGetOptions.apply(options)));
+   }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,14 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.rimuhosting.miro.binder;
 
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.jclouds.http.HttpRequest;
+import org.jclouds.json.Json;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -33,6 +35,11 @@ import com.google.common.collect.ImmutableMap;
  * @author Ivan Meredith
  */
 public class RimuHostingRebootJsonBinder extends RimuHostingJsonBinder {
+   @Inject
+   public RimuHostingRebootJsonBinder(Json jsonBinder) {
+      super(jsonBinder);
+   }
+
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, String> postParams) {
       return super.bindToRequest(request, (Object) ImmutableMap.of("running_state", "RESTARTING"));

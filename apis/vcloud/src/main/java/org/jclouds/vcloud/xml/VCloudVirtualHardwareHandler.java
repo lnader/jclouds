@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,8 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml;
 
-import static org.jclouds.vcloud.util.Utils.cleanseAttributes;
 import static org.jclouds.vcloud.util.Utils.newReferenceType;
 
 import java.util.Map;
@@ -27,9 +25,11 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.jclouds.http.functions.ParseSax;
+import org.jclouds.ovf.VirtualHardwareSection;
+import org.jclouds.ovf.xml.VirtualHardwareSectionHandler;
+import org.jclouds.util.SaxUtils;
 import org.jclouds.vcloud.domain.ReferenceType;
 import org.jclouds.vcloud.domain.ovf.VCloudVirtualHardwareSection;
-import org.jclouds.vcloud.domain.ovf.VirtualHardwareSection;
 import org.xml.sax.Attributes;
 
 /**
@@ -49,11 +49,11 @@ public class VCloudVirtualHardwareHandler extends ParseSax.HandlerWithResult<VCl
    public VCloudVirtualHardwareSection getResult() {
       VirtualHardwareSection hardware = hardwareHandler.getResult();
       return new VCloudVirtualHardwareSection(this.hardware.getType(), this.hardware.getHref(), hardware.getInfo(), hardware
-               .getSystem(), hardware.getResourceAllocations());
+                        .getTransports(), hardware.getSystem(), hardware.getItems());
    }
 
    public void startElement(String uri, String localName, String qName, Attributes attrs) {
-      Map<String, String> attributes = cleanseAttributes(attrs);
+      Map<String, String> attributes = SaxUtils.cleanseAttributes(attrs);
       if (qName.endsWith("VirtualHardwareSection")) {
          hardware = newReferenceType(attributes);
       }

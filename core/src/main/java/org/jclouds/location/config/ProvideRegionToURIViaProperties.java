@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.location.config;
 
 import static org.jclouds.location.reference.LocationConstants.ENDPOINT;
@@ -25,14 +24,17 @@ import static org.jclouds.location.reference.LocationConstants.PROPERTY_REGIONS;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.jclouds.location.Region;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
@@ -49,10 +51,12 @@ import com.google.inject.name.Names;
 public class ProvideRegionToURIViaProperties implements javax.inject.Provider<Map<String, URI>> {
 
    private final Injector injector;
+   private final Multimap<String, String> constants;
 
    @Inject
-   ProvideRegionToURIViaProperties(Injector injector) {
+   protected ProvideRegionToURIViaProperties(Injector injector, @Named("CONSTANTS") Multimap<String, String> constants) {
       this.injector = injector;
+      this.constants = constants;
    }
 
    @Singleton
@@ -63,8 +67,13 @@ public class ProvideRegionToURIViaProperties implements javax.inject.Provider<Ma
          String regionString = injector.getInstance(Key.get(String.class, Names.named(PROPERTY_REGIONS)));
          Builder<String, URI> regions = ImmutableMap.<String, URI> builder();
          for (String region : Splitter.on(',').split(regionString)) {
-            regions.put(region, URI.create(injector.getInstance(Key.get(String.class, Names.named(PROPERTY_REGION + "."
-                     + region + "." + ENDPOINT)))));
+            String regionUri = injector.getInstance(Key.get(String.class, Names.named(PROPERTY_REGION + "." + region
+                     + "." + ENDPOINT)));
+            for (Entry<String, String> entry : constants.entries()) {
+               regionUri = regionUri.replace(new StringBuilder().append('{').append(entry.getKey()).append('}').toString(), entry
+                        .getValue());
+            }
+            regions.put(region, URI.create(regionUri));
          }
          return regions.build();
       } catch (ConfigurationException e) {

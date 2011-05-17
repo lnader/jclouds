@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -66,7 +65,7 @@ public class Volume implements Comparable<Volume> {
    }
 
    public static enum Status {
-      CREATING, AVAILABLE, IN_USE, DELETING, UNRECOGNIZED;
+      CREATING, AVAILABLE, IN_USE, DELETING, ERROR, UNRECOGNIZED;
       public String value() {
          return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN, name());
       }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.terremark;
 
 import java.net.URI;
@@ -96,7 +95,7 @@ public interface TerremarkVCloudClient extends VCloudExpressClient {
     * 
     */
    InternetService addInternetServiceToExistingIp(URI existingIpId, String serviceName, Protocol protocol, int port,
-            AddInternetServiceOptions... options);
+         AddInternetServiceOptions... options);
 
    void deleteInternetService(URI internetServiceId);
 
@@ -178,4 +177,5 @@ public interface TerremarkVCloudClient extends VCloudExpressClient {
    // keyPairConfiguration);
 
    void deleteKeyPair(URI keyPair);
+
 }

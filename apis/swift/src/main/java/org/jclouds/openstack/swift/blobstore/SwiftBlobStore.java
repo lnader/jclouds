@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.openstack.swift.blobstore;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -36,7 +35,9 @@ import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.domain.internal.PageSetImpl;
 import org.jclouds.blobstore.functions.BlobToHttpGetOptions;
 import org.jclouds.blobstore.internal.BaseBlobStore;
+import org.jclouds.blobstore.options.CreateContainerOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
+import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.blobstore.strategy.internal.FetchBlobMetadata;
 import org.jclouds.blobstore.util.BlobUtils;
 import org.jclouds.collect.Memoized;
@@ -72,7 +73,7 @@ public class SwiftBlobStore extends BaseBlobStore {
    private final Provider<FetchBlobMetadata> fetchBlobMetadataProvider;
 
    @Inject
-   SwiftBlobStore(BlobStoreContext context, BlobUtils blobUtils, Supplier<Location> defaultLocation,
+   protected SwiftBlobStore(BlobStoreContext context, BlobUtils blobUtils, Supplier<Location> defaultLocation,
             @Memoized Supplier<Set<? extends Location>> locations, CommonSwiftClient sync,
             ContainerToResourceMetadata container2ResourceMd,
             BlobStoreListContainerOptionsToListContainerOptions container2ContainerListOptions,
@@ -196,6 +197,20 @@ public class SwiftBlobStore extends BaseBlobStore {
    }
 
    /**
+    * This implementation invokes {@link CommonSwiftClient#putObject}
+    * 
+    * @param container
+    *           container name
+    * @param blob
+    *           object
+    */
+   @Override
+   public String putBlob(String container, Blob blob, PutOptions options) {
+      // TODO implement options
+      return putBlob(container, blob);
+   }
+
+   /**
     * This implementation invokes {@link CommonSwiftClient#removeObject}
     * 
     * @param container
@@ -212,5 +227,12 @@ public class SwiftBlobStore extends BaseBlobStore {
    protected boolean deleteAndVerifyContainerGone(String container) {
       sync.deleteContainerIfEmpty(container);
       return !sync.containerExists(container);
+   }
+
+   @Override
+   public boolean createContainerInLocation(Location location, String container, CreateContainerOptions options) {
+      if (options.isPublicRead())
+         throw new UnsupportedOperationException("publicRead");
+      return createContainerInLocation(location, container);
    }
 }

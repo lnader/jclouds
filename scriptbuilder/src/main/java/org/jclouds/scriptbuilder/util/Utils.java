@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.scriptbuilder.util;
 
 import java.io.IOException;
@@ -134,8 +133,8 @@ public class Utils {
 
    public static String writeFunctionFromResource(String function, OsFamily family) {
       try {
-         return CharStreams.toString(Resources.newReaderSupplier(Resources.getResource(String
-                  .format("functions/%s.%s", function, ShellToken.SH.to(family))), Charsets.UTF_8));
+         return CharStreams.toString(Resources.newReaderSupplier(Resources.getResource(Utils.class, String
+                  .format("/functions/%s.%s", function, ShellToken.SH.to(family))), Charsets.UTF_8));
       } catch (IOException e) {
          throw new FunctionNotFoundException(function, family, e);
       }

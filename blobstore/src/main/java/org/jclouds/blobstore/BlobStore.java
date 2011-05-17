@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore;
 
 import java.util.Set;
@@ -28,8 +27,10 @@ import org.jclouds.blobstore.domain.BlobBuilder;
 import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
+import org.jclouds.blobstore.options.CreateContainerOptions;
 import org.jclouds.blobstore.options.GetOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
+import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.domain.Location;
 
 /**
@@ -48,17 +49,18 @@ public interface BlobStore {
 
    /**
     * creates a new blob with the specified name.
+    * 
     * @see #blobBuilder
     */
    @Deprecated
    Blob newBlob(String name);
-   
+
    /**
     * 
     * @return builder for creating new {@link Blob}s
     */
    BlobBuilder blobBuilder(String name);
-   
+
    /**
     * The get locations command returns all the valid locations for containers. A location has a
     * scope, which is typically region or zone. A region is a general area, like eu-west, where a
@@ -96,6 +98,14 @@ public interface BlobStore {
     * @return true if the container was created, false if it already existed.
     */
    boolean createContainerInLocation(@Nullable Location location, String container);
+
+   /**
+    * 
+    * @param options
+    *           controls default access control
+    * @see #createContainerInLocation(Location,String)
+    */
+   boolean createContainerInLocation(@Nullable Location location, String container, CreateContainerOptions options);
 
    /**
     * Lists all resources in a container non-recursive.
@@ -199,6 +209,22 @@ public interface BlobStore {
     *            if the container doesn't exist
     */
    String putBlob(String container, Blob blob);
+
+   /**
+    * Adds a {@code Blob} representing the data at location {@code container/blob.metadata.name}
+    * options using multipart strategies.
+    * 
+    * @param container
+    *           container to place the blob.
+    * @param blob
+    *           fully qualified name relative to the container.
+    * @param options
+    *           byte range options
+    * @return etag of the blob you uploaded, possibly null where etags are unsupported
+    * @throws ContainerNotFoundException
+    *            if the container doesn't exist
+    */
+   String putBlob(String container, Blob blob, PutOptions options);
 
    /**
     * Retrieves the metadata of a {@code Blob} at location {@code container/name}

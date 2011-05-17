@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,17 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.integration.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagateIfPossible;
 import static org.jclouds.blobstore.util.BlobStoreUtils.getContentAsStringOrNullAndClose;
 import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
@@ -40,6 +40,7 @@ import javax.ws.rs.core.MediaType;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.attr.ConsistencyModel;
 import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.domain.StorageType;
 import org.jclouds.http.config.JavaUrlHttpCommandExecutorServiceModule;
@@ -52,6 +53,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.inject.Module;
@@ -74,7 +76,8 @@ public class BaseBlobStoreIntegrationTest {
    protected static volatile AtomicInteger containerIndex = new AtomicInteger(0);
 
    protected volatile BlobStoreContext context;
-   protected static volatile int containerCount = 10;
+   protected static volatile int containerCount = Integer.parseInt(System.getProperty("test.blobstore.container-count",
+         "10"));
    public static final String CONTAINER_PREFIX = System.getProperty("user.name") + "-blobstore";
    /**
     * two test groups integration and live.
@@ -260,10 +263,18 @@ public class BaseBlobStoreIntegrationTest {
       return context.getBlobStore().putBlob(sourceContainer, object);
    }
 
-   protected Blob validateContent(String sourceContainer, String key) throws InterruptedException {
-      assertConsistencyAwareContainerSize(sourceContainer, 1);
-      Blob newObject = context.getBlobStore().getBlob(sourceContainer, key);
+   protected <T extends BlobMetadata> T validateMetadata(T md, String container, String name) {
+      assertEquals(md.getName(), name);
+      assertEquals(md.getContainer(), container);
+      assert md.getUri() != null;
+      return md;
+   }
+
+   protected Blob validateContent(String container, String name) throws InterruptedException {
+      assertConsistencyAwareContainerSize(container, 1);
+      Blob newObject = context.getBlobStore().getBlob(container, name);
       assert newObject != null;
+      validateMetadata(newObject.getMetadata(), container, name);
       try {
          assertEquals(getContentAsStringOrNullAndClose(newObject), TEST_STRING);
       } catch (IOException e) {
@@ -278,7 +289,29 @@ public class BaseBlobStoreIntegrationTest {
          public void run() {
             try {
                assert context.getBlobStore().countBlobs(containerName) == count : String.format(
-                     "expected only %d values in %s: %s", count, containerName, Sets.newHashSet(Iterables.transform(
+                     "expected only %d values in %s: %s", count, containerName, ImmutableSet.copyOf(Iterables
+                           .transform(context.getBlobStore().list(containerName),
+                                 new Function<StorageMetadata, String>() {
+
+                                    public String apply(StorageMetadata from) {
+                                       return from.getName();
+                                    }
+
+                                 })));
+            } catch (Exception e) {
+               Throwables.propagateIfPossible(e);
+            }
+         }
+      });
+   }
+
+   protected void assertConsistencyAwareBlobExists(final String containerName, final String name)
+         throws InterruptedException {
+      assertConsistencyAware(new Runnable() {
+         public void run() {
+            try {
+               assert context.getBlobStore().blobExists(containerName, name) : String.format(
+                     "could not find %s in %s: %s", name, containerName, ImmutableSet.copyOf(Iterables.transform(
                            context.getBlobStore().list(containerName), new Function<StorageMetadata, String>() {
 
                               public String apply(StorageMetadata from) {
@@ -286,6 +319,20 @@ public class BaseBlobStoreIntegrationTest {
                               }
 
                            })));
+            } catch (Exception e) {
+               Throwables.propagateIfPossible(e);
+            }
+         }
+      });
+   }
+
+   protected void assertConsistencyAwareBlobDoesntExist(final String containerName, final String name)
+         throws InterruptedException {
+      assertConsistencyAware(new Runnable() {
+         public void run() {
+            try {
+               assert !context.getBlobStore().blobExists(containerName, name) : String.format("found %s in %s", name,
+                     containerName);
             } catch (Exception e) {
                Throwables.propagateIfPossible(e);
             }
@@ -332,6 +379,19 @@ public class BaseBlobStoreIntegrationTest {
             }
          }
       }
+   }
+
+   protected void assertNotExists(final String containerName) throws InterruptedException {
+      assertConsistencyAware(new Runnable() {
+         public void run() {
+            try {
+               assert !context.getBlobStore().containerExists(containerName) : "container " + containerName
+                     + " still exists";
+            } catch (Exception e) {
+               propagateIfPossible(e);
+            }
+         }
+      });
    }
 
    /**

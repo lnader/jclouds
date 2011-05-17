@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.concurrent.internal;
 
 import static org.testng.Assert.assertEquals;
@@ -24,6 +23,7 @@ import static org.testng.Assert.assertEquals;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -37,26 +37,31 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.inject.Provides;
 
 /**
  * Tests behavior of ListenableFutureExceptionParser
  * 
  * @author Adrian Cole
  */
-@Test(groups = "unit", sequential = true)
+@Test(groups = "unit", singleThreaded = true)
 public class SyncProxyTest {
 
    @Test
    void testConvertNanos() {
-      assertEquals(SyncProxy.convertToNanos(Sync.class.getAnnotation(Timeout.class)), 30000000);
+      assertEquals(SyncProxy.convertToNanos(Sync.class.getAnnotation(Timeout.class)), 40000000);
    }
 
-   @Timeout(duration = 30, timeUnit = TimeUnit.MILLISECONDS)
+   @Timeout(duration = 40, timeUnit = TimeUnit.MILLISECONDS)
    private static interface Sync {
       String getString();
 
       String newString();
+
+      @Provides
+      Set<String> string();
 
       String getRuntimeException();
 
@@ -64,10 +69,10 @@ public class SyncProxyTest {
 
       String take20Milliseconds();
 
-      String take100MillisecondsAndTimeout();
+      String take200MillisecondsAndTimeout();
 
       @Timeout(duration = 300, timeUnit = TimeUnit.MILLISECONDS)
-      String take100MillisecondsAndOverride();
+      String take200MillisecondsAndOverride();
 
    }
 
@@ -112,6 +117,11 @@ public class SyncProxyTest {
          return "new";
       }
 
+      @Provides
+      public Set<String> string() {
+         return ImmutableSet.of("new");
+      }
+      
       public ListenableFuture<String> take20Milliseconds() {
          return Futures.makeListenable(executorService.submit(new Callable<String>() {
 
@@ -127,12 +137,12 @@ public class SyncProxyTest {
          }), executorService);
       }
 
-      public ListenableFuture<String> take100MillisecondsAndTimeout() {
+      public ListenableFuture<String> take200MillisecondsAndTimeout() {
          return Futures.makeListenable(executorService.submit(new Callable<String>() {
 
             public String call() {
                try {
-                  Thread.sleep(100);
+                  Thread.sleep(200);
                } catch (InterruptedException e) {
                   e.printStackTrace();
                }
@@ -142,8 +152,8 @@ public class SyncProxyTest {
          }), executorService);
       }
 
-      public ListenableFuture<String> take100MillisecondsAndOverride() {
-         return take100MillisecondsAndTimeout();
+      public ListenableFuture<String> take200MillisecondsAndOverride() {
+         return take200MillisecondsAndTimeout();
       }
 
    }
@@ -153,7 +163,9 @@ public class SyncProxyTest {
    @BeforeTest
    public void setUp() throws IllegalArgumentException, SecurityException, NoSuchMethodException {
       sync = SyncProxy.proxy(Sync.class, new SyncProxy(Sync.class, new Async(),
-            new ConcurrentHashMap<ClassMethodArgs, Object>(), ImmutableMap.<Class<?>, Class<?>> of()));
+               new ConcurrentHashMap<ClassMethodArgs, Object>(), ImmutableMap.<Class<?>, Class<?>> of()));
+      // just to warm up
+      sync.string();
    }
 
    @Test
@@ -164,6 +176,7 @@ public class SyncProxyTest {
    @Test
    public void testPassSync() {
       assertEquals(sync.newString(), "new");
+      assertEquals(sync.string(), ImmutableSet.of("new"));
    }
 
    @Test
@@ -173,14 +186,13 @@ public class SyncProxyTest {
    }
 
    @Test(expectedExceptions = RuntimeException.class)
-   public void testTake100MillisecondsAndTimeout() {
-      assertEquals(sync.take100MillisecondsAndTimeout(), "foo");
-
+   public void testTake200MillisecondsAndTimeout() {
+      assertEquals(sync.take200MillisecondsAndTimeout(), "foo");
    }
 
    @Test
-   public void testTake100MillisecondsAndOverride() {
-      assertEquals(sync.take100MillisecondsAndOverride(), "foo");
+   public void testTake200MillisecondsAndOverride() {
+      assertEquals(sync.take200MillisecondsAndOverride(), "foo");
    }
 
    @Test

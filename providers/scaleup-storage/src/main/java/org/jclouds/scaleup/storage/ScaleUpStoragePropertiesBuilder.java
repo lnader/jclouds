@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.scaleup.storage;
 
 import static org.jclouds.Constants.PROPERTY_ENDPOINT;
@@ -24,14 +23,14 @@ import static org.jclouds.Constants.PROPERTY_ISO3166_CODES;
 
 import java.util.Properties;
 
-import org.jclouds.s3.S3PropertiesBuilder;
+import org.jclouds.scality.rs2.ScalityRS2PropertiesBuilder;
 
 /**
- * Builds properties used in Google Storage
+ * Builds properties used in ScaleUp Storage
  * 
  * @author Adrian Cole
  */
-public class ScaleUpStoragePropertiesBuilder extends S3PropertiesBuilder {
+public class ScaleUpStoragePropertiesBuilder extends ScalityRS2PropertiesBuilder {
    @Override
    protected Properties defaultProperties() {
       Properties properties = super.defaultProperties();

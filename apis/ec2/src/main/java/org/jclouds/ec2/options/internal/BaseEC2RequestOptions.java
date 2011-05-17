@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.options.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -26,8 +25,9 @@ import java.util.Set;
 import org.jclouds.http.options.BaseHttpRequestOptions;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 /**
  * 
@@ -51,7 +51,7 @@ public class BaseEC2RequestOptions extends BaseHttpRequestOptions {
    }
 
    protected Set<String> getFormValuesWithKeysPrefixedBy(final String prefix) {
-      Set<String> values = Sets.newLinkedHashSet();
+      Builder<String> values = ImmutableSet.<String> builder();
       for (String key : Iterables.filter(formParameters.keySet(), new Predicate<String>() {
 
          public boolean apply(String input) {
@@ -59,10 +59,9 @@ public class BaseEC2RequestOptions extends BaseHttpRequestOptions {
          }
 
       })) {
-         values.add(formParameters.get(key).iterator().next());
-
+         values.add(Iterables.get(formParameters.get(key), 0));
       }
-      return values;
+      return values.build();
    }
 
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.compute.functions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -28,12 +27,13 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.jclouds.cim.OSType;
 import org.jclouds.collect.Memoized;
+import org.jclouds.compute.domain.CIMOperatingSystem;
 import org.jclouds.compute.domain.Image;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeMetadataBuilder;
 import org.jclouds.compute.domain.NodeState;
-import org.jclouds.compute.domain.os.CIMOperatingSystem;
 import org.jclouds.domain.Credentials;
 import org.jclouds.vcloud.compute.VCloudExpressComputeClient;
 import org.jclouds.vcloud.domain.Status;
@@ -76,7 +76,7 @@ public class VCloudExpressVAppToNodeMetadata implements Function<VCloudExpressVA
       builder.name(from.getName());
       builder.location(findLocationForResourceInVDC.apply(from.getVDC()));
       builder.group(parseGroupFromName(from.getName()));
-      builder.operatingSystem(from.getOsType() != null ? new CIMOperatingSystem(CIMOperatingSystem.OSType
+      builder.operatingSystem(from.getOsType() != null ? new CIMOperatingSystem(OSType
                .fromValue(from.getOsType()), null, null, from.getOperatingSystemDescription()) : null);
       builder.hardware(hardwareForVCloudExpressVApp.apply(from));
       builder.state(vAppStatusToNodeState.get(from.getStatus()));

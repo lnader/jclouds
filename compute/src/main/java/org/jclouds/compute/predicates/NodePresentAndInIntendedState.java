@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.predicates;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -65,6 +64,8 @@ public class NodePresentAndInIntendedState implements Predicate<NodeMetadata> {
    }
 
    private NodeMetadata refresh(NodeMetadata node) {
+      if (node == null || node.getId() == null)
+         return null;
       return client.getNodeMetadata(node.getId());
    }
 }

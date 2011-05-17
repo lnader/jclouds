@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.filesystem;
 
 import java.util.concurrent.TimeUnit;
@@ -28,5 +27,5 @@ import org.jclouds.concurrent.Timeout;
  *
  * @author Alfredo "Rainbowbreeze" Morresi
  */
-@Timeout(duration = 30, timeUnit = TimeUnit.SECONDS) public interface FilesystemBlobStore  extends BlobStore {
+@Timeout(duration = 2, timeUnit = TimeUnit.MINUTES) public interface FilesystemBlobStore  extends BlobStore {
 }

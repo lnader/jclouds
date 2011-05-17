@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml;
 
 import static org.testng.Assert.assertEquals;
@@ -24,6 +23,7 @@ import static org.testng.Assert.assertEquals;
 import java.io.InputStream;
 import java.net.URI;
 
+import org.jclouds.cim.xml.ResourceAllocationSettingDataHandler;
 import org.jclouds.http.functions.ParseSax;
 import org.jclouds.http.functions.ParseSax.Factory;
 import org.jclouds.http.functions.config.SaxParserModule;
@@ -32,6 +32,7 @@ import org.jclouds.vcloud.domain.Status;
 import org.jclouds.vcloud.domain.Vm;
 import org.jclouds.vcloud.domain.internal.ReferenceTypeImpl;
 import org.jclouds.vcloud.xml.ovf.VCloudOperatingSystemSectionHandlerTest;
+import org.jclouds.vcloud.xml.ovf.VCloudResourceAllocationSettingDataHandler;
 import org.jclouds.vcloud.xml.ovf.VCloudVirtualHardwareSectionHandlerTest;
 import org.testng.annotations.Test;
 
@@ -48,7 +49,14 @@ import com.google.inject.Injector;
 public class VmHandlerTest {
    public void testVCloud1_0() {
       InputStream is = getClass().getResourceAsStream("/vm-rhel-off-static.xml");
-      Injector injector = Guice.createInjector(new SaxParserModule());
+      Injector injector = Guice.createInjector(new SaxParserModule() {
+
+         @Override
+         protected void configure() {
+            super.configure();
+            bind(ResourceAllocationSettingDataHandler.class).to(VCloudResourceAllocationSettingDataHandler.class);
+         }
+      });
       Factory factory = injector.getInstance(ParseSax.Factory.class);
       Vm result = factory.create(injector.getInstance(VmHandler.class)).parse(is);
       checkVm(result);

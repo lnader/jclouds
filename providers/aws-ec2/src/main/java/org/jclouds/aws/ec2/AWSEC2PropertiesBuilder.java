@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.ec2;
 
 import static org.jclouds.Constants.PROPERTY_ENDPOINT;
@@ -51,7 +50,7 @@ public class AWSEC2PropertiesBuilder extends org.jclouds.ec2.EC2PropertiesBuilde
       // amazon, alestic, canonical, and rightscale
       properties.setProperty(PROPERTY_EC2_AMI_OWNERS, "137112412989,063491364108,099720109477,411009282317");
       // amis that work with the cluster instances
-      properties.setProperty(PROPERTY_EC2_CC_AMIs, "us-east-1/ami-7ea24a17");
+      properties.setProperty(PROPERTY_EC2_CC_AMIs, "us-east-1/ami-321eed5b,us-east-1/ami-7ea24a17");
       return properties;
    }
 

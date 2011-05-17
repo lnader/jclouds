@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.compute.config;
 
 import java.util.EnumSet;
@@ -36,7 +35,7 @@ public class VCloudComputeServiceContextModuleTest {
       for (Status state : EnumSet.allOf(Status.class).complementOf(
                EnumSet.of(Status.PENDING_DESCRIPTOR, Status.PENDING_CONTENTS, Status.COPYING, Status.QUARANTINED,
                         Status.QUARANTINE_EXPIRED))) {
-         assert VCloudExpressComputeServiceContextModule.vAppStatusToNodeState.containsKey(state) : state;
+         assert VCloudExpressComputeServiceContextModule.VAPPSTATUS_TO_NODESTATE.containsKey(state) : state;
       }
 
    }

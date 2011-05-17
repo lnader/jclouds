@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.domain;
 
 import java.io.File;
@@ -70,6 +69,11 @@ public interface BlobBuilder {
     *           payload you wish to construct the {@link Blob} with.
     */
    PayloadBlobBuilder payload(InputStream payload);
+
+   /**
+    * If you are creating a blob only for signing, use this. {@see BlobRequestSigner}
+    */
+   PayloadBlobBuilder forSigning();
 
    /**
     * 

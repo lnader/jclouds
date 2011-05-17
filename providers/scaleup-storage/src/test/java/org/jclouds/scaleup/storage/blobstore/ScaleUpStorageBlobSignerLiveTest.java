@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.scaleup.storage.blobstore;
 
-import org.jclouds.s3.blobstore.integration.S3BlobSignerLiveTest;
+import org.jclouds.scality.rs2.blobstore.ScalityRS2BlobSignerLiveTest;
 import org.testng.annotations.Test;
 
 /**
@@ -27,6 +26,6 @@ import org.testng.annotations.Test;
  * @author Adrian Cole
  */
 @Test(groups =  "live", testName = "ScaleUpStorageBlobSignerLiveTest")
-public class ScaleUpStorageBlobSignerLiveTest extends S3BlobSignerLiveTest {
+public class ScaleUpStorageBlobSignerLiveTest extends ScalityRS2BlobSignerLiveTest {
 
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,15 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.s3.blobstore.integration;
 
-import org.jclouds.blobstore.integration.internal.BaseBlobMapIntegrationTest;
+import org.jclouds.s3.blobstore.integration.S3BlobMapIntegrationLiveTest;
 import org.testng.annotations.Test;
 
 /**
  * @author Adrian Cole
  */
-@Test(groups =  "live", testName = "AWSS3BlobMapIntegrationLiveTest")
-public class AWSS3BlobMapIntegrationLiveTest extends BaseBlobMapIntegrationTest {
+@Test(groups = "live", testName = "AWSS3BlobMapIntegrationLiveTest")
+public class AWSS3BlobMapIntegrationLiveTest extends S3BlobMapIntegrationLiveTest {
 
 }

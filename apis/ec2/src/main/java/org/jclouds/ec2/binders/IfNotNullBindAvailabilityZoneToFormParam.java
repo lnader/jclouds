@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,11 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.binders;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.jclouds.http.HttpRequest;
@@ -34,11 +34,22 @@ import org.jclouds.rest.Binder;
  */
 @Singleton
 public class IfNotNullBindAvailabilityZoneToFormParam implements Binder {
+   private final String param;
+
+   @Inject
+   protected IfNotNullBindAvailabilityZoneToFormParam() {
+      this("Placement.AvailabilityZone");
+   }
+
+   protected IfNotNullBindAvailabilityZoneToFormParam(String param) {
+      this.param = param;
+   }
+
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Object input) {
       if (input != null) {
-         checkArgument(input instanceof String, "this binder is only valid for AvailabilityZone!");
-         return ModifyRequest.addFormParam(request, "Placement.AvailabilityZone", (String) input);
+         checkArgument(input instanceof String, "this binder is only valid for String!");
+         return ModifyRequest.addFormParam(request, param, (String) input);
       }
       return request;
    }

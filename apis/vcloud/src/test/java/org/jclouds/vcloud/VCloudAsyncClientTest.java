@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud;
 
 import static org.jclouds.Constants.PROPERTY_API_VERSION;
@@ -42,6 +41,7 @@ import org.jclouds.http.RequiresHttp;
 import org.jclouds.http.functions.ParseSax;
 import org.jclouds.http.functions.ReleasePayloadAndReturn;
 import org.jclouds.http.functions.ReturnInputStream;
+import org.jclouds.ovf.xml.EnvelopeHandler;
 import org.jclouds.rest.ConfiguresRestClient;
 import org.jclouds.rest.RestClientTest;
 import org.jclouds.rest.RestContextFactory;
@@ -81,7 +81,6 @@ import org.jclouds.vcloud.xml.VAppHandler;
 import org.jclouds.vcloud.xml.VAppTemplateHandler;
 import org.jclouds.vcloud.xml.VDCHandler;
 import org.jclouds.vcloud.xml.VmHandler;
-import org.jclouds.vcloud.xml.ovf.OvfEnvelopeHandler;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Supplier;
@@ -442,7 +441,7 @@ public class VCloudAsyncClientTest extends RestClientTest<VCloudAsyncClient> {
       assertPayloadEquals(request, null, null, false);
 
       assertResponseParserClassEquals(method, request, ParseSax.class);
-      assertSaxResponseParserClassEquals(method, OvfEnvelopeHandler.class);
+      assertSaxResponseParserClassEquals(method, EnvelopeHandler.class);
       assertExceptionParserClassEquals(method, ReturnNullOnNotFoundOr404.class);
 
       checkFilters(request);

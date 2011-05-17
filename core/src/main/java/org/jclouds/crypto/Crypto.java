@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,11 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.crypto;
 
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateFactory;
@@ -32,13 +32,14 @@ import org.jclouds.encryption.internal.JCECrypto;
 import com.google.inject.ImplementedBy;
 
 /**
- * Allows you to access cryptographic objects and factories without adding a provider to the JCE
- * runtime.
+ * Allows you to access cryptographic objects and factories without adding a
+ * provider to the JCE runtime.
  * 
  * @author Adrian Cole
  */
 @ImplementedBy(JCECrypto.class)
 public interface Crypto {
+   KeyPairGenerator rsaKeyPairGenerator();
 
    KeyFactory rsaKeyFactory();
 
@@ -57,5 +58,7 @@ public interface Crypto {
    MessageDigest sha1();
 
    MessageDigest sha256();
+
+   MessageDigest sha512();
 
 }

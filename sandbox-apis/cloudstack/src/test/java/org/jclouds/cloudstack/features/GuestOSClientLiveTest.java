@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +16,15 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.jclouds.cloudstack.domain.OSType;
 import org.jclouds.cloudstack.options.ListOSTypesOptions;
@@ -34,7 +35,7 @@ import org.testng.annotations.Test;
  * 
  * @author Adrian Cole
  */
-@Test(groups = "live", sequential = true, testName = "GuestOSClientLiveTest")
+@Test(groups = "live", singleThreaded = true, testName = "GuestOSClientLiveTest")
 public class GuestOSClientLiveTest extends BaseCloudStackClientLiveTest {
 
    public void testListOSTypes() throws Exception {
@@ -43,13 +44,28 @@ public class GuestOSClientLiveTest extends BaseCloudStackClientLiveTest {
       assertTrue(response.size() >= 0);
       for (OSType type : response) {
          OSType newDetails = getOnlyElement(client.getGuestOSClient().listOSTypes(
-               ListOSTypesOptions.Builder.id(type.getId())));
+                  ListOSTypesOptions.Builder.id(type.getId())));
          assertEquals(type.getId(), newDetails.getId());
-         checkIP(type);
+         checkOSType(type);
       }
    }
 
-   protected void checkIP(OSType type) {
+   public void testListOSCategories() throws Exception {
+      Map<Long, String> response = client.getGuestOSClient().listOSCategories();
+      assert null != response;
+      assertTrue(response.size() >= 0);
+      for (Entry<Long, String> category : response.entrySet()) {
+         checkOSCategory(category);
+      }
+   }
+
+   protected void checkOSCategory(Entry<Long, String> category) {
+      assertEquals(category, client.getGuestOSClient().getOSCategory(category.getKey()));
+      assert category.getKey() > 0 : category;
+      assert category.getValue() != null : category;
+   }
+
+   protected void checkOSType(OSType type) {
       assertEquals(type.getId(), client.getGuestOSClient().getOSType(type.getId()).getId());
       assert type.getId() > 0 : type;
       assert type.getOSCategoryId() > 0 : type;

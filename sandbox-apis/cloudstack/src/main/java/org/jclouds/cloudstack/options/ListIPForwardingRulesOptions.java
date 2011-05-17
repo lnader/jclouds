@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,7 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.options;
-
-import org.jclouds.http.options.BaseHttpRequestOptions;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -29,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
  * @see <a href="http://download.cloud.com/releases/2.2.0/api/user/listIpForwardingRules.html" />
  * @author Adrian Cole
  */
-public class ListIPForwardingRulesOptions extends BaseHttpRequestOptions {
+public class ListIPForwardingRulesOptions extends AccountInDomainOptions {
 
    public static final ListIPForwardingRulesOptions NONE = new ListIPForwardingRulesOptions();
 
@@ -39,31 +36,6 @@ public class ListIPForwardingRulesOptions extends BaseHttpRequestOptions {
     */
    public ListIPForwardingRulesOptions id(long id) {
       this.queryParameters.replaceValues("id", ImmutableSet.of(id + ""));
-      return this;
-   }
-
-   /**
-    * @param domainId
-    *           Lists all rules for this id. If used with the account parameter, returns all rules
-    *           for an account in the specified domain ID.
-    */
-   public ListIPForwardingRulesOptions domainId(long domainId) {
-      this.queryParameters.replaceValues("domainid", ImmutableSet.of(domainId + ""));
-      return this;
-
-   }
-
-   /**
-    * @param account
-    *           the account associated with the ip forwarding rule. Must be used with the domainId
-    *           parameter.
-    * 
-    * @param domain
-    *           domain id
-    */
-   public ListIPForwardingRulesOptions accountInDomain(String account, long domain) {
-      this.queryParameters.replaceValues("account", ImmutableSet.of(account));
-      this.queryParameters.replaceValues("domainid", ImmutableSet.of(domain + ""));
       return this;
    }
 
@@ -128,5 +100,21 @@ public class ListIPForwardingRulesOptions extends BaseHttpRequestOptions {
          ListIPForwardingRulesOptions options = new ListIPForwardingRulesOptions();
          return options.virtualMachineId(virtualMachineId);
       }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ListIPForwardingRulesOptions accountInDomain(String account, long domain) {
+      return ListIPForwardingRulesOptions.class.cast(super.accountInDomain(account, domain));
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ListIPForwardingRulesOptions domainId(long domainId) {
+      return ListIPForwardingRulesOptions.class.cast(super.domainId(domainId));
    }
 }

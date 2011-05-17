@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute;
 
 import static org.jclouds.compute.util.ComputeServiceUtils.execHttpResponse;
@@ -76,9 +75,9 @@ public class RunScriptData {
                envVariables,
                ImmutableList.<Statement> of(new AuthorizeRSAPublicKey(publicKey),//
                         installJavaAndCurl(os),//
-                        authorizePortInIpTables(8080),//
+                        authorizePortInIpTables(8080),
                         extractTargzIntoDirectory(URI.create(System.getProperty("test.jboss-url",
-                                 "http://d19xvfg065k8li.cloudfront.net/jboss-6.0.0.Final.tar.gz")), "/usr/local"),//
+                                 "http://d37gkgjhl3prlk.cloudfront.net/jboss-6.0.0.Final.tar.gz")), "/usr/local"),//
                         exec("{md} " + jbossHome), exec("mv /usr/local/jboss-*/* " + jbossHome),//
                         exec("chmod -R oug+r+w " + jbossHome)),//
                ImmutableList

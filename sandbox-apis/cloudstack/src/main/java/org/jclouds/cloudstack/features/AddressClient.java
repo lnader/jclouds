@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import java.util.Set;
@@ -63,7 +62,7 @@ public interface AddressClient {
     *           the ID of the availability zone you want to acquire an public IP address from
     * @return IPAddress
     */
-   AsyncCreateResponse associateIPAddress(long zoneId, AssociateIPAddressOptions... options);
+   AsyncCreateResponse associateIPAddressInZone(long zoneId, AssociateIPAddressOptions... options);
 
    /**
     * Disassociates an ip address from the account.

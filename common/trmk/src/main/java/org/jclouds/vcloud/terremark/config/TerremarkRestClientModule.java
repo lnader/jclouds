@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.terremark.config;
 
 import static org.jclouds.Constants.PROPERTY_SESSION_INTERVAL;
@@ -32,7 +31,7 @@ import org.jclouds.http.HttpErrorHandler;
 import org.jclouds.http.annotation.ClientError;
 import org.jclouds.http.annotation.Redirection;
 import org.jclouds.http.annotation.ServerError;
-import org.jclouds.rest.suppliers.RetryOnTimeOutButNotOnAuthorizationExceptionSupplier;
+import org.jclouds.rest.suppliers.MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier;
 import org.jclouds.util.Strings2;
 import org.jclouds.vcloud.config.BaseVCloudExpressRestClientModule;
 import org.jclouds.vcloud.domain.ReferenceType;
@@ -109,7 +108,7 @@ public abstract class TerremarkRestClientModule<S extends TerremarkVCloudClient,
    @KeysList
    protected Supplier<Map<String, ReferenceType>> provideOrgToKeysListCache(
             @Named(PROPERTY_SESSION_INTERVAL) long seconds, final OrgNameToKeysListSupplier supplier) {
-      return new RetryOnTimeOutButNotOnAuthorizationExceptionSupplier<Map<String, ReferenceType>>(authException,
+      return new MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier<Map<String, ReferenceType>>(authException,
                seconds, new Supplier<Map<String, ReferenceType>>() {
                   @Override
                   public Map<String, ReferenceType> get() {

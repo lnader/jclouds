@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.compute.strategy;
 
 import static org.easymock.EasyMock.expect;
@@ -47,6 +46,7 @@ import org.jclouds.ec2.options.RunInstancesOptions;
 import org.jclouds.encryption.internal.Base64;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 
@@ -426,10 +426,10 @@ public class CreateKeyPairAndSecurityGroupsAsNeededAndReturnRunOptionsTest {
       Map<RegionAndName, KeyPair> credentialsMap = createMock(Map.class);
       Map<RegionAndName, String> securityGroupMap = createMock(Map.class);
       CreateUniqueKeyPair createUniqueKeyPair = createMock(CreateUniqueKeyPair.class);
-      CreateSecurityGroupIfNeeded createSecurityGroupIfNeeded = createMock(CreateSecurityGroupIfNeeded.class);
+      Function<RegionNameAndIngressRules, String> createSecurityGroupIfNeeded = createMock(CreateSecurityGroupIfNeeded.class);
 
       return new CreateKeyPairAndSecurityGroupsAsNeededAndReturnRunOptions(credentialsMap, securityGroupMap,
-               createUniqueKeyPair, createSecurityGroupIfNeeded, OPTIONS_PROVIDER);
+            createUniqueKeyPair, createSecurityGroupIfNeeded, OPTIONS_PROVIDER);
    }
 
    private void replayStrategy(CreateKeyPairAndSecurityGroupsAsNeededAndReturnRunOptions strategy) {

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,6 +29,7 @@ import org.jclouds.compute.ComputeServiceContextFactory;
 import org.jclouds.logging.log4j.config.Log4JLoggingModule;
 import org.jclouds.rest.AuthorizationException;
 import org.jclouds.rest.RestContext;
+import org.jclouds.rest.RestContextFactory;
 import org.jclouds.vcloud.domain.Catalog;
 import org.jclouds.vcloud.domain.CatalogItem;
 import org.jclouds.vcloud.domain.Org;
@@ -95,13 +95,13 @@ public abstract class CommonVCloudClientLiveTest<S extends CommonVCloudClient, A
          VDC response = connection.getVDC(vdc.getHref());
          for (ReferenceType resource : response.getAvailableNetworks().values()) {
             if (resource.getType().equals(VCloudMediaType.NETWORK_XML)) {
-              try{
-               OrgNetwork item = connection.getNetwork(resource.getHref());
-               assertNotNull(item);
-              } catch (AuthorizationException e){
-                 
-              }
-              }
+               try {
+                  OrgNetwork item = connection.getNetwork(resource.getHref());
+                  assertNotNull(item);
+               } catch (AuthorizationException e) {
+
+               }
+            }
          }
       }
    }
@@ -206,11 +206,15 @@ public abstract class CommonVCloudClientLiveTest<S extends CommonVCloudClient, A
       return overrides;
    }
 
+   protected Properties setupRestProperties() {
+      return RestContextFactory.getPropertiesFromResource("/rest.properties");
+   }
+
    @BeforeGroups(groups = { "live" })
    public void setupClient() {
       setupCredentials();
       Properties overrides = setupProperties();
-      context = new ComputeServiceContextFactory().createContext(provider,
+      context = new ComputeServiceContextFactory(setupRestProperties()).createContext(provider,
             ImmutableSet.<Module> of(new Log4JLoggingModule()), overrides).getProviderSpecificContext();
 
       connection = context.getApi();

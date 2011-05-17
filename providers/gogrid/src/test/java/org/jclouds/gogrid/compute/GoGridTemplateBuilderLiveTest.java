@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.gogrid.compute;
 
 import static org.jclouds.compute.util.ComputeServiceUtils.getCores;
@@ -27,8 +26,8 @@ import java.util.Set;
 
 import org.jclouds.compute.BaseTemplateBuilderLiveTest;
 import org.jclouds.compute.domain.OsFamily;
+import org.jclouds.compute.domain.OsFamilyVersion64Bit;
 import org.jclouds.compute.domain.Template;
-import org.jclouds.compute.domain.os.OsFamilyVersion64Bit;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Predicate;
@@ -53,8 +52,10 @@ public class GoGridTemplateBuilderLiveTest extends BaseTemplateBuilderLiveTest {
             switch (input.family) {
                case RHEL:
                   return !input.version.equals("") && !input.version.equals("5.4");
+               case UBUNTU:
+                  return !input.version.equals("") && !input.version.equals("10.04");
                case CENTOS:
-                  return !input.version.equals("") && !input.version.equals("5.3");
+                  return !input.version.equals("") && !input.version.matches("5.[35]");
                case WINDOWS:
                   return !input.version.equals("") && (input.is64Bit && !input.version.matches("200[38]"))
                            || (input.version.matches("200[38] [RS]P?2") && !input.is64Bit);
@@ -68,14 +69,14 @@ public class GoGridTemplateBuilderLiveTest extends BaseTemplateBuilderLiveTest {
    @Test
    public void testDefaultTemplateBuilder() throws IOException {
       Template defaultTemplate = context.getComputeService().templateBuilder().build();
-      assertEquals(defaultTemplate.getImage().getOperatingSystem().getVersion(), "5.3");
+      assertEquals(defaultTemplate.getImage().getOperatingSystem().getVersion(), "10.04");
       assertEquals(defaultTemplate.getImage().getOperatingSystem().is64Bit(), true);
-      assertEquals(defaultTemplate.getImage().getOperatingSystem().getFamily(), OsFamily.CENTOS);
+      assertEquals(defaultTemplate.getImage().getOperatingSystem().getFamily(), OsFamily.UBUNTU);
       assertEquals(getCores(defaultTemplate.getHardware()), 0.5d);
    }
 
    @Override
    protected Set<String> getIso3166Codes() {
-      return ImmutableSet.<String> of("US-CA","US-VA");
+      return ImmutableSet.<String> of("US-CA", "US-VA");
    }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,38 +16,39 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.azureblob;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.jclouds.azure.storage.domain.BoundedSet;
+import org.jclouds.azure.storage.options.ListOptions;
 import org.jclouds.azureblob.domain.BlobProperties;
 import org.jclouds.azureblob.domain.ContainerProperties;
 import org.jclouds.azureblob.domain.ListBlobsResponse;
+import org.jclouds.azureblob.domain.PublicAccess;
 import org.jclouds.azureblob.options.CreateContainerOptions;
 import org.jclouds.azureblob.options.ListBlobsOptions;
-import org.jclouds.azure.storage.domain.BoundedSet;
-import org.jclouds.azure.storage.options.ListOptions;
 import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.concurrent.Timeout;
 import org.jclouds.http.options.GetOptions;
 
-import java.util.concurrent.Future;
+import com.google.inject.Provides;
 
 /**
  * Provides access to Azure Blob via their REST API.
  * <p/>
- * All commands return a Future of the result from Azure Blob. Any exceptions incurred
- * during processing will be wrapped in an {@link ExecutionException} as documented in
- * {@link Future#get()}.
+ * All commands return a Future of the result from Azure Blob. Any exceptions incurred during
+ * processing will be wrapped in an {@link ExecutionException} as documented in {@link Future#get()}.
  * 
  * @see <a href="http://msdn.microsoft.com/en-us/library/dd135733.aspx" />
  * @author Adrian Cole
  */
 @Timeout(duration = 90, timeUnit = TimeUnit.SECONDS)
 public interface AzureBlobClient {
+   @Provides
    public org.jclouds.azureblob.domain.AzureBlob newBlob();
 
    /**
@@ -127,6 +128,14 @@ public interface AzureBlobClient {
     * 
     */
    boolean createRootContainer(CreateContainerOptions... options);
+
+   /**
+    * 
+    * 
+    * @param container
+    * @return whether data in the container may be accessed publicly and the level of access
+    */
+   PublicAccess getPublicAccessForContainer(String container);
 
    /**
     * The Delete Container operation marks the specified container for deletion. The container and
@@ -211,8 +220,7 @@ public interface AzureBlobClient {
     * properties.
     */
    @Timeout(duration = 10 * 64, timeUnit = TimeUnit.MINUTES)
-   org.jclouds.azureblob.domain.AzureBlob getBlob(String container, String name,
-            GetOptions... options);
+   org.jclouds.azureblob.domain.AzureBlob getBlob(String container, String name, GetOptions... options);
 
    /**
     * The Get Blob Properties operation returns all user-defined metadata, standard HTTP properties,

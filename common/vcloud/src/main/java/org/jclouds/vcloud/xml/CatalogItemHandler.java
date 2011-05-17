@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,15 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml;
 
-import static org.jclouds.vcloud.util.Utils.cleanseAttributes;
 import static org.jclouds.vcloud.util.Utils.newReferenceType;
 
 import java.util.Map;
 import java.util.SortedMap;
 
 import org.jclouds.http.functions.ParseSax;
+import org.jclouds.util.SaxUtils;
 import org.jclouds.vcloud.domain.CatalogItem;
 import org.jclouds.vcloud.domain.ReferenceType;
 import org.jclouds.vcloud.domain.internal.CatalogItemImpl;
@@ -53,7 +52,7 @@ public class CatalogItemHandler extends ParseSax.HandlerWithResult<CatalogItem> 
 
    @Override
    public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
-      Map<String, String> attributes = cleanseAttributes(attrs);
+      Map<String, String> attributes = SaxUtils.cleanseAttributes(attrs);
       if (qName.equals("CatalogItem")) {
          catalogItem = newReferenceType(attributes);
       } else if (qName.equals("Entity")) {

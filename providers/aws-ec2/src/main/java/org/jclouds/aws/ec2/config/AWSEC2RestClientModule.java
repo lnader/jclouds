@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.ec2.config;
 
 import java.util.Map;
@@ -31,10 +30,14 @@ import org.jclouds.aws.ec2.services.AWSAMIAsyncClient;
 import org.jclouds.aws.ec2.services.AWSAMIClient;
 import org.jclouds.aws.ec2.services.AWSInstanceAsyncClient;
 import org.jclouds.aws.ec2.services.AWSInstanceClient;
+import org.jclouds.aws.ec2.services.AWSKeyPairAsyncClient;
+import org.jclouds.aws.ec2.services.AWSKeyPairClient;
 import org.jclouds.aws.ec2.services.MonitoringAsyncClient;
 import org.jclouds.aws.ec2.services.MonitoringClient;
 import org.jclouds.aws.ec2.services.PlacementGroupAsyncClient;
 import org.jclouds.aws.ec2.services.PlacementGroupClient;
+import org.jclouds.aws.ec2.services.SpotInstanceAsyncClient;
+import org.jclouds.aws.ec2.services.SpotInstanceClient;
 import org.jclouds.ec2.EC2AsyncClient;
 import org.jclouds.ec2.EC2Client;
 import org.jclouds.ec2.config.EC2RestClientModule;
@@ -50,8 +53,6 @@ import org.jclouds.ec2.services.ElasticIPAddressAsyncClient;
 import org.jclouds.ec2.services.ElasticIPAddressClient;
 import org.jclouds.ec2.services.InstanceAsyncClient;
 import org.jclouds.ec2.services.InstanceClient;
-import org.jclouds.ec2.services.KeyPairAsyncClient;
-import org.jclouds.ec2.services.KeyPairClient;
 import org.jclouds.ec2.services.SecurityGroupAsyncClient;
 import org.jclouds.ec2.services.SecurityGroupClient;
 import org.jclouds.ec2.services.WindowsAsyncClient;
@@ -75,13 +76,14 @@ public class AWSEC2RestClientModule extends EC2RestClientModule<AWSEC2Client, AW
             .put(AWSAMIClient.class, AWSAMIAsyncClient.class)//
             .put(ElasticIPAddressClient.class, ElasticIPAddressAsyncClient.class)//
             .put(AWSInstanceClient.class, AWSInstanceAsyncClient.class)//
-            .put(KeyPairClient.class, KeyPairAsyncClient.class)//
+            .put(AWSKeyPairClient.class, AWSKeyPairAsyncClient.class)//
             .put(SecurityGroupClient.class, SecurityGroupAsyncClient.class)//
             .put(PlacementGroupClient.class, PlacementGroupAsyncClient.class)//
             .put(MonitoringClient.class, MonitoringAsyncClient.class)//
             .put(WindowsClient.class, WindowsAsyncClient.class)//
             .put(AvailabilityZoneAndRegionClient.class, AvailabilityZoneAndRegionAsyncClient.class)//
             .put(ElasticBlockStoreClient.class, ElasticBlockStoreAsyncClient.class)//
+            .put(SpotInstanceClient.class, SpotInstanceAsyncClient.class)//
             .build();
 
    public AWSEC2RestClientModule() {

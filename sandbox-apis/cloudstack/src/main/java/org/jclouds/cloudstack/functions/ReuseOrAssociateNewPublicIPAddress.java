@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.functions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -83,7 +82,7 @@ public class ReuseOrAssociateNewPublicIPAddress implements Function<Network, Pub
 
    public static PublicIPAddress associateIPAddressInNetwork(Network network, CloudStackClient client,
             Predicate<Long> jobComplete) {
-      AsyncCreateResponse job = client.getAddressClient().associateIPAddress(network.getZoneId(),
+      AsyncCreateResponse job = client.getAddressClient().associateIPAddressInZone(network.getZoneId(),
                networkId(network.getId()));
       checkState(jobComplete.apply(job.getJobId()), "job %d failed to complete", job.getJobId());
       PublicIPAddress ip = client.getAsyncJobClient().<PublicIPAddress> getAsyncJob(job.getJobId()).getResult();

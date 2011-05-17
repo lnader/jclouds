@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.domain;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 
@@ -50,6 +50,8 @@ public interface MutableObjectMetadata extends ObjectMetadata {
     */
    void setKey(String key);
 
+   void setBucket(String bucket);
+
    /**
     * Every bucket and object in Amazon S3 has an owner, the user that created the bucket or object.
     * The owner of a bucket or object cannot be changed. However, if the object is overwritten by
@@ -79,5 +81,7 @@ public interface MutableObjectMetadata extends ObjectMetadata {
    void setETag(String eTag);
 
    void setUserMetadata(Map<String, String> userMetadata);
+
+   void setUri(URI uri);
 
 }

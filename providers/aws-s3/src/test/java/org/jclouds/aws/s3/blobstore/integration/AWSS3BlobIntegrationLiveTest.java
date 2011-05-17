@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,25 +16,15 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.s3.blobstore.integration;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
-import org.jclouds.blobstore.integration.internal.BaseBlobIntegrationTest;
+import org.jclouds.s3.blobstore.integration.S3BlobIntegrationLiveTest;
 import org.testng.annotations.Test;
 
 /**
  * @author Adrian Cole
  */
-@Test(groups =  "live", testName = "AWSS3BlobIntegrationLiveTest")
-public class AWSS3BlobIntegrationLiveTest extends BaseBlobIntegrationTest {
-
-   @Override
-   @Test(expectedExceptions = IllegalArgumentException.class)
-   public void testPutObjectStream() throws InterruptedException, IOException, ExecutionException {
-      super.testPutObjectStream();
-   }
+@Test(groups = "live", testName = "AWSS3BlobIntegrationLiveTest")
+public class AWSS3BlobIntegrationLiveTest extends S3BlobIntegrationLiveTest {
 
 }

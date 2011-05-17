@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,27 +16,27 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.SortedSet;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.annotations.SerializedName;
 
 /**
  * 
  * @author Adrian Cole
  */
-public class NetworkService {
+public class NetworkService implements Comparable<NetworkService> {
    // internal only to match json type
-   private static class Capability {
+   private static class Capability implements Comparable<Capability> {
 
       private String name;
       private String value;
@@ -86,11 +86,17 @@ public class NetworkService {
          return "[name=" + name + ", value=" + value + "]";
       }
 
+      @Override
+      public int compareTo(Capability o) {
+         return name.compareTo(o.name);
+      }
+
    }
 
    private String name;
    @SerializedName("capability")
-   private Set<? extends NetworkService.Capability> capabilities = ImmutableSet.of();
+   // so tests and serialization comes out expected
+   private SortedSet<? extends NetworkService.Capability> capabilities = ImmutableSortedSet.of();
 
    NetworkService() {
 
@@ -102,7 +108,7 @@ public class NetworkService {
 
    public NetworkService(String name, Map<String, String> capabilities) {
       this.name = checkNotNull(name, "name");
-      ImmutableSet.Builder<Capability> internal = ImmutableSet.<Capability> builder();
+      ImmutableSortedSet.Builder<Capability> internal = ImmutableSortedSet.<Capability> naturalOrder();
       for (Entry<String, String> capabililty : checkNotNull(capabilities, "capabilities").entrySet())
          internal.add(new Capability(capabililty.getKey(), capabililty.getValue()));
       this.capabilities = internal.build();
@@ -113,7 +119,8 @@ public class NetworkService {
    }
 
    public Map<String, String> getCapabilities() {
-      Builder<String, String> returnVal = ImmutableMap.<String, String> builder();
+      // so tests and serialization comes out expected
+      Builder<String, String> returnVal = ImmutableSortedMap.<String, String> naturalOrder();
       for (Capability capability : capabilities) {
          returnVal.put(capability.name, capability.value);
       }
@@ -154,5 +161,10 @@ public class NetworkService {
    @Override
    public String toString() {
       return "[name=" + name + ", capabilities=" + capabilities + "]";
+   }
+
+   @Override
+   public int compareTo(NetworkService o) {
+      return name.compareTo(o.getName());
    }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -50,6 +49,7 @@ public class Zone implements Comparable<Zone> {
       private NetworkType networkType;
       private String status;
       private String VLAN;
+      private boolean securityGroupsEnabled;
 
       public Builder id(long id) {
          this.id = id;
@@ -111,9 +111,14 @@ public class Zone implements Comparable<Zone> {
          return this;
       }
 
+      public Builder securityGroupsEnabled(boolean securityGroupsEnabled) {
+         this.securityGroupsEnabled = securityGroupsEnabled;
+         return this;
+      }
+
       public Zone build() {
          return new Zone(id, description, displayText, DNS, domain, domainId, guestCIDRAddress, internalDNS, name,
-               networkType, status, VLAN);
+                  networkType, status, VLAN, securityGroupsEnabled);
       }
    }
 
@@ -141,6 +146,8 @@ public class Zone implements Comparable<Zone> {
    private String status;
    @SerializedName("vlan")
    private String VLAN;
+   @SerializedName("securitygroupsenabled")
+   private boolean securityGroupsEnabled;
 
    /**
     * present only for serializer
@@ -151,8 +158,8 @@ public class Zone implements Comparable<Zone> {
    }
 
    public Zone(long id, String description, String displayText, List<String> DNS, String domain, long domainId,
-         String guestCIDRAddress, List<String> internalDNS, String name, NetworkType networkType, String status,
-         String vLAN) {
+            String guestCIDRAddress, List<String> internalDNS, String name, NetworkType networkType, String status,
+            String vLAN, boolean securityGroupsEnabled) {
       this.id = id;
       this.description = description;
       this.displayText = displayText;
@@ -167,6 +174,7 @@ public class Zone implements Comparable<Zone> {
       this.networkType = networkType;
       this.status = status;
       this.VLAN = vLAN;
+      this.securityGroupsEnabled = securityGroupsEnabled;
    }
 
    /**
@@ -276,6 +284,14 @@ public class Zone implements Comparable<Zone> {
       return VLAN;
    }
 
+   /**
+    * 
+    * @return true if this zone has security groups enabled
+    */
+   public boolean isSecurityGroupsEnabled() {
+      return securityGroupsEnabled;
+   }
+
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -293,7 +309,7 @@ public class Zone implements Comparable<Zone> {
       result = prime * result + ((internalDNS2 == null) ? 0 : internalDNS2.hashCode());
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       result = prime * result + ((networkType == null) ? 0 : networkType.hashCode());
-      result = prime * result + ((status == null) ? 0 : status.hashCode());
+      result = prime * result + (securityGroupsEnabled ? 1231 : 1237);
       return result;
    }
 
@@ -360,12 +376,12 @@ public class Zone implements Comparable<Zone> {
             return false;
       } else if (!name.equals(other.name))
          return false;
-      if (networkType != other.networkType)
-         return false;
-      if (status == null) {
-         if (other.status != null)
+      if (networkType == null) {
+         if (other.networkType != null)
             return false;
-      } else if (!status.equals(other.status))
+      } else if (!networkType.equals(other.networkType))
+         return false;
+      if (securityGroupsEnabled != other.securityGroupsEnabled)
          return false;
       return true;
    }
@@ -373,9 +389,9 @@ public class Zone implements Comparable<Zone> {
    @Override
    public String toString() {
       return "[id=" + id + ", status=" + status + ", name=" + name + ", description=" + description + ", displayText="
-            + displayText + ", domain=" + domain + ", domainId=" + domainId + ", networkType=" + networkType
-            + ", guestCIDRAddress=" + guestCIDRAddress + ", VLAN=" + VLAN + ", DNS=" + getDNS() + ", internalDNS="
-            + getInternalDNS() + "]";
+               + displayText + ", domain=" + domain + ", domainId=" + domainId + ", networkType=" + networkType
+               + ", guestCIDRAddress=" + guestCIDRAddress + ", VLAN=" + VLAN + ", DNS=" + getDNS()
+               + ", securityGroupsEnabled=" + isSecurityGroupsEnabled() + ", internalDNS=" + getInternalDNS() + "]";
    }
 
    @Override

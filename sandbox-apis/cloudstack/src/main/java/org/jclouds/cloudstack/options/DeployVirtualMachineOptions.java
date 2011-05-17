@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +16,12 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.options;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.jclouds.encryption.internal.Base64;
-import org.jclouds.http.options.BaseHttpRequestOptions;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
@@ -34,22 +32,9 @@ import com.google.common.collect.ImmutableSet;
  * @see <a href="http://download.cloud.com/releases/2.2.0/api/user/deployVirtualMachine.html" />
  * @author Adrian Cole
  */
-public class DeployVirtualMachineOptions extends BaseHttpRequestOptions {
+public class DeployVirtualMachineOptions extends AccountInDomainOptions {
 
    public static final DeployVirtualMachineOptions NONE = new DeployVirtualMachineOptions();
-
-   /**
-    * 
-    * @param account
-    *           an optional account for the virtual machine
-    * @param domain
-    *           domain id
-    */
-   public DeployVirtualMachineOptions accountInDomain(String account, long domain) {
-      this.queryParameters.replaceValues("account", ImmutableSet.of(account));
-      this.queryParameters.replaceValues("domainid", ImmutableSet.of(domain + ""));
-      return this;
-   }
 
    /**
     * the ID of the disk offering for the virtual machine. If the template is of ISO format, the
@@ -176,13 +161,6 @@ public class DeployVirtualMachineOptions extends BaseHttpRequestOptions {
    }
 
    public static class Builder {
-      /**
-       * @see DeployVirtualMachineOptions#accountInDomain
-       */
-      public static DeployVirtualMachineOptions accountInDomain(String account, long domain) {
-         DeployVirtualMachineOptions options = new DeployVirtualMachineOptions();
-         return options.accountInDomain(account, domain);
-      }
 
       /**
        * @see DeployVirtualMachineOptions#diskOfferingId
@@ -279,5 +257,37 @@ public class DeployVirtualMachineOptions extends BaseHttpRequestOptions {
          DeployVirtualMachineOptions options = new DeployVirtualMachineOptions();
          return options.userData(unencodedData);
       }
+
+      /**
+       * @see DeployVirtualMachineOptions#accountInDomain
+       */
+      public static DeployVirtualMachineOptions accountInDomain(String account, long domain) {
+         DeployVirtualMachineOptions options = new DeployVirtualMachineOptions();
+         return options.accountInDomain(account, domain);
+      }
+
+      /**
+       * @see DeployVirtualMachineOptions#domainId
+       */
+      public static DeployVirtualMachineOptions domainId(long domainId) {
+         DeployVirtualMachineOptions options = new DeployVirtualMachineOptions();
+         return options.domainId(domainId);
+      }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public DeployVirtualMachineOptions accountInDomain(String account, long domain) {
+      return DeployVirtualMachineOptions.class.cast(super.accountInDomain(account, domain));
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public DeployVirtualMachineOptions domainId(long domainId) {
+      return DeployVirtualMachineOptions.class.cast(super.domainId(domainId));
    }
 }

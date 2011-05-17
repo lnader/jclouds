@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.options;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -25,7 +24,6 @@ import java.util.Date;
 
 import org.jclouds.date.DateService;
 import org.jclouds.date.internal.SimpleDateFormatDateService;
-import org.jclouds.http.options.BaseHttpRequestOptions;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -35,40 +33,18 @@ import com.google.common.collect.ImmutableSet;
  * @see <a href="http://download.cloud.com/releases/2.2.0/api/user/listAsyncJobs.html" />
  * @author Adrian Cole
  */
-public class ListAsyncJobsOptions extends BaseHttpRequestOptions {
+public class ListAsyncJobsOptions extends AccountInDomainOptions {
    private final static DateService dateService = new SimpleDateFormatDateService();
 
    public static final ListAsyncJobsOptions NONE = new ListAsyncJobsOptions();
-
-   /**
-    * 
-    * @param account
-    *           an optional account for the virtual machine
-    * @param domain
-    *           domain id
-    */
-   public ListAsyncJobsOptions accountInDomain(String account, long domain) {
-      this.queryParameters.replaceValues("account", ImmutableSet.of(account + ""));
-      return domainId(domain);
-   }
-
-   /**
-    * @param domainId
-    *           the ID of the domain associated with the asyncJob
-    */
-   public ListAsyncJobsOptions domainId(long domainId) {
-      this.queryParameters.replaceValues("domainid", ImmutableSet.of(domainId + ""));
-      return this;
-
-   }
 
    /**
     * @param startDate
     *           the start date of the async job
     */
    public ListAsyncJobsOptions startDate(Date startDate) {
-      this.queryParameters.replaceValues("startdate",
-            ImmutableSet.of(dateService.iso8601SecondsDateFormat(checkNotNull(startDate, "startDate"))));
+      this.queryParameters.replaceValues("startdate", ImmutableSet.of(dateService
+               .iso8601SecondsDateFormat(checkNotNull(startDate, "startDate"))));
       return this;
    }
 
@@ -98,5 +74,21 @@ public class ListAsyncJobsOptions extends BaseHttpRequestOptions {
          return options.accountInDomain(account, domain);
       }
 
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ListAsyncJobsOptions accountInDomain(String account, long domain) {
+      return ListAsyncJobsOptions.class.cast(super.accountInDomain(account, domain));
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ListAsyncJobsOptions domainId(long domainId) {
+      return ListAsyncJobsOptions.class.cast(super.domainId(domainId));
    }
 }

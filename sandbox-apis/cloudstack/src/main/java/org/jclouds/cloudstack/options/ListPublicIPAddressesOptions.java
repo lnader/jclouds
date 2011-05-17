@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,7 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.options;
-
-import org.jclouds.http.options.BaseHttpRequestOptions;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -29,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
  * @see <a href="http://download.cloud.com/releases/2.2.0/api/user/listIPAddresses.html" />
  * @author Adrian Cole
  */
-public class ListPublicIPAddressesOptions extends BaseHttpRequestOptions {
+public class ListPublicIPAddressesOptions extends AccountInDomainOptions {
 
    public static final ListPublicIPAddressesOptions NONE = new ListPublicIPAddressesOptions();
 
@@ -40,29 +37,6 @@ public class ListPublicIPAddressesOptions extends BaseHttpRequestOptions {
    public ListPublicIPAddressesOptions id(long id) {
       this.queryParameters.replaceValues("id", ImmutableSet.of(id + ""));
       return this;
-   }
-
-   /**
-    * @param domainId
-    *           lists all public IP addresses by domain ID. If used with the account parameter,
-    *           lists all public IP addresses by account for specified domain.
-    */
-   public ListPublicIPAddressesOptions domainId(long domainId) {
-      this.queryParameters.replaceValues("domainid", ImmutableSet.of(domainId + ""));
-      return this;
-
-   }
-
-   /**
-    * 
-    * @param account
-    *           account id
-    * @param domain
-    *           domain id
-    */
-   public ListPublicIPAddressesOptions accountInDomain(String account, long domain) {
-      this.queryParameters.replaceValues("account", ImmutableSet.of(account));
-      return domainId(domain);
    }
 
    /**
@@ -196,5 +170,21 @@ public class ListPublicIPAddressesOptions extends BaseHttpRequestOptions {
          ListPublicIPAddressesOptions options = new ListPublicIPAddressesOptions();
          return options.usesVirtualNetwork(usesVirtualNetwork);
       }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ListPublicIPAddressesOptions accountInDomain(String account, long domain) {
+      return ListPublicIPAddressesOptions.class.cast(super.accountInDomain(account, domain));
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ListPublicIPAddressesOptions domainId(long domainId) {
+      return ListPublicIPAddressesOptions.class.cast(super.domainId(domainId));
    }
 }

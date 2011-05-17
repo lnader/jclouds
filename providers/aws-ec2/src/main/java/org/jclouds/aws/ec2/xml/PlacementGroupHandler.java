@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.ec2.xml;
 
 import javax.inject.Inject;
@@ -24,7 +23,6 @@ import javax.inject.Inject;
 import org.jclouds.aws.ec2.domain.PlacementGroup;
 import org.jclouds.aws.ec2.domain.PlacementGroup.State;
 import org.jclouds.aws.util.AWSUtils;
-import org.jclouds.date.DateService;
 import org.jclouds.http.functions.ParseSax;
 import org.jclouds.location.Region;
 
@@ -36,8 +34,6 @@ public class PlacementGroupHandler extends
          ParseSax.HandlerForGeneratedRequestWithResult<PlacementGroup> {
    private StringBuilder currentText = new StringBuilder();
 
-   @Inject
-   protected DateService dateService;
    @Inject
    @Region
    String defaultRegion;

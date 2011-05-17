@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.azureblob.blobstore.functions;
 
 import java.util.Map.Entry;
@@ -42,6 +41,7 @@ public class BlobMetadataToBlobProperties implements Function<BlobMetadata, Muta
       HttpUtils.copy(from.getContentMetadata(), to.getContentMetadata());
       to.setETag(from.getETag());
       to.setName(from.getName());
+      to.setUrl(from.getUri());
       to.setLastModified(from.getLastModified());
       if (from.getUserMetadata() != null) {
          for (Entry<String, String> entry : from.getUserMetadata().entrySet())

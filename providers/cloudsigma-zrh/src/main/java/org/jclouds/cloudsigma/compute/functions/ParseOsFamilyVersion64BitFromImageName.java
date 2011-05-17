@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudsigma.compute.functions;
 
 import static com.google.common.base.Predicates.and;
@@ -30,7 +29,7 @@ import java.util.regex.Pattern;
 import javax.inject.Singleton;
 
 import org.jclouds.compute.domain.OsFamily;
-import org.jclouds.compute.domain.os.OsFamilyVersion64Bit;
+import org.jclouds.compute.domain.OsFamilyVersion64Bit;
 
 import com.google.common.base.Function;
 

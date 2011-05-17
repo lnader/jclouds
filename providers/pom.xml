@@ -41,7 +41,10 @@
         <module>aws-ec2</module>
         <module>googlestorage</module>
         <module>scaleup-storage</module>
+        <module>tiscali-storage</module>
+        <module>hosteurope-storage</module>
         <module>synaptic-storage</module>
+        <module>ninefold-storage</module>
         <module>cloudonestorage</module>
         <module>eucalyptus-partnercloud-s3</module>
         <module>eucalyptus-partnercloud-ec2</module>
@@ -49,6 +52,7 @@
         <module>cloudservers-uk</module>
         <module>cloudfiles-us</module>
         <module>cloudfiles-uk</module>
+        <module>cloudloadbalancers-us</module>
         <module>bluelock-vcdirector</module>
         <module>trmk-ecloud</module>
         <module>trmk-vcloudexpress</module>
@@ -58,5 +62,6 @@
         <module>openhosting-east1</module>
         <module>serverlove-z1-man</module>
         <module>skalicloud-sdg-my</module>
+        <module>savvis-symphonyvpdc</module>
     </modules>
 </project>

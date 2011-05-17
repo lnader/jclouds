@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.azureblob.functions;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 import javax.inject.Inject;
 
@@ -28,6 +29,7 @@ import org.jclouds.blobstore.functions.ParseSystemAndUserMetadataFromHeaders;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.HttpResponse;
 import org.jclouds.rest.InvocationContext;
+import org.jclouds.rest.internal.GeneratedHttpRequest;
 
 import com.google.common.base.Function;
 
@@ -42,6 +44,7 @@ public class ParseBlobPropertiesFromHeaders implements Function<HttpResponse, Mu
       InvocationContext<ParseBlobPropertiesFromHeaders> {
    private final ParseSystemAndUserMetadataFromHeaders blobMetadataParser;
    private final BlobMetadataToBlobProperties blobToBlobProperties;
+   private String container;
 
    @Inject
    public ParseBlobPropertiesFromHeaders(ParseSystemAndUserMetadataFromHeaders blobMetadataParser,
@@ -56,13 +59,20 @@ public class ParseBlobPropertiesFromHeaders implements Function<HttpResponse, Mu
    public MutableBlobProperties apply(HttpResponse from) {
       BlobMetadata base = blobMetadataParser.apply(from);
       MutableBlobProperties to = blobToBlobProperties.apply(base);
+      to.setContainer(container);
       return to;
    }
 
+
    @Override
    public ParseBlobPropertiesFromHeaders setContext(HttpRequest request) {
+      checkArgument(request instanceof GeneratedHttpRequest<?>, "note this handler requires a GeneratedHttpRequest");
       blobMetadataParser.setContext(request);
-      return this;
+      return setContainer(GeneratedHttpRequest.class.cast(request).getArgs().get(0).toString());
    }
 
+   private ParseBlobPropertiesFromHeaders setContainer(String container) {
+      this.container = container;
+      return this;
+   }
 }

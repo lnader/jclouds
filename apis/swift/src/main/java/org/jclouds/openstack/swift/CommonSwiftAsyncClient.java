@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.openstack.swift;
 
 import java.util.Map;
@@ -64,6 +63,7 @@ import org.jclouds.rest.annotations.SkipEncoding;
 import org.jclouds.rest.functions.ReturnVoidOnNotFoundOr404;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.inject.Provides;
 
 /**
  * Common features between OpenStack Swift and CloudFiles
@@ -76,7 +76,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 @RequestFilters(AuthenticateRequest.class)
 @Endpoint(Storage.class)
 public interface CommonSwiftAsyncClient {
-
+   @Provides
    SwiftObject newSwiftObject();
 
    /**

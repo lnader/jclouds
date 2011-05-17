@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,10 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml;
 
-import static org.jclouds.vcloud.util.Utils.cleanseAttributes;
+import static org.jclouds.util.SaxUtils.cleanseAttributes;
+import static org.jclouds.util.SaxUtils.currentOrNull;
 import static org.jclouds.vcloud.util.Utils.newReferenceType;
 
 import java.util.Map;
@@ -58,17 +58,12 @@ public class VCloudExpressVAppTemplateHandler extends ParseSax.HandlerWithResult
 
    public void endElement(String uri, String name, String qName) {
       if (qName.equals("Description")) {
-         description = currentOrNull();
+         description = currentOrNull(currentText);
       }
       currentText = new StringBuilder();
    }
 
    public void characters(char ch[], int start, int length) {
       currentText.append(ch, start, length);
-   }
-
-   protected String currentOrNull() {
-      String returnVal = currentText.toString().trim();
-      return returnVal.equals("") ? null : returnVal;
    }
 }

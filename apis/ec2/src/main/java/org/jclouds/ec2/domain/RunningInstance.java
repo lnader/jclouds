@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -39,6 +38,9 @@ import com.google.common.collect.Sets;
  * @author Adrian Cole
  */
 public class RunningInstance implements Comparable<RunningInstance> {
+   public static Builder builder() {
+      return new Builder();
+   }
 
    public static class Builder {
       protected String region;
@@ -265,8 +267,8 @@ public class RunningInstance implements Comparable<RunningInstance> {
       this.ipAddress = ipAddress;
       this.kernelId = kernelId;
       this.keyName = keyName;
-      this.launchTime = checkNotNull(launchTime, "launchTime");
-      this.availabilityZone = checkNotNull(availabilityZone, "availabilityZone");
+      this.launchTime = launchTime;// nullable on spot.
+      this.availabilityZone = availabilityZone;// nullable on spot.
       this.virtualizationType = virtualizationType;
       this.platform = platform;
       this.privateDnsName = privateDnsName;// nullable on runinstances.

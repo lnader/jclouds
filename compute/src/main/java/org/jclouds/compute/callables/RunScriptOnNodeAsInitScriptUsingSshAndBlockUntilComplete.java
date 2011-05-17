@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.callables;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -33,7 +32,6 @@ import org.jclouds.ssh.SshClient;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.inject.assistedinject.Assisted;
 
 /**
@@ -58,10 +56,10 @@ public class RunScriptOnNodeAsInitScriptUsingSshAndBlockUntilComplete extends Ru
       boolean complete = runScriptNotRunning.apply(new CommandUsingClient("./" + name + " status", ssh));
       logger.debug("<< complete(%s)", complete);
       if (logger.isDebugEnabled() || returnVal.getExitCode() != 0) {
-         logger.debug("<< stdout from %s as %s@%s\n%s", name, node.getCredentials().identity, Iterables.get(node
-                  .getPublicAddresses(), 0), ssh.exec("./" + name + " tail").getOutput());
-         logger.debug("<< stderr from %s as %s@%s\n%s", name, node.getCredentials().identity, Iterables.get(node
-                  .getPublicAddresses(), 0), ssh.exec("./" + name + " tailerr").getOutput());
+         logger.debug("<< stdout from %s as %s@%s\n%s", name, ssh.getUsername(), ssh.getHostAddress(), ssh.exec(
+                  "./" + name + " tail").getOutput());
+         logger.debug("<< stderr from %s as %s@%s\n%s", name, ssh.getUsername(), ssh.getHostAddress(), ssh.exec(
+                  "./" + name + " tailerr").getOutput());
       }
       return returnVal;
    }

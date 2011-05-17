@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.xml;
+
+import static org.jclouds.util.SaxUtils.currentOrNull;
 
 import java.util.Date;
 
@@ -51,9 +52,9 @@ public class CopyObjectHandler extends ParseSax.HandlerWithResult<ObjectMetadata
 
    public void endElement(String uri, String name, String qName) {
       if (qName.equals("ETag")) {
-         this.currentETag = currentText.toString().trim();
+         this.currentETag = currentOrNull(currentText);
       } else if (qName.equals("LastModified")) {
-         this.currentLastModified = dateParser.iso8601DateParse(currentText.toString().trim());
+         this.currentLastModified = dateParser.iso8601DateParse(currentOrNull(currentText));
       } else if (qName.equals("CopyObjectResult")) {
          metadata = new CopyObjectResult(currentLastModified, currentETag);
       }

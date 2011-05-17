@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -115,6 +114,11 @@ public class NodeMetadataBuilder extends ComputeMetadataBuilder {
    }
 
    @Override
+   public NodeMetadataBuilder tags(Set<String> tags) {
+      return NodeMetadataBuilder.class.cast(super.tags(tags));
+   }
+
+   @Override
    public NodeMetadataBuilder ids(String id) {
       return NodeMetadataBuilder.class.cast(super.ids(id));
    }
@@ -146,17 +150,17 @@ public class NodeMetadataBuilder extends ComputeMetadataBuilder {
 
    @Override
    public NodeMetadata build() {
-      return new NodeMetadataImpl(providerId, name, id, location, uri, userMetadata, group, hardware, imageId, os, state,
-               loginPort, publicAddresses, privateAddresses, adminPassword, credentials);
+      return new NodeMetadataImpl(providerId, name, id, location, uri, userMetadata, tags, group, hardware, imageId,
+               os, state, loginPort, publicAddresses, privateAddresses, adminPassword, credentials);
    }
 
    public static NodeMetadataBuilder fromNodeMetadata(NodeMetadata node) {
       return new NodeMetadataBuilder().providerId(node.getProviderId()).name(node.getName()).id(node.getId()).location(
-               node.getLocation()).uri(node.getUri()).userMetadata(node.getUserMetadata()).group(node.getGroup()).hardware(
-               node.getHardware()).imageId(node.getImageId()).operatingSystem(node.getOperatingSystem()).state(
-               node.getState()).loginPort(node.getLoginPort()).publicAddresses(node.getPublicAddresses())
-               .privateAddresses(node.getPrivateAddresses()).adminPassword(node.getAdminPassword()).credentials(
-                        node.getCredentials());
+               node.getLocation()).uri(node.getUri()).userMetadata(node.getUserMetadata()).tags(node.getTags()).group(
+               node.getGroup()).hardware(node.getHardware()).imageId(node.getImageId()).operatingSystem(
+               node.getOperatingSystem()).state(node.getState()).loginPort(node.getLoginPort()).publicAddresses(
+               node.getPublicAddresses()).privateAddresses(node.getPrivateAddresses()).adminPassword(
+               node.getAdminPassword()).credentials(node.getCredentials());
    }
 
 }

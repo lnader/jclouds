@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.config;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -52,7 +51,7 @@ import org.jclouds.compute.strategy.InitializeRunScriptOnNodeOrPlaceInBadMap;
 import org.jclouds.json.Json;
 import org.jclouds.location.config.LocationModule;
 import org.jclouds.rest.AuthorizationException;
-import org.jclouds.rest.suppliers.RetryOnTimeOutButNotOnAuthorizationExceptionSupplier;
+import org.jclouds.rest.suppliers.MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier;
 import org.jclouds.scriptbuilder.domain.Statement;
 import org.jclouds.scriptbuilder.domain.Statements;
 import org.jclouds.ssh.SshClient;
@@ -74,6 +73,7 @@ import com.google.inject.name.Names;
  * @author Adrian Cole
  */
 public abstract class BaseComputeServiceContextModule extends AbstractModule {
+
    @Override
    protected void configure() {
       install(new LocationModule(authException));
@@ -83,19 +83,22 @@ public abstract class BaseComputeServiceContextModule extends AbstractModule {
       bind(new TypeLiteral<Function<TemplateOptions, Statement>>() {
       }).to(TemplateOptionsToStatement.class);
 
-      install(new FactoryModuleBuilder().implement(RunScriptOnNode.class, Names.named("direct"),
-               RunScriptOnNodeUsingSsh.class).implement(RunScriptOnNode.class, Names.named("blocking"),
-               RunScriptOnNodeAsInitScriptUsingSshAndBlockUntilComplete.class).implement(RunScriptOnNode.class,
-               Names.named("nonblocking"), RunScriptOnNodeAsInitScriptUsingSsh.class).build(
-               RunScriptOnNodeFactoryImpl.Factory.class));
+      install(new FactoryModuleBuilder()
+            .implement(RunScriptOnNode.class, Names.named("direct"), RunScriptOnNodeUsingSsh.class)
+            .implement(RunScriptOnNode.class, Names.named("blocking"),
+                  RunScriptOnNodeAsInitScriptUsingSshAndBlockUntilComplete.class)
+            .implement(RunScriptOnNode.class, Names.named("nonblocking"), RunScriptOnNodeAsInitScriptUsingSsh.class)
+            .build(RunScriptOnNodeFactoryImpl.Factory.class));
+
+      install(new PersistNodeCredentialsModule());
 
       bind(RunScriptOnNode.Factory.class).to(RunScriptOnNodeFactoryImpl.class);
 
       install(new FactoryModuleBuilder().implement(new TypeLiteral<Callable<Void>>() {
-      }, CustomizeNodeAndAddToGoodMapOrPutExceptionIntoBadMap.class).implement(
-               new TypeLiteral<Function<NodeMetadata, Void>>() {
-               }, CustomizeNodeAndAddToGoodMapOrPutExceptionIntoBadMap.class).build(
-               CustomizeNodeAndAddToGoodMapOrPutExceptionIntoBadMap.Factory.class));
+      }, CustomizeNodeAndAddToGoodMapOrPutExceptionIntoBadMap.class)
+            .implement(new TypeLiteral<Function<NodeMetadata, Void>>() {
+            }, CustomizeNodeAndAddToGoodMapOrPutExceptionIntoBadMap.class)
+            .build(CustomizeNodeAndAddToGoodMapOrPutExceptionIntoBadMap.Factory.class));
 
       install(new FactoryModuleBuilder().implement(new TypeLiteral<Callable<RunScriptOnNode>>() {
       }, InitializeRunScriptOnNodeOrPlaceInBadMap.class).build(InitializeRunScriptOnNodeOrPlaceInBadMap.Factory.class));
@@ -129,8 +132,8 @@ public abstract class BaseComputeServiceContextModule extends AbstractModule {
          checkNotNull(runScript, "runScript");
          checkNotNull(options, "options");
          return !options.shouldWrapInInitScript() ? factory.exec(node, runScript, options) : (options
-                  .shouldBlockOnComplete() ? factory.backgroundAndBlockOnComplete(node, runScript, options) : factory
-                  .background(node, runScript, options));
+               .shouldBlockOnComplete() ? factory.backgroundAndBlockOnComplete(node, runScript, options) : factory
+               .background(node, runScript, options));
       }
 
       @Override
@@ -161,8 +164,17 @@ public abstract class BaseComputeServiceContextModule extends AbstractModule {
    }
 
    /**
-    * supplies how the tag is encoded into the name. A string of hex characters is the last argument
-    * and tag is the first
+    * The default options if none are provided.
+    */
+   @Provides
+   @Named("DEFAULT")
+   protected TemplateOptions provideTemplateOptions(Injector injector, TemplateOptions options) {
+      return options;
+   }
+
+   /**
+    * supplies how the tag is encoded into the name. A string of hex characters
+    * is the last argument and tag is the first
     */
    @Provides
    @Named("NAMING_CONVENTION")
@@ -197,14 +209,14 @@ public abstract class BaseComputeServiceContextModule extends AbstractModule {
    @Singleton
    @Memoized
    protected Supplier<Set<? extends Image>> supplyImageCache(@Named(PROPERTY_SESSION_INTERVAL) long seconds,
-            final Supplier<Set<? extends Image>> imageSupplier) {
-      return new RetryOnTimeOutButNotOnAuthorizationExceptionSupplier<Set<? extends Image>>(authException, seconds,
-               new Supplier<Set<? extends Image>>() {
-                  @Override
-                  public Set<? extends Image> get() {
-                     return imageSupplier.get();
-                  }
-               });
+         final Supplier<Set<? extends Image>> imageSupplier) {
+      return new MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier<Set<? extends Image>>(authException,
+            seconds, new Supplier<Set<? extends Image>>() {
+               @Override
+               public Set<? extends Image> get() {
+                  return imageSupplier.get();
+               }
+            });
    }
 
    @Provides
@@ -231,14 +243,14 @@ public abstract class BaseComputeServiceContextModule extends AbstractModule {
    @Singleton
    @Memoized
    protected Supplier<Set<? extends Hardware>> supplySizeCache(@Named(PROPERTY_SESSION_INTERVAL) long seconds,
-            final Supplier<Set<? extends Hardware>> hardwareSupplier) {
-      return new RetryOnTimeOutButNotOnAuthorizationExceptionSupplier<Set<? extends Hardware>>(authException, seconds,
-               new Supplier<Set<? extends Hardware>>() {
-                  @Override
-                  public Set<? extends Hardware> get() {
-                     return hardwareSupplier.get();
-                  }
-               });
+         final Supplier<Set<? extends Hardware>> hardwareSupplier) {
+      return new MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier<Set<? extends Hardware>>(authException,
+            seconds, new Supplier<Set<? extends Hardware>>() {
+               @Override
+               public Set<? extends Hardware> get() {
+                  return hardwareSupplier.get();
+               }
+            });
    }
 
    @Provides

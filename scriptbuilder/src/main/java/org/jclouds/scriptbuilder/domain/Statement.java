@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.scriptbuilder.domain;
 
 /**
@@ -25,7 +24,7 @@ package org.jclouds.scriptbuilder.domain;
  * @author Adrian Cole
  */
 public interface Statement {
-   Iterable<String> functionDependecies(OsFamily family);
+   Iterable<String> functionDependencies(OsFamily family);
 
    String render(OsFamily family);
 }

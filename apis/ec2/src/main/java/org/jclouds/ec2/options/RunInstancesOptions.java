@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.options;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -58,10 +57,6 @@ public class RunInstancesOptions extends BaseEC2RequestOptions {
       return this;
    }
 
-   String getKeyName() {
-      return getFirstFormOrNull("KeyName");
-   }
-
    /**
     * Attach multiple security groups
     */
@@ -88,10 +83,6 @@ public class RunInstancesOptions extends BaseEC2RequestOptions {
       return withSecurityGroups(securityGroup);
    }
 
-   String getSecurityGroup() {
-      return getFirstFormOrNull("SecurityGroup.1");
-   }
-
    /**
     * Unencoded data
     */
@@ -103,10 +94,6 @@ public class RunInstancesOptions extends BaseEC2RequestOptions {
       return this;
    }
 
-   String getUserData() {
-      return getFirstFormOrNull("UserData");
-   }
-
    /**
     * Specifies the instance type. default small;
     */
@@ -115,20 +102,12 @@ public class RunInstancesOptions extends BaseEC2RequestOptions {
       return this;
    }
 
-   String getType() {
-      return getFirstFormOrNull("InstanceType");
-   }
-
    /**
     * The ID of the kernel with which to launch the instance.
     */
    public RunInstancesOptions withKernelId(String kernelId) {
       formParameters.put("KernelId", checkNotNull(kernelId, "kernelId"));
       return this;
-   }
-
-   String getKernelId() {
-      return getFirstFormOrNull("KernelId");
    }
 
    /**
@@ -142,15 +121,10 @@ public class RunInstancesOptions extends BaseEC2RequestOptions {
       return this;
    }
 
-   String getRamdiskId() {
-      return getFirstFormOrNull("RamdiskId");
-   }
-
    /**
     * Specifies the Block Device Mapping for the instance
     * 
     */
-
    public RunInstancesOptions withBlockDeviceMappings(Set<? extends BlockDeviceMapping> mappings) {
       int i = 1;
       for (BlockDeviceMapping mapping : checkNotNull(mappings, "mappings")) {
@@ -161,15 +135,14 @@ public class RunInstancesOptions extends BaseEC2RequestOptions {
          if (mapping.getEbsSnapshotId() != null)
             formParameters.put(String.format("BlockDeviceMapping.%d.Ebs.SnapshotId", i), mapping.getEbsSnapshotId());
          if (mapping.getEbsVolumeSize() != null)
-            formParameters.put(String.format("BlockDeviceMapping.%d.Ebs.VolumeSize", i), String.valueOf(mapping
-                     .getEbsVolumeSize()));
+            formParameters.put(String.format("BlockDeviceMapping.%d.Ebs.VolumeSize", i),
+                  String.valueOf(mapping.getEbsVolumeSize()));
          if (mapping.getEbsNoDevice() != null)
-            formParameters.put(String.format("BlockDeviceMapping.%d.Ebs.NoDevice", i), String.valueOf(mapping
-                     .getEbsNoDevice()));
+            formParameters.put(String.format("BlockDeviceMapping.%d.Ebs.NoDevice", i),
+                  String.valueOf(mapping.getEbsNoDevice()));
          if (mapping.getEbsDeleteOnTermination() != null)
-            formParameters.put(String.format("BlockDeviceMapping.%d.Ebs.DeleteOnTermination", i), String
-                     .valueOf(mapping.getEbsDeleteOnTermination()));
-
+            formParameters.put(String.format("BlockDeviceMapping.%d.Ebs.DeleteOnTermination", i),
+                  String.valueOf(mapping.getEbsDeleteOnTermination()));
          i++;
       }
       return this;

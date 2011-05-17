@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -9,14 +9,13 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agred to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * Se the License for the specific language governing permissions and
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import static com.google.common.collect.Iterables.find;
@@ -24,6 +23,7 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.jclouds.cloudstack.domain.AsyncCreateResponse;
@@ -46,25 +46,32 @@ import org.testng.annotations.Test;
  * 
  * @author Adrian Cole
  */
-@Test(groups = "live", sequential = true, testName = "NATClientLiveTest")
+@Test(groups = "live", singleThreaded = true, testName = "NATClientLiveTest")
 public class NATClientLiveTest extends BaseCloudStackClientLiveTest {
    private PublicIPAddress ip = null;
    private VirtualMachine vm;
    private IPForwardingRule rule;
    private Network network;
+   private boolean networksDisabled;
 
    @BeforeGroups(groups = "live")
    public void setupClient() {
       super.setupClient();
       prefix += "nat";
-      network = find(client.getNetworkClient().listNetworks(), NetworkPredicates.supportsStaticNAT());
-      vm = VirtualMachineClientLiveTest.createVirtualMachineInNetwork(network, client, jobComplete,
-               virtualMachineRunning);
-      if (vm.getPassword() != null)
-         password = vm.getPassword();
+      try {
+         network = find(client.getNetworkClient().listNetworks(), NetworkPredicates.supportsStaticNAT());
+         vm = VirtualMachineClientLiveTest.createVirtualMachineInNetwork(network, client, jobComplete,
+                  virtualMachineRunning);
+         if (vm.getPassword() != null)
+            password = vm.getPassword();
+      } catch (NoSuchElementException e) {
+         networksDisabled = true;
+      }
    }
 
    public void testCreateIPForwardingRule() throws Exception {
+      if (networksDisabled)
+         return;
       for (ip = reuseOrAssociate.apply(network); (!ip.isStaticNAT() || ip.getVirtualMachineId() != vm.getId()); ip = reuseOrAssociate
                .apply(network)) {
          // check to see if someone already grabbed this ip

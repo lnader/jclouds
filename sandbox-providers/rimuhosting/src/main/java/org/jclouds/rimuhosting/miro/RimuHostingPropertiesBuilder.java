@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,13 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.rimuhosting.miro;
 
 import static org.jclouds.Constants.PROPERTY_API_VERSION;
+import static org.jclouds.Constants.PROPERTY_CONNECTION_TIMEOUT;
 import static org.jclouds.Constants.PROPERTY_ENDPOINT;
 import static org.jclouds.Constants.PROPERTY_ISO3166_CODES;
+import static org.jclouds.Constants.PROPERTY_SO_TIMEOUT;
 import static org.jclouds.location.reference.LocationConstants.ISO3166_CODES;
 import static org.jclouds.location.reference.LocationConstants.PROPERTY_ZONE;
 import static org.jclouds.location.reference.LocationConstants.PROPERTY_ZONES;
@@ -30,6 +31,7 @@ import static org.jclouds.rimuhosting.miro.reference.RimuHostingConstants.PROPER
 import java.util.Properties;
 
 import org.jclouds.PropertiesBuilder;
+import org.jclouds.concurrent.Timeout;
 
 /**
  * Builds properties used in RimuHosting Clients
@@ -49,6 +51,10 @@ public class RimuHostingPropertiesBuilder extends PropertiesBuilder {
       properties.setProperty(PROPERTY_API_VERSION, "TODO");
       properties.setProperty(PROPERTY_ENDPOINT, "https://api.rimuhosting.com/r");
       properties.setProperty(PROPERTY_RIMUHOSTING_DEFAULT_DC, "DCDALLAS");
+      Timeout timeout = RimuHostingClient.class.getAnnotation(Timeout.class);
+      long timeoutMillis = timeout.timeUnit().toMillis(timeout.duration());
+      properties.setProperty(PROPERTY_SO_TIMEOUT, timeoutMillis + "");
+      properties.setProperty(PROPERTY_CONNECTION_TIMEOUT, timeoutMillis + "");
       return properties;
    }
 

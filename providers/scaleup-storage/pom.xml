@@ -32,7 +32,8 @@
     <groupId>org.jclouds.provider</groupId>
     <artifactId>scaleup-storage</artifactId>
     <name>jclouds ScaleUp Cloud Storage provider</name>
-    <description>Simple Storage Service (S3) implementation targeted to ScaleUp Cloud Storage</description>
+    <description>Scality RING (ScalityRS2) implementation targeted to ScaleUp Cloud Storage</description>
+    <packaging>bundle</packaging>
 
     <properties>
         <test.initializer>org.jclouds.scaleup.storage.blobstore.ScaleUpStorageTestInitializer</test.initializer>
@@ -45,9 +46,16 @@
     <dependencies>
         <dependency>
             <groupId>org.jclouds.api</groupId>
-            <artifactId>s3</artifactId>
+            <artifactId>scality-rs2</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jclouds.api</groupId>
+            <artifactId>scality-rs2</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jclouds.api</groupId>
@@ -138,6 +146,22 @@
             </build>
         </profile>
     </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>org.jclouds.scaleup.storage.*;version="${project.version}"</Export-Package>
+                        <Import-Package>org.jclouds.*;version="${project.version}",*</Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 
 </project>

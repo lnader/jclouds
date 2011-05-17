@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.domain;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 
@@ -49,6 +49,10 @@ public interface ObjectMetadata extends Comparable<ObjectMetadata> {
     * @see <a href= "http://docs.amazonwebservices.com/AmazonHTTP/2006-03-01/UsingKeys.html" />
     */
    String getKey();
+
+   String getBucket();
+
+   URI getUri();
 
    /**
     * Every bucket and object in Amazon S3 has an owner, the user that created the bucket or object.

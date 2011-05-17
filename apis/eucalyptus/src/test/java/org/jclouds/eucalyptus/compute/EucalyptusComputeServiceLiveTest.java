@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +16,8 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.eucalyptus.compute;
 
-import static org.jclouds.compute.util.ComputeServiceUtils.getCores;
-import static org.testng.Assert.assertEquals;
-
-import org.jclouds.compute.domain.OsFamily;
-import org.jclouds.compute.domain.Template;
 import org.jclouds.ec2.compute.EC2ComputeServiceLiveTest;
 import org.jclouds.http.HttpResponseException;
 import org.testng.annotations.Test;
@@ -39,14 +33,6 @@ public class EucalyptusComputeServiceLiveTest extends EC2ComputeServiceLiveTest 
       provider = "eucalyptus";
       // security groups must be <30 characters
       group = "eu";
-   }
-
-   @Override
-   protected void assertDefaultWorks() {
-      Template defaultTemplate = client.templateBuilder().build();
-      assertEquals(defaultTemplate.getImage().getOperatingSystem().is64Bit(), true);
-      assertEquals(defaultTemplate.getImage().getOperatingSystem().getFamily(), OsFamily.CENTOS);
-      assertEquals(getCores(defaultTemplate.getHardware()), 1.0d);
    }
 
    @Override

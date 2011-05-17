@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.util;
 
 import static org.easymock.classextension.EasyMock.createMock;
@@ -25,6 +24,8 @@ import static org.jclouds.util.Throwables2.getFirstThrowableOfType;
 import static org.jclouds.util.Throwables2.returnFirstExceptionIfInListOrThrowStandardExceptionOrCause;
 import static org.testng.Assert.assertEquals;
 
+import java.io.IOException;
+import java.net.SocketException;
 import java.util.concurrent.TimeoutException;
 
 import org.jclouds.http.HttpCommand;
@@ -52,6 +53,11 @@ public class Throwables2Test {
       assertEquals(getFirstThrowableOfType(pex, AuthorizationException.class), aex);
    }
 
+   public void testGetFirstThrowableOfTypeSubclass() {
+      SocketException aex = createMock(SocketException.class);
+      assertEquals(getFirstThrowableOfType(aex, IOException.class), aex);
+   }
+   
    public void testGetFirstThrowableOfTypeOuter() {
       AuthorizationException aex = createMock(AuthorizationException.class);
       assertEquals(getFirstThrowableOfType(aex, AuthorizationException.class), aex);
@@ -81,10 +87,9 @@ public class Throwables2Test {
    public void testReturnExceptionThatsInList() throws Exception {
       Exception e = new TestException();
       assertEquals(returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] { TestException.class }, e),
-            e);
-      assertEquals(
-            returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] { TestException.class },
-                  new RuntimeException(e)), e);
+               e);
+      assertEquals(returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] { TestException.class },
+               new RuntimeException(e)), e);
    }
 
    @Test(expectedExceptions = TestException.class)
@@ -116,13 +121,20 @@ public class Throwables2Test {
       Exception e = new AuthorizationException();
       returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] {}, new RuntimeException(e));
    }
-   
+
+   @Test(expectedExceptions = AuthorizationException.class)
+   public void testPropagateProvisionExceptionAuthorizationException() throws Exception {
+      Exception e = new AuthorizationException();
+      returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] {}, new ProvisionException(ImmutableSet.of(new Message(
+               ImmutableList.of(), "Error in custom provider",e))));
+   }
+
    @Test(expectedExceptions = InsufficientResourcesException.class)
    public void testPropagateStandardExceptionInsufficientResourcesException() throws Exception {
       Exception e = new InsufficientResourcesException();
       returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] {}, new RuntimeException(e));
    }
-   
+
    @Test(expectedExceptions = ResourceNotFoundException.class)
    public void testPropagateStandardExceptionResourceNotFoundException() throws Exception {
       Exception e = new ResourceNotFoundException();
@@ -133,36 +145,36 @@ public class Throwables2Test {
    public void testPropagateStandardExceptionIllegalStateExceptionNestedInHttpResponseException() throws Exception {
       Exception e = new IllegalStateException();
       returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] {}, new HttpResponseException("goo",
-            createNiceMock(HttpCommand.class), null, e));
+               createNiceMock(HttpCommand.class), null, e));
    }
 
    @Test(expectedExceptions = IllegalArgumentException.class)
    public void testPropagateStandardExceptionIllegalArgumentExceptionNestedInHttpResponseException() throws Exception {
       Exception e = new IllegalArgumentException();
       returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] {}, new HttpResponseException("goo",
-            createNiceMock(HttpCommand.class), null, e));
+               createNiceMock(HttpCommand.class), null, e));
    }
 
    @Test(expectedExceptions = UnsupportedOperationException.class)
    public void testPropagateStandardExceptionUnsupportedOperationExceptionNestedInHttpResponseException()
-         throws Exception {
+            throws Exception {
       Exception e = new UnsupportedOperationException();
       returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] {}, new HttpResponseException("goo",
-            createNiceMock(HttpCommand.class), null, e));
+               createNiceMock(HttpCommand.class), null, e));
    }
 
    @Test(expectedExceptions = AuthorizationException.class)
    public void testPropagateStandardExceptionAuthorizationExceptionNestedInHttpResponseException() throws Exception {
       Exception e = new AuthorizationException();
       returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] {}, new HttpResponseException("goo",
-            createNiceMock(HttpCommand.class), null, e));
+               createNiceMock(HttpCommand.class), null, e));
    }
 
    @Test(expectedExceptions = ResourceNotFoundException.class)
    public void testPropagateStandardExceptionResourceNotFoundExceptionNestedInHttpResponseException() throws Exception {
       Exception e = new ResourceNotFoundException();
       returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] {}, new HttpResponseException("goo",
-            createNiceMock(HttpCommand.class), null, e));
+               createNiceMock(HttpCommand.class), null, e));
    }
 
    @Test(expectedExceptions = HttpResponseException.class)
@@ -170,6 +182,7 @@ public class Throwables2Test {
       Exception e = new HttpResponseException("goo", createNiceMock(HttpCommand.class), null);
       returnFirstExceptionIfInListOrThrowStandardExceptionOrCause(new Class[] {}, new RuntimeException(e));
    }
+
    static class TestException extends Exception {
 
       /**

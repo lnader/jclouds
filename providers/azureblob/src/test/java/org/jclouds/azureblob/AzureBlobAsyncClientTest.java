@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,10 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.azureblob;
 
-import static org.jclouds.azureblob.options.CreateContainerOptions.Builder.withPublicAcl;
 import static org.jclouds.azure.storage.options.ListOptions.Builder.maxResults;
+import static org.jclouds.azureblob.options.CreateContainerOptions.Builder.withPublicAccess;
 import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
@@ -28,15 +27,17 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
 
+import org.jclouds.azure.storage.filters.SharedKeyLiteAuthentication;
+import org.jclouds.azure.storage.options.ListOptions;
+import org.jclouds.azureblob.domain.PublicAccess;
 import org.jclouds.azureblob.functions.ParseBlobFromHeadersAndHttpContent;
 import org.jclouds.azureblob.functions.ParseContainerPropertiesFromHeaders;
+import org.jclouds.azureblob.functions.ParsePublicAccessHeader;
 import org.jclouds.azureblob.functions.ReturnFalseIfContainerAlreadyExists;
 import org.jclouds.azureblob.options.CreateContainerOptions;
 import org.jclouds.azureblob.options.ListBlobsOptions;
 import org.jclouds.azureblob.xml.AccountNameEnumerationResultsHandler;
 import org.jclouds.azureblob.xml.ContainerNameEnumerationResultsHandler;
-import org.jclouds.azure.storage.filters.SharedKeyLiteAuthentication;
-import org.jclouds.azure.storage.options.ListOptions;
 import org.jclouds.blobstore.functions.ReturnNullOnContainerNotFound;
 import org.jclouds.blobstore.functions.ReturnNullOnKeyNotFound;
 import org.jclouds.http.HttpRequest;
@@ -125,13 +126,13 @@ public class AzureBlobAsyncClientTest extends RestClientTest<AzureBlobAsyncClien
    public void testCreateContainerOptions() throws SecurityException, NoSuchMethodException, IOException {
       Method method = AzureBlobAsyncClient.class.getMethod("createContainer", String.class,
                CreateContainerOptions[].class);
-      HttpRequest request = processor.createRequest(method, "container", withPublicAcl().withMetadata(
-               ImmutableMultimap.of("foo", "bar")));
+      HttpRequest request = processor.createRequest(method, "container", withPublicAccess(PublicAccess.BLOB)
+               .withMetadata(ImmutableMultimap.of("foo", "bar")));
 
       assertRequestLineEquals(request,
                "PUT https://identity.blob.core.windows.net/container?restype=container HTTP/1.1");
       assertNonPayloadHeadersEqual(request,
-               "x-ms-meta-foo: bar\nx-ms-prop-publicaccess: true\nx-ms-version: 2009-09-19\n");
+               "x-ms-blob-public-access: blob\nx-ms-meta-foo: bar\nx-ms-version: 2009-09-19\n");
       assertPayloadEquals(request, null, null, false);
 
       assertResponseParserClassEquals(method, request, ReturnTrueIf2xx.class);
@@ -168,12 +169,12 @@ public class AzureBlobAsyncClientTest extends RestClientTest<AzureBlobAsyncClien
 
    public void testCreateRootContainerOptions() throws SecurityException, NoSuchMethodException, IOException {
       Method method = AzureBlobAsyncClient.class.getMethod("createRootContainer", CreateContainerOptions[].class);
-      HttpRequest request = processor.createRequest(method, withPublicAcl().withMetadata(
+      HttpRequest request = processor.createRequest(method, withPublicAccess(PublicAccess.BLOB).withMetadata(
                ImmutableMultimap.of("foo", "bar")));
 
       assertRequestLineEquals(request, "PUT https://identity.blob.core.windows.net/$root?restype=container HTTP/1.1");
       assertNonPayloadHeadersEqual(request,
-               "x-ms-meta-foo: bar\nx-ms-prop-publicaccess: true\nx-ms-version: 2009-09-19\n");
+               "x-ms-blob-public-access: blob\nx-ms-meta-foo: bar\nx-ms-version: 2009-09-19\n");
       assertPayloadEquals(request, null, null, false);
 
       assertResponseParserClassEquals(method, request, ReturnTrueIf2xx.class);
@@ -219,6 +220,20 @@ public class AzureBlobAsyncClientTest extends RestClientTest<AzureBlobAsyncClien
       assertPayloadEquals(request, null, null, false);
 
       assertResponseParserClassEquals(method, request, ParseContainerPropertiesFromHeaders.class);
+      assertSaxResponseParserClassEquals(method, null);
+      assertExceptionParserClassEquals(method, ReturnNullOnContainerNotFound.class);
+   }
+
+   public void testGetPublicAccessForContainer() throws SecurityException, NoSuchMethodException, IOException {
+      Method method = AzureBlobAsyncClient.class.getMethod("getPublicAccessForContainer", String.class);
+      HttpRequest request = processor.createRequest(method, "container");
+
+      assertRequestLineEquals(request,
+               "HEAD https://identity.blob.core.windows.net/container?restype=container&comp=acl HTTP/1.1");
+      assertNonPayloadHeadersEqual(request, "x-ms-version: 2009-09-19\n");
+      assertPayloadEquals(request, null, null, false);
+
+      assertResponseParserClassEquals(method, request, ParsePublicAccessHeader.class);
       assertSaxResponseParserClassEquals(method, null);
       assertExceptionParserClassEquals(method, ReturnNullOnContainerNotFound.class);
    }

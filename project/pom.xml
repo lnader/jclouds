@@ -39,7 +39,7 @@
     <licenses>
         <license>
             <name>Apache License</name>
-            <url>LICENSE.txt</url>
+            <url>../resources/LICENSE.txt</url>
         </license>
     </licenses>
 
@@ -98,11 +98,10 @@
         <snapshotRepository>
             <id>sonatype-nexus-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>    
+        </snapshotRepository>
         <site>
-            <id>website</id>
-            <name>website</name>
-            <url>file://${basedir}/target/dist/site/jclouds-testing/</url>
+            <id>jclouds-googlecode-site</id>
+            <url>${maven.site.url.base}/${project.version}</url>
         </site>
     </distributionManagement>
 
@@ -180,6 +179,7 @@
         <maven.compile.target>1.6</maven.compile.target>
         <maven.compile.optimize>true</maven.compile.optimize>
         <maven.compile.deprecation>true</maven.compile.deprecation>
+        <maven.site.url.base>davs://jclouds.googlecode.com/svn/maven-sites</maven.site.url.base>
         <http.proxyHost />
         <http.proxyPort />
         <jclouds.blobstore.httpstream.url>http://mirror.cloudera.com/apache/maven/binaries/apache-maven-2.2.1-bin.tar.bz2</jclouds.blobstore.httpstream.url>
@@ -193,9 +193,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-ssl</artifactId>
-                <version>7.0.0.pre5</version>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-security</artifactId>
+                <version>7.4.0.RC0</version>
             </dependency>
             <dependency>
                 <groupId>com.jcraft</groupId>
@@ -208,9 +208,8 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>5.10</version>
+            <version>6.0.1</version>
             <scope>test</scope>
-            <classifier>jdk15</classifier>
         </dependency>
         <dependency>
             <groupId>org.easymock</groupId>
@@ -267,7 +266,7 @@
                     <testSourceDirectories>
                         <testSourceDirectory>src/test/clojure</testSourceDirectory>
                     </testSourceDirectories>
-                    <clojureOptions>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=256m -Xss256k</clojureOptions>
+                    <clojureOptions>-Xms128m -Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=256m -Xss256k</clojureOptions>
                     <warnOnReflection>true</warnOnReflection>
                     <compileDeclaredNamespaceOnly>true</compileDeclaredNamespaceOnly>
                     <testDeclaredNamespaceOnly>false</testDeclaredNamespaceOnly>
@@ -284,7 +283,14 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.8.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-testng</artifactId>
+                        <version>2.8.1</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>integration</id>
@@ -472,13 +478,40 @@ pageTracker._trackPageview();
                         </manifestEntries>
                     </archive>
                 </configuration>
-            </plugin>        
+            </plugin>
+            <plugin>      
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <version>1.2</version>
+                <executions>             
+                    <execution>
+                        <id>process-remote-resources</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>org.jclouds:jclouds-resources:${project.version}</resourceBundle>
+                            </resourceBundles>
+                        </configuration>
+                    </execution>          
+                </executions>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>2.1</version>
+                    <configuration>
+                        <stagingRepositoryId>${project.distributionManagement.site.id}</stagingRepositoryId>
+                        <stagingSiteURL>${project.distributionManagement.site.url}</stagingSiteURL>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.wagon</groupId>
+                            <artifactId>wagon-webdav-jackrabbit</artifactId>
+                            <version>1.0-beta-8-WAGON-319</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
@@ -492,6 +525,17 @@ pageTracker._trackPageview();
                     <artifactId>maven-release-plugin</artifactId>
                     <version>2.1</version>
                 </plugin>                
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>2.3.4</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <instructions>
+                            <_nouses>true</_nouses>
+                       </instructions>
+                   </configuration>
+                </plugin>
             </plugins>            
         </pluginManagement>
     </build>
@@ -650,79 +694,227 @@ pageTracker._trackPageview();
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>maven-2</id>
+            <activation>
+                <file>
+                    <!-- only recognized by Maven 3.x (see MNG-2363) -->
+                    <missing>${basedir}</missing>
+                </file>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <artifactId>maven-site-plugin</artifactId>
+                            <version>2.2</version>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-jxr-plugin</artifactId>
+                        <version>2.2</version>
+                        <configuration>
+                            <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-project-info-reports-plugin</artifactId>
+                        <version>2.1.2</version>
+                        <reportSets>
+                            <reportSet>
+                                <reports>
+                                    <report>cpd</report>
+                                    <report>findbugs</report>
+                                    <report>issue-tracking</report>
+                                    <report>mail-lists</report>
+                                    <report>pmd</report>
+                                    <report>rat-report</report>
+                                    <report>source-repository</report>
+                                    <report>surefire-report</report>
+                                    <report>maven-emma-plugin</report>
+                                    <report>team-list</report>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.7</version>
+                        <configuration>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <quiet>true</quiet>
+                        </configuration>
+                        <reportSets>
+                            <reportSet>
+                                <id>default</id>
+                                <reports>
+                                    <report>aggregate</report>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.maven.plugin</groupId>
+                        <artifactId>emma-maven-plugin</artifactId>
+                        <version>1.2</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rat-maven-plugin</artifactId>
+                        <version>1.0-alpha-3</version>
+                        <inherited>true</inherited>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-pmd-plugin</artifactId>
+                        <version>2.4</version>
+                        <configuration>
+                            <targetJdk>${maven.compile.source}</targetJdk>
+                        </configuration>
+                        <inherited>true</inherited>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <version>2.3.1</version>
+                        <configuration>
+                            <xmlOutput>true</xmlOutput>
+                        </configuration>
+                        <inherited>true</inherited>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
+        <profile>
+            <id>maven-3</id>
+            <activation>
+                <file>
+                    <!-- only recognized by Maven 3.x (see MNG-2363) -->
+                    <exists>${basedir}</exists>
+                </file>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <artifactId>maven-site-plugin</artifactId>
+                            <version>3.0-beta-4-SNAPSHOT</version>
+                            <configuration>
+                                <reportPlugins>
+                                    <plugin>
+                                        <artifactId>maven-project-info-reports-plugin</artifactId>
+                                        <version>2.3.1</version>
+                                        <reportSets>
+                                            <reportSet>
+                                                <reports>
+                                                    <report>index</report>
+                                                    <report>project-team</report>
+                                                    <report>mailing-list</report>
+                                                    <report>issue-tracking</report>
+                                                    <report>license</report>
+                                                    <report>scm</report>
+                                                </reports>
+                                            </reportSet>
+                                        </reportSets>
+                                    </plugin>
+                                    <plugin>
+                                        <artifactId>maven-javadoc-plugin</artifactId>
+                                        <version>2.7</version>
+                                        <configuration>
+                                            <encoding>${project.build.sourceEncoding}</encoding>
+                                            <quiet>true</quiet>
+                                            <additionalJOption>-J-Xmx256m</additionalJOption>
+                                        </configuration>
+                                        <reportSets>
+                                            <reportSet>
+                                                <id>default</id>
+                                                <reports>
+                                                    <report>aggregate</report>
+                                                </reports>
+                                            </reportSet>
+                                        </reportSets>
+                                    </plugin>
+                                    <plugin>
+                                        <groupId>org.sonatype.maven.plugin</groupId>
+                                        <artifactId>emma-maven-plugin</artifactId>
+                                        <version>1.2</version>
+                                    </plugin>
+                                    <plugin>
+                                        <artifactId>maven-jxr-plugin</artifactId>
+                                        <version>2.2</version>
+                                        <configuration>
+                                            <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
+                                        </configuration>
+                                    </plugin>
+                                    <plugin>
+                                        <artifactId>maven-surefire-report-plugin</artifactId>
+                                        <version>2.8</version>
+                                    </plugin>
+                                    <plugin>
+                                        <groupId>org.apache.rat</groupId>
+                                        <artifactId>apache-rat-plugin</artifactId>
+                                        <version>0.7</version>
+                                    </plugin>
+                                    <plugin>
+                                        <artifactId>maven-pmd-plugin</artifactId>
+                                        <version>2.5</version>
+                                        <configuration>
+                                            <targetJdk>${maven.compile.source}</targetJdk>
+                                        </configuration>
+                                    </plugin>
+                                    <plugin>
+                                        <groupId>org.codehaus.mojo</groupId>
+                                        <artifactId>findbugs-maven-plugin</artifactId>
+                                        <version>2.3.2</version>
+                                        <configuration>
+                                            <xmlOutput>true</xmlOutput>
+                                        </configuration>
+                                    </plugin>
+                                </reportPlugins>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>jclouds-project</id>
+            <activation>
+                <file>
+                    <!-- only in the jclouds-project module -->
+                    <exists>src/etc/header.txt</exists>
+                </file>
+            </activation>
+
+            <!-- Maven generates incorrect links without the <site> declaration here -->
+            <distributionManagement>
+                <site>
+                    <id>jclouds-googlecode-site</id>
+                    <url>${maven.site.url.base}/${project.version}/${project.artifactId}</url>
+                </site>
+            </distributionManagement>
+            <build>
+                <plugins>
+                   <plugin>      
+                        <artifactId>maven-remote-resources-plugin</artifactId>
+                        <version>1.2</version>
+                        <executions>
+                            <execution>
+                                <id>process-remote-resources</id>
+                                <goals>
+                                    <goal>process</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>true</skip>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>        
+                </plugins>            
+            </build>
+        </profile>
     </profiles>
-    <reporting>
-        <plugins>
-            <plugin>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.1.2</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>cpd</report>
-                            <report>findbugs</report>
-                            <report>issue-tracking</report>
-                            <report>mail-lists</report>
-                            <report>pmd</report>
-                            <report>rat-report</report>
-                            <report>source-repository</report>
-                            <report>surefire-report</report>
-                            <report>maven-emma-plugin</report>
-                            <report>team-list</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.6.1</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                    <quiet>true</quiet>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <id>default</id>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.maven.plugin</groupId>
-                <artifactId>emma-maven-plugin</artifactId>
-                <version>1.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>surefire-report-maven-plugin</artifactId>
-                <version>2.0-beta-1</version>
-                <inherited>true</inherited>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>rat-maven-plugin</artifactId>
-                <version>1.0-alpha-3</version>
-                <inherited>true</inherited>
-            </plugin>
-            <plugin>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <targetJdk>${maven.compile.source}</targetJdk>
-                </configuration>
-                <inherited>true</inherited>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.3.1</version>
-                <configuration>
-                    <xmlOutput>true</xmlOutput>
-                </configuration>
-                <inherited>true</inherited>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>

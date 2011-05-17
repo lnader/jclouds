@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.rimuhosting.miro;
 
 import java.util.List;
@@ -28,6 +27,7 @@ import org.jclouds.compute.internal.ComputeServiceContextImpl;
 import org.jclouds.http.config.JavaUrlHttpCommandExecutorServiceModule;
 import org.jclouds.logging.jdk.config.JDKLoggingModule;
 import org.jclouds.rimuhosting.miro.compute.config.RimuHostingComputeServiceContextModule;
+import org.jclouds.rimuhosting.miro.config.RimuHostingRestClientModule;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -47,8 +47,7 @@ import com.google.inject.TypeLiteral;
  * @author Adrian Cole
  * @see RimuHostingComputeServiceContext
  */
-public class RimuHostingContextBuilder extends
-         ComputeServiceContextBuilder<RimuHostingClient, RimuHostingAsyncClient> {
+public class RimuHostingContextBuilder extends ComputeServiceContextBuilder<RimuHostingClient, RimuHostingAsyncClient> {
 
    public RimuHostingContextBuilder(Properties props) {
       super(RimuHostingClient.class, RimuHostingAsyncClient.class, props);
@@ -62,11 +61,13 @@ public class RimuHostingContextBuilder extends
    @Override
    public ComputeServiceContext buildComputeServiceContext() {
       // need the generic type information
-      return (ComputeServiceContext) this
-               .buildInjector()
-               .getInstance(
-                        Key
-                                 .get(new TypeLiteral<ComputeServiceContextImpl<RimuHostingClient, RimuHostingAsyncClient>>() {
-                                 }));
+      return (ComputeServiceContext) this.buildInjector().getInstance(
+               Key.get(new TypeLiteral<ComputeServiceContextImpl<RimuHostingClient, RimuHostingAsyncClient>>() {
+               }));
+   }
+
+   @Override
+   protected void addClientModule(List<Module> modules) {
+      modules.add(new RimuHostingRestClientModule());
    }
 }

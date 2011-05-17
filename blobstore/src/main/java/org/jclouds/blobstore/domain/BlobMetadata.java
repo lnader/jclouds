@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,11 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.domain;
+
+import java.net.URI;
+
+import javax.annotation.Nullable;
 
 import org.jclouds.blobstore.domain.internal.BlobMetadataImpl;
 import org.jclouds.io.ContentMetadata;
@@ -31,5 +34,20 @@ import com.google.inject.ImplementedBy;
  */
 @ImplementedBy(BlobMetadataImpl.class)
 public interface BlobMetadata extends StorageMetadata {
+   /**
+    * If the blob is publicly readable, what is the URI one can access it at.
+    * 
+    * @return uri, or null, if not readable
+    */
+   @Nullable
+   URI getPublicUri();
+   
+   /**
+    * 
+    * @return the container holding this blob
+    */
+   @Nullable
+   String getContainer();
+
    ContentMetadata getContentMetadata();
 }

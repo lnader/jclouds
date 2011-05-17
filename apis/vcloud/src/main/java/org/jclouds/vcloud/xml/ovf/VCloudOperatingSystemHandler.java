@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml.ovf;
 
 import static org.jclouds.vcloud.util.Utils.newReferenceType;
@@ -24,6 +23,7 @@ import static org.jclouds.vcloud.util.Utils.newReferenceType;
 import java.util.Map;
 
 import org.jclouds.http.functions.ParseSax;
+import org.jclouds.util.SaxUtils;
 import org.jclouds.vcloud.domain.ReferenceType;
 import org.jclouds.vcloud.domain.ovf.VCloudOperatingSystemSection;
 import org.jclouds.vcloud.util.Utils;
@@ -56,7 +56,7 @@ public class VCloudOperatingSystemHandler extends ParseSax.HandlerWithResult<VCl
 
    @Override
    public void startElement(String uri, String localName, String qName, Attributes attrs) {
-      Map<String, String> attributes = Utils.cleanseAttributes(attrs);
+      Map<String, String> attributes = SaxUtils.cleanseAttributes(attrs);
       if (qName.endsWith("Link")) {
          this.edit = Utils.newReferenceType(attributes);
       } else if (qName.endsWith("OperatingSystemSection")) {

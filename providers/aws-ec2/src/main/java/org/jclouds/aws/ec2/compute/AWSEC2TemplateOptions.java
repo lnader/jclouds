@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.ec2.compute;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -27,6 +26,7 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import org.jclouds.aws.ec2.options.RequestSpotInstancesOptions;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Credentials;
 import org.jclouds.ec2.compute.options.EC2TemplateOptions;
@@ -52,12 +52,40 @@ import org.jclouds.util.Preconditions2;
  * 
  * @author Adrian Cole
  */
-public class AWSEC2TemplateOptions extends EC2TemplateOptions {
+public class AWSEC2TemplateOptions extends EC2TemplateOptions implements Cloneable {
+   @Override
+   public AWSEC2TemplateOptions clone() {
+      AWSEC2TemplateOptions options = new AWSEC2TemplateOptions();
+      copyTo(options);
+      return options;
+   }
+
+   @Override
+   public void copyTo(TemplateOptions to) {
+      super.copyTo(to);
+      if (to instanceof AWSEC2TemplateOptions) {
+         AWSEC2TemplateOptions eTo = AWSEC2TemplateOptions.class.cast(to);
+         if (getSubnetId() != null)
+            eTo.subnetId(getSubnetId());
+         if (isMonitoringEnabled())
+            eTo.enableMonitoring();
+         if (!shouldAutomaticallyCreatePlacementGroup())
+            eTo.noPlacementGroup();
+         if (getPlacementGroup() != null)
+            eTo.placementGroup(getPlacementGroup());
+         if (getSpotPrice() != null)
+            eTo.spotPrice(getSpotPrice());
+         if (getSpotOptions() != null)
+            eTo.spotOptions(getSpotOptions());
+      }
+   }
 
    private boolean monitoringEnabled;
    private String placementGroup = null;
    private boolean noPlacementGroup;
    private String subnetId;
+   private Float spotPrice;
+   private RequestSpotInstancesOptions spotOptions = RequestSpotInstancesOptions.NONE;
 
    public static final AWSEC2TemplateOptions NONE = new AWSEC2TemplateOptions();
 
@@ -98,6 +126,22 @@ public class AWSEC2TemplateOptions extends EC2TemplateOptions {
       checkNotNull(subnetId, "subnetId cannot be null");
       Preconditions2.checkNotEmpty(subnetId, "subnetId must be non-empty");
       this.subnetId = subnetId;
+      return this;
+   }
+
+   /**
+    * Specifies the maximum spot price to use
+    */
+   public AWSEC2TemplateOptions spotPrice(Float spotPrice) {
+      this.spotPrice = spotPrice;
+      return this;
+   }
+
+   /**
+    * Options for starting spot instances
+    */
+   public AWSEC2TemplateOptions spotOptions(RequestSpotInstancesOptions spotOptions) {
+      this.spotOptions = spotOptions != null ? spotOptions : RequestSpotInstancesOptions.NONE;
       return this;
    }
 
@@ -258,11 +302,27 @@ public class AWSEC2TemplateOptions extends EC2TemplateOptions {
       }
 
       /**
-       * @see TemplateOptions#withSubnetId
+       * @see TemplateOptions#spotPrice
        */
       public static AWSEC2TemplateOptions subnetId(String subnetId) {
          AWSEC2TemplateOptions options = new AWSEC2TemplateOptions();
          return options.subnetId(subnetId);
+      }
+
+      /**
+       * @see TemplateOptions#spotPrice
+       */
+      public static AWSEC2TemplateOptions spotPrice(Float spotPrice) {
+         AWSEC2TemplateOptions options = new AWSEC2TemplateOptions();
+         return options.spotPrice(spotPrice);
+      }
+
+      /**
+       * @see TemplateOptions#spotOptions
+       */
+      public static AWSEC2TemplateOptions spotOptions(RequestSpotInstancesOptions spotOptions) {
+         AWSEC2TemplateOptions options = new AWSEC2TemplateOptions();
+         return options.spotOptions(spotOptions);
       }
    }
 
@@ -272,7 +332,7 @@ public class AWSEC2TemplateOptions extends EC2TemplateOptions {
     * {@inheritDoc}
     */
    @Override
-   public AWSEC2TemplateOptions blockDeviceMappings(Set<? extends BlockDeviceMapping> blockDeviceMappings) {
+   public AWSEC2TemplateOptions blockDeviceMappings(Iterable<? extends BlockDeviceMapping> blockDeviceMappings) {
       return AWSEC2TemplateOptions.class.cast(super.blockDeviceMappings(blockDeviceMappings));
    }
 
@@ -471,8 +531,8 @@ public class AWSEC2TemplateOptions extends EC2TemplateOptions {
     * {@inheritDoc}
     */
    @Override
-   public AWSEC2TemplateOptions withOverridingCredentials(Credentials overridingCredentials) {
-      return AWSEC2TemplateOptions.class.cast(super.withOverridingCredentials(overridingCredentials));
+   public AWSEC2TemplateOptions overrideCredentialsWith(Credentials overridingCredentials) {
+      return AWSEC2TemplateOptions.class.cast(super.overrideCredentialsWith(overridingCredentials));
    }
 
    /**
@@ -503,6 +563,20 @@ public class AWSEC2TemplateOptions extends EC2TemplateOptions {
       return subnetId;
    }
 
+   /**
+    * @return maximum spot price or null.
+    */
+   public Float getSpotPrice() {
+      return spotPrice;
+   }
+
+   /**
+    * @return options for controlling spot instance requests.
+    */
+   public RequestSpotInstancesOptions getSpotOptions() {
+      return spotOptions;
+   }
+
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -510,6 +584,8 @@ public class AWSEC2TemplateOptions extends EC2TemplateOptions {
       result = prime * result + (monitoringEnabled ? 1231 : 1237);
       result = prime * result + (noPlacementGroup ? 1231 : 1237);
       result = prime * result + ((placementGroup == null) ? 0 : placementGroup.hashCode());
+      result = prime * result + ((spotOptions == null) ? 0 : spotOptions.hashCode());
+      result = prime * result + ((spotPrice == null) ? 0 : spotPrice.hashCode());
       result = prime * result + ((subnetId == null) ? 0 : subnetId.hashCode());
       return result;
    }
@@ -532,6 +608,16 @@ public class AWSEC2TemplateOptions extends EC2TemplateOptions {
             return false;
       } else if (!placementGroup.equals(other.placementGroup))
          return false;
+      if (spotOptions == null) {
+         if (other.spotOptions != null)
+            return false;
+      } else if (!spotOptions.equals(other.spotOptions))
+         return false;
+      if (spotPrice == null) {
+         if (other.spotPrice != null)
+            return false;
+      } else if (!spotPrice.equals(other.spotPrice))
+         return false;
       if (subnetId == null) {
          if (other.subnetId != null)
             return false;
@@ -546,7 +632,8 @@ public class AWSEC2TemplateOptions extends EC2TemplateOptions {
       return "[groupIds=" + getGroupIds() + ", keyPair=" + getKeyPair() + ", noKeyPair="
                + !shouldAutomaticallyCreateKeyPair() + ", monitoringEnabled=" + monitoringEnabled + ", placementGroup="
                + placementGroup + ", noPlacementGroup=" + noPlacementGroup + ", subnetId=" + subnetId + ", userData="
-               + Arrays.toString(getUserData()) + ", blockDeviceMappings=" + getBlockDeviceMappings() + "]";
+               + Arrays.toString(getUserData()) + ", blockDeviceMappings=" + getBlockDeviceMappings() + ", spotPrice="
+               + spotPrice + ", spotOptions=" + spotOptions + "]";
    }
 
 }

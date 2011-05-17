@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.io;
 
 import static org.testng.Assert.assertEquals;
@@ -46,7 +45,7 @@ import com.google.inject.Injector;
  * 
  * @author Adrian Cole
  */
-//NOTE:without testName, this will not call @Before* and fail w/NPE during surefire
+// NOTE:without testName, this will not call @Before* and fail w/NPE during surefire
 @Test(groups = "performance", sequential = true, timeOut = 2 * 60 * 1000, testName = "CryptoTest")
 public class CryptoTest extends PerformanceTest {
 
@@ -123,4 +122,15 @@ public class CryptoTest extends PerformanceTest {
       assertEquals(hexMD5Digest, b64);
    }
 
+   public void testSHA1() {
+      crypto.sha1();
+   }
+
+   public void testSHA256() {
+      crypto.sha256();
+   }
+
+   public void testSHA512() {
+      crypto.sha512();
+   }
 }

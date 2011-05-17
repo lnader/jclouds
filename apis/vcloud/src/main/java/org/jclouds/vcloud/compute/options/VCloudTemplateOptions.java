@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.compute.options;
 
 import java.util.Arrays;
@@ -24,6 +23,7 @@ import java.util.Arrays;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.io.Payload;
 import org.jclouds.util.Preconditions2;
+import org.jclouds.vcloud.domain.network.IpAddressAllocationMode;
 
 /**
  * Contains options supported in the {@code ComputeService#runNode} operation on the "vcloud"
@@ -42,9 +42,28 @@ import org.jclouds.util.Preconditions2;
  * 
  * @author Adrian Cole
  */
-public class VCloudTemplateOptions extends TemplateOptions {
+public class VCloudTemplateOptions extends TemplateOptions implements Cloneable {
+   @Override
+   public VCloudTemplateOptions clone() {
+      VCloudTemplateOptions options = new VCloudTemplateOptions();
+      copyTo(options);
+      return options;
+   }
+
+   @Override
+   public void copyTo(TemplateOptions to) {
+      super.copyTo(to);
+      if (to instanceof VCloudTemplateOptions) {
+         VCloudTemplateOptions eTo = VCloudTemplateOptions.class.cast(to);
+         if (getCustomizationScript() != null)
+            eTo.customizationScript(getCustomizationScript());
+         if (getIpAddressAllocationMode() != null)
+            eTo.ipAddressAllocationMode(getIpAddressAllocationMode());
+      }
+   }
 
    private String customizationScript = null;
+   private IpAddressAllocationMode ipAddressAllocationMode = null;
 
    public static final VCloudTemplateOptions NONE = new VCloudTemplateOptions();
 
@@ -57,14 +76,29 @@ public class VCloudTemplateOptions extends TemplateOptions {
       return this;
    }
 
-   public static class Builder {
+   /**
+    * Specifies the ipAddressAllocationMode used to for network interfaces on the VMs
+    */
+   public VCloudTemplateOptions ipAddressAllocationMode(IpAddressAllocationMode ipAddressAllocationMode) {
+      this.ipAddressAllocationMode = ipAddressAllocationMode;
+      return this;
+   }
 
+   public static class Builder {
       /**
        * @see VCloudTemplateOptions#customizationScript
        */
       public static VCloudTemplateOptions customizationScript(String customizationScript) {
          VCloudTemplateOptions options = new VCloudTemplateOptions();
          return VCloudTemplateOptions.class.cast(options.customizationScript(customizationScript));
+      }
+
+      /**
+       * @see VCloudTemplateOptions#ipAddressAllocationMode
+       */
+      public static VCloudTemplateOptions ipAddressAllocationMode(IpAddressAllocationMode ipAddressAllocationMode) {
+         VCloudTemplateOptions options = new VCloudTemplateOptions();
+         return VCloudTemplateOptions.class.cast(options.ipAddressAllocationMode(ipAddressAllocationMode));
       }
 
       // methods that only facilitate returning the correct object type
@@ -123,6 +157,13 @@ public class VCloudTemplateOptions extends TemplateOptions {
     */
    public String getCustomizationScript() {
       return customizationScript;
+   }
+
+   /**
+    * @return ipAddressAllocationMode on the vms
+    */
+   public IpAddressAllocationMode getIpAddressAllocationMode() {
+      return ipAddressAllocationMode;
    }
 
    // methods that only facilitate returning the correct object type
@@ -212,6 +253,7 @@ public class VCloudTemplateOptions extends TemplateOptions {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((customizationScript == null) ? 0 : customizationScript.hashCode());
+      result = prime * result + ((ipAddressAllocationMode == null) ? 0 : ipAddressAllocationMode.hashCode());
       return result;
    }
 
@@ -229,15 +271,17 @@ public class VCloudTemplateOptions extends TemplateOptions {
             return false;
       } else if (!customizationScript.equals(other.customizationScript))
          return false;
+      if (ipAddressAllocationMode != other.ipAddressAllocationMode)
+         return false;
       return true;
    }
 
    @Override
    public String toString() {
-      return "[customizationScript=" + customizationScript + ", inboundPorts=" + Arrays.toString(inboundPorts)
-               + ", privateKey=" + (privateKey != null) + ", publicKey=" + (publicKey != null) + ", runScript="
-               + (script != null) + ", port:seconds=" + port + ":" + seconds + ", metadata/details: " + includeMetadata
-               + "]";
+      return "[customizationScript=" + (customizationScript != null) + ", ipAddressAllocationMode="
+            + ipAddressAllocationMode + ", inboundPorts=" + Arrays.toString(inboundPorts) + ", privateKey="
+            + (privateKey != null) + ", publicKey=" + (publicKey != null) + ", runScript=" + (script != null)
+            + ", port:seconds=" + port + ":" + seconds + ", metadata/details: " + includeMetadata + "]";
    }
 
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,10 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.functions;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Set;
 
@@ -32,11 +32,12 @@ import javax.ws.rs.core.MediaType;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.logging.Logger;
 import org.jclouds.rest.binders.BindToStringPayload;
+import org.jclouds.s3.Bucket;
 
 /**
  * 
- * Depending on your latency and legal requirements, you can specify a location constraint that will
- * affect where your data physically resides.
+ * Depending on your latency and legal requirements, you can specify a location
+ * constraint that will affect where your data physically resides.
  * 
  * @author Adrian Cole
  * 
@@ -46,25 +47,28 @@ public class BindRegionToXmlPayload extends BindToStringPayload {
    @Resource
    protected Logger logger = Logger.NULL;
 
-   private final String defaultRegion;
+   private final String defaultRegionForEndpoint;
+   private final String defaultRegionForService;
    private final Set<String> regions;
 
    @Inject
-   BindRegionToXmlPayload(@org.jclouds.location.Region @Nullable String defaultRegion,
-            @org.jclouds.location.Region Set<String> regions) {
-      this.defaultRegion = defaultRegion;
-      this.regions = regions;
+   public BindRegionToXmlPayload(@org.jclouds.location.Region @Nullable String defaultRegionForEndpoint,
+         @Nullable @Bucket String defaultRegionForService, @org.jclouds.location.Region Set<String> regions) {
+      this.defaultRegionForEndpoint = defaultRegionForEndpoint;
+      this.defaultRegionForService = defaultRegionForService;
+      this.regions = checkNotNull(regions, "regions");
    }
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Object input) {
-      if (defaultRegion == null)
+      if (defaultRegionForEndpoint == null)
          return request;
-      input = input == null ? defaultRegion : input;
+      input = input == null ? defaultRegionForEndpoint : input;
       checkArgument(input instanceof String, "this binder is only valid for Region!");
       String constraint = (String) input;
       String value = null;
-      if (defaultRegion.equals(constraint)) {
+      if ((defaultRegionForService == null && constraint == null)
+            || (defaultRegionForService != null && defaultRegionForService.equals(constraint))) {
          // nothing to bind as this is default.
          return request;
       } else if (regions.contains(constraint)) {
@@ -73,9 +77,10 @@ public class BindRegionToXmlPayload extends BindToStringPayload {
          logger.warn("region %s not in %s ", constraint, regions);
          value = constraint;
       }
-      String payload = String.format(
-               "<CreateBucketConfiguration><LocationConstraint>%s</LocationConstraint></CreateBucketConfiguration>",
-               value);
+      String payload = String
+            .format(
+                  "<CreateBucketConfiguration><LocationConstraint>%s</LocationConstraint></CreateBucketConfiguration>",
+                  value);
       request = super.bindToRequest(request, payload);
       request.getPayload().getContentMetadata().setContentType(MediaType.TEXT_XML);
       return request;

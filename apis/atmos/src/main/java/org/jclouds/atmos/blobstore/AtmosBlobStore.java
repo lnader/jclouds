@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.atmos.blobstore;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -43,6 +42,8 @@ import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.functions.BlobToHttpGetOptions;
 import org.jclouds.blobstore.internal.BaseBlobStore;
+import org.jclouds.blobstore.options.CreateContainerOptions;
+import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.blobstore.strategy.internal.FetchBlobMetadata;
 import org.jclouds.blobstore.util.BlobUtils;
 import org.jclouds.collect.Memoized;
@@ -208,6 +209,17 @@ public class AtmosBlobStore extends BaseBlobStore {
    }
 
    /**
+    * This implementation invokes {@link AtmosClient#createFile}
+    * <p/>
+    * Since there is no etag support in atmos, we just return the path.
+    */
+   @Override
+   public String putBlob(String container, Blob blob, PutOptions options) {
+      // TODO implement options
+      return putBlob(container, blob);
+   }
+
+   /**
     * This implementation invokes {@link AtmosClient#deletePath}
     */
    @Override
@@ -215,4 +227,10 @@ public class AtmosBlobStore extends BaseBlobStore {
       sync.deletePath(container + "/" + key);
    }
 
+   @Override
+   public boolean createContainerInLocation(Location location, String container, CreateContainerOptions options) {
+      if (options.isPublicRead())
+         throw new UnsupportedOperationException("publicRead");
+      return createContainerInLocation(location, container);
+   }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.nirvanix.sdn;
 
 import java.net.URI;
@@ -46,6 +45,7 @@ import org.jclouds.rest.annotations.ResponseParser;
 import org.jclouds.rest.annotations.SkipEncoding;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.inject.Provides;
 
 /**
  * Provides asynchronous access to Nirvanix SDN resources via their REST API.
@@ -59,7 +59,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 @SkipEncoding( { '/', ':' })
 @QueryParams(keys = SDNQueryParams.OUTPUT, values = "json")
 public interface SDNAsyncClient {
-
+   @Provides
    public Blob newBlob();
 
    /**

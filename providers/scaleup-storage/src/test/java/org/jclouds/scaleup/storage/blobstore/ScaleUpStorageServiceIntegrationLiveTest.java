@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,11 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.scaleup.storage.blobstore;
 
 import java.util.Set;
 
-import org.jclouds.s3.blobstore.integration.S3ServiceIntegrationLiveTest;
+import org.jclouds.scality.rs2.blobstore.ScalityRS2ServiceIntegrationLiveTest;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
@@ -30,7 +29,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Adrian Cole
  */
 @Test(groups = "live", testName = "ScaleUpStorageServiceIntegrationLiveTest")
-public class ScaleUpStorageServiceIntegrationLiveTest extends S3ServiceIntegrationLiveTest {
+public class ScaleUpStorageServiceIntegrationLiveTest extends ScalityRS2ServiceIntegrationLiveTest {
    @Override
    protected Set<String> getIso3166Codes() {
       return ImmutableSet.<String> of("DE");

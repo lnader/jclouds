@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import java.util.Set;
@@ -28,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.cloudstack.domain.Network;
 import org.jclouds.cloudstack.filters.QuerySigner;
+import org.jclouds.cloudstack.options.CreateNetworkOptions;
 import org.jclouds.cloudstack.options.ListNetworksOptions;
 import org.jclouds.rest.annotations.ExceptionParser;
 import org.jclouds.rest.annotations.QueryParams;
@@ -70,4 +70,24 @@ public interface NetworkAsyncClient {
    @ExceptionParser(ReturnNullOnNotFoundOr404.class)
    ListenableFuture<Network> getNetwork(@QueryParam("id") long id);
 
+   /**
+    * @see NetworkClient#createNetworkInZone
+    */
+   @GET
+   @QueryParams(keys = "command", values = "createNetwork")
+   @Unwrap(depth = 2)
+   @Consumes(MediaType.APPLICATION_JSON)
+   ListenableFuture<Network> createNetworkInZone(@QueryParam("zoneid") long zoneId,
+         @QueryParam("networkofferingid") long networkOfferingId, @QueryParam("name") String name,
+         @QueryParam("displaytext") String displayText, CreateNetworkOptions... options);
+
+   /**
+    * @see NetworkClient#deleteNetwork
+    */
+   @GET
+   @QueryParams(keys = "command", values = "deleteNetwork")
+   @Unwrap(depth = 2)
+   @Consumes(MediaType.APPLICATION_JSON)
+   @ExceptionParser(ReturnNullOnNotFoundOr404.class)
+   ListenableFuture<Long> deleteNetwork(@QueryParam("id") long id);
 }

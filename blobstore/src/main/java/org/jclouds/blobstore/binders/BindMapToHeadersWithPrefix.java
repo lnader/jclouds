@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.binders;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -67,7 +66,7 @@ public class BindMapToHeadersWithPrefix implements Binder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Object input) {
-      checkArgument(checkNotNull(input, "input") instanceof Map, "this binder is only valid for Maps!");
+      checkArgument(checkNotNull(input, "input") instanceof Map<?,?>, "this binder is only valid for Maps!");
       checkNotNull(request, "request");
 
       @SuppressWarnings("unchecked")

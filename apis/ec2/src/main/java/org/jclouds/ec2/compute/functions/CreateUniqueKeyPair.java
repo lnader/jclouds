@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.compute.functions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -26,10 +25,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.jclouds.compute.reference.ComputeServiceConstants;
 import org.jclouds.ec2.EC2Client;
 import org.jclouds.ec2.compute.domain.RegionAndName;
 import org.jclouds.ec2.domain.KeyPair;
-import org.jclouds.compute.reference.ComputeServiceConstants;
 import org.jclouds.logging.Logger;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -46,7 +45,7 @@ public class CreateUniqueKeyPair implements Function<RegionAndName, KeyPair> {
    @Named(ComputeServiceConstants.COMPUTE_LOGGER)
    protected Logger logger = Logger.NULL;
    protected final EC2Client ec2Client;
-   protected Supplier<String> randomSuffix;
+   protected final Supplier<String> randomSuffix;
 
    @Inject
    public CreateUniqueKeyPair(EC2Client ec2Client, Supplier<String> randomSuffix) {
@@ -60,14 +59,14 @@ public class CreateUniqueKeyPair implements Function<RegionAndName, KeyPair> {
    }
 
    @VisibleForTesting
-   KeyPair createNewKeyPairInRegion(String region, String tag) {
+   KeyPair createNewKeyPairInRegion(String region, String group) {
       checkNotNull(region, "region");
-      checkNotNull(tag, "tag");
-      logger.debug(">> creating keyPair region(%s) tag(%s)", region, tag);
+      checkNotNull(group, "group");
+      logger.debug(">> creating keyPair region(%s) group(%s)", region, group);
       KeyPair keyPair = null;
       while (keyPair == null) {
          try {
-            keyPair = ec2Client.getKeyPairServices().createKeyPairInRegion(region, getNextName(region, tag));
+            keyPair = ec2Client.getKeyPairServices().createKeyPairInRegion(region, getNextName(region, group));
             logger.debug("<< created keyPair(%s)", keyPair.getKeyName());
          } catch (IllegalStateException e) {
 
@@ -76,7 +75,7 @@ public class CreateUniqueKeyPair implements Function<RegionAndName, KeyPair> {
       return keyPair;
    }
 
-   private String getNextName(String region, String tag) {
-      return String.format("jclouds#%s#%s#%s", tag, region, randomSuffix.get());
+   private String getNextName(String region, String group) {
+      return String.format("jclouds#%s#%s#%s", group, region, randomSuffix.get());
    }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.binders;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -192,7 +191,7 @@ public class BindInstantiateVAppTemplateParamsToXmlPayload implements MapBinder 
          String networkName;
          VAppTemplate vAppTemplate = client.getVAppTemplate(template);
          checkArgument(vAppTemplate != null, "vAppTemplate %s not found!", template);
-         Set<org.jclouds.vcloud.domain.ovf.network.Network> networks = vAppTemplate.getNetworkSection().getNetworks();
+         Set<org.jclouds.ovf.Network> networks = vAppTemplate.getNetworkSection().getNetworks();
          checkArgument(networks.size() > 0, "no networks found in vAppTemplate %s", vAppTemplate);
          if (networks.size() > 1)
             logger.warn("multiple networks found for %s, choosing first from: %s", vAppTemplate.getName(), networks);

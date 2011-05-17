@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.compute.internal;
 
 import java.util.Set;
@@ -32,7 +31,6 @@ import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.domain.internal.TemplateBuilderImpl;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Location;
-import org.jclouds.vcloud.compute.options.VCloudTemplateOptions;
 
 import com.google.common.base.Supplier;
 
@@ -44,21 +42,9 @@ public class VCloudTemplateBuilderImpl extends TemplateBuilderImpl {
 
    @Inject
    protected VCloudTemplateBuilderImpl(@Memoized Supplier<Set<? extends Location>> locations,
-            @Memoized Supplier<Set<? extends Image>> images, @Memoized Supplier<Set<? extends Hardware>> sizes,
-            Supplier<Location> defaultLocation, Provider<TemplateOptions> optionsProvider,
-            @Named("DEFAULT") Provider<TemplateBuilder> defaultTemplateProvider) {
+         @Memoized Supplier<Set<? extends Image>> images, @Memoized Supplier<Set<? extends Hardware>> sizes,
+         Supplier<Location> defaultLocation, @Named("DEFAULT") Provider<TemplateOptions> optionsProvider,
+         @Named("DEFAULT") Provider<TemplateBuilder> defaultTemplateProvider) {
       super(locations, images, sizes, defaultLocation, optionsProvider, defaultTemplateProvider);
    }
-
-   @Override
-   protected void copyTemplateOptions(TemplateOptions from, TemplateOptions to) {
-      super.copyTemplateOptions(from, to);
-      if (from instanceof VCloudTemplateOptions) {
-         VCloudTemplateOptions eFrom = VCloudTemplateOptions.class.cast(from);
-         VCloudTemplateOptions eTo = VCloudTemplateOptions.class.cast(to);
-         if (eFrom.getCustomizationScript() != null)
-            eTo.customizationScript(eFrom.getCustomizationScript());
-      }
-   }
-
 }

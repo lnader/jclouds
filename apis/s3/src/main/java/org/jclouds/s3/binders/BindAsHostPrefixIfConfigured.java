@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.binders;
 
 import static org.jclouds.s3.reference.S3Constants.PROPERTY_S3_SERVICE_PATH;
@@ -46,10 +45,10 @@ import com.google.common.collect.Maps;
 @Singleton
 public class BindAsHostPrefixIfConfigured implements Binder {
 
-   private final Provider<UriBuilder> uriBuilderProvider;
-   private final BindAsHostPrefix bindAsHostPrefix;
-   private final boolean isVhostStyle;
-   private final String servicePath;
+   protected final Provider<UriBuilder> uriBuilderProvider;
+   protected final BindAsHostPrefix bindAsHostPrefix;
+   protected final boolean isVhostStyle;
+   protected final String servicePath;
 
    @Inject
    public BindAsHostPrefixIfConfigured(BindAsHostPrefix bindAsHostPrefix,

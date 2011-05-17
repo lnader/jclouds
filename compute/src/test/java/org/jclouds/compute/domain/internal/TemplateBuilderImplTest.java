@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.domain.internal;
 
 import static org.easymock.EasyMock.expect;
@@ -301,7 +300,7 @@ public class TemplateBuilderImplTest {
       TemplateBuilder defaultTemplate = createMock(TemplateBuilder.class);
 
       expect(templateBuilderProvider.get()).andReturn(defaultTemplate);
-      expect(defaultTemplate.options(options)).andReturn(defaultTemplate);
+      expect(defaultTemplate.options(from)).andReturn(defaultTemplate);
       expect(defaultTemplate.build()).andReturn(null);
       expect(optionsProvider.get()).andReturn(from).atLeastOnce();
 

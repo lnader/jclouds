@@ -342,7 +342,7 @@ public final class JsonWriter implements Closeable {
     return this;
   }
 //BEGIN JCLOUDS PATCH
-
+// * @see <a href="http://code.google.com/p/google-gson/issues/detail?id=326"/>
   /**
    * Writes {@code value} literally
    *
@@ -354,7 +354,6 @@ public final class JsonWriter implements Closeable {
     return this;
   }
   //END JCLOUDS PATCH
-
   /**
    * Encodes {@code value}.
    *

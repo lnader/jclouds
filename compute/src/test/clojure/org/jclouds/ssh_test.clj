@@ -1,6 +1,6 @@
 ;
 ;
-; Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+; Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
 ;
 ; ====================================================================
 ; Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +16,16 @@
 ; limitations under the License.
 ; ====================================================================
 ;
+
 (ns org.jclouds.ssh-test
   (:require
-   [clojure.contrib.logging :as logging]
-   [org.jclouds.modules :as modules])
+   [clojure.contrib.logging :as logging])
   (:import
    org.jclouds.ssh.SshClient
-   org.jclouds.compute.domain.ExecResponse
+   org.jclouds.domain.Credentials
    org.jclouds.io.Payload
-   org.jclouds.net.IPSocket))
+   org.jclouds.net.IPSocket
+   org.jclouds.compute.domain.ExecResponse))
 
 (defn instantiate [impl-class & args]
   (let [constructor (first
@@ -82,7 +83,12 @@
   (^org.jclouds.ssh.SshClient
    create
    [_ ^IPSocket socket ^String username ^bytes password-or-key]
-   (factory-fn socket username password-or-key)))
+   (factory-fn socket username password-or-key))
+  (^org.jclouds.ssh.SshClient
+     create
+     [_ ^IPSocket socket ^Credentials credentials]
+     (factory-fn socket (.identity credentials) (.credential credentials)))
+  )
 
 (deftype Module
     [factory binder]

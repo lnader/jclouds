@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import java.util.Set;
@@ -73,14 +72,14 @@ public interface VirtualMachineAsyncClient {
    ListenableFuture<VirtualMachine> getVirtualMachine(@QueryParam("id") long id);
 
    /**
-    * @see VirtualMachineClient#deployVirtualMachine
+    * @see VirtualMachineClient#deployVirtualMachineInZone
     */
    @GET
    @QueryParams(keys = "command", values = "deployVirtualMachine")
    @Unwrap
    @Consumes(MediaType.APPLICATION_JSON)
-   ListenableFuture<AsyncCreateResponse> deployVirtualMachine(@QueryParam("serviceofferingid") long serviceOfferingId,
-            @QueryParam("templateid") long templateId, @QueryParam("zoneid") long zoneId,
+   ListenableFuture<AsyncCreateResponse> deployVirtualMachineInZone( @QueryParam("zoneid") long zoneId, @QueryParam("serviceofferingid") long serviceOfferingId,
+            @QueryParam("templateid") long templateId,
             DeployVirtualMachineOptions... options);
 
    /**

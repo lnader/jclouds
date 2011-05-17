@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import java.util.Set;
@@ -60,15 +59,16 @@ public interface VirtualMachineClient {
     * Creates and automatically starts a virtual machine based on a service offering, disk offering,
     * and template.
     * 
+    * @param zoneId
+    *           availability zone for the virtual machine
     * @param serviceOfferingId
     *           the ID of the service offering for the virtual machine
     * @param templateId
     *           the ID of the template for the virtual machine
-    * @param zoneId
-    *           availability zone for the virtual machine
+    * 
     * @return virtual machine
     */
-   AsyncCreateResponse deployVirtualMachine(long serviceOfferingId, long templateId, long zoneId,
+   AsyncCreateResponse deployVirtualMachineInZone(long zoneId, long serviceOfferingId, long templateId,
             DeployVirtualMachineOptions... options);
 
    /**

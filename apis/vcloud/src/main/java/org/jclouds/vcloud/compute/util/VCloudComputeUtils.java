@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,28 +16,27 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.compute.util;
 
 import static com.google.common.collect.Iterables.filter;
-import static org.jclouds.vcloud.predicates.VCloudPredicates.resourceType;
 
 import java.util.Set;
 
+import org.jclouds.cim.CIMPredicates;
+import org.jclouds.cim.ResourceAllocationSettingData;
+import org.jclouds.cim.ResourceAllocationSettingData.ResourceType;
+import org.jclouds.compute.domain.CIMOperatingSystem;
 import org.jclouds.compute.domain.OperatingSystem;
-import org.jclouds.compute.domain.os.CIMOperatingSystem;
 import org.jclouds.domain.Credentials;
 import org.jclouds.vcloud.domain.NetworkConnection;
 import org.jclouds.vcloud.domain.VApp;
 import org.jclouds.vcloud.domain.VAppTemplate;
 import org.jclouds.vcloud.domain.Vm;
-import org.jclouds.vcloud.domain.ovf.OvfEnvelope;
-import org.jclouds.vcloud.domain.ovf.ResourceAllocation;
-import org.jclouds.vcloud.domain.ovf.ResourceType;
 import org.jclouds.vcloud.domain.ovf.VCloudNetworkAdapter;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet.Builder;
 
 /**
  * 
@@ -54,16 +53,8 @@ public class VCloudComputeUtils {
       return vApp.getChildren().size() > 0 ? toComputeOs(Iterables.get(vApp.getChildren(), 0)) : null;
    }
 
-   public static CIMOperatingSystem toComputeOs(OvfEnvelope ovf) {
-      return toComputeOs(ovf.getVirtualSystem().getOperatingSystem());
-   }
-
    public static CIMOperatingSystem toComputeOs(Vm vm) {
-      return toComputeOs(vm.getOperatingSystemSection());
-   }
-
-   public static CIMOperatingSystem toComputeOs(org.jclouds.vcloud.domain.ovf.OperatingSystemSection os) {
-      return new CIMOperatingSystem(CIMOperatingSystem.OSType.fromValue(os.getId()), "", null, os.getDescription());
+      return CIMOperatingSystem.toComputeOs(vm.getOperatingSystemSection());
    }
 
    public static Credentials getCredentialsFrom(VApp vApp) {
@@ -77,7 +68,7 @@ public class VCloudComputeUtils {
    public static Credentials getCredentialsFrom(Vm vm) {
       String user = "root";
       if (vm.getOperatingSystemSection() != null && vm.getOperatingSystemSection().getDescription() != null
-               && vm.getOperatingSystemSection().getDescription().indexOf("Windows") >= 0)
+            && vm.getOperatingSystemSection().getDescription().indexOf("Windows") >= 0)
          user = "Administrator";
       String password = null;
       if (vm.getGuestCustomizationSection() != null)
@@ -85,34 +76,35 @@ public class VCloudComputeUtils {
       return new Credentials(user, password);
    }
 
-   public static Set<String> getPublicIpsFromVApp(VApp vApp) {
-      Set<String> ips = Sets.newLinkedHashSet();
+   public static Set<String> getIpsFromVApp(VApp vApp) {
       // TODO make this work with composite vApps
       if (vApp.getChildren().size() == 0)
-         return ips;
+         return ImmutableSet.of();
+      Builder<String> ips = ImmutableSet.<String> builder();
       Vm vm = Iterables.get(vApp.getChildren(), 0);
       // TODO: figure out how to differentiate public from private ip addresses
       // assumption is that we'll do this from the network object, which may have
       // enough data to tell whether or not it is a public network without string
-      // parsing.  At worst, we could have properties set per cloud provider to
-      // declare the networks which are public, then check against these in 
+      // parsing. At worst, we could have properties set per cloud provider to
+      // declare the networks which are public, then check against these in
       // networkconnection.getNetwork
       if (vm.getNetworkConnectionSection() != null) {
-         for (NetworkConnection connection : vm.getNetworkConnectionSection().getConnections())
-            ips.add(connection.getIpAddress());
+         for (NetworkConnection connection : vm.getNetworkConnectionSection().getConnections()) {
+            if (connection.getIpAddress() != null)
+               ips.add(connection.getIpAddress());
+            if (connection.getExternalIpAddress() != null)
+               ips.add(connection.getExternalIpAddress());
+         }
       } else {
-         for (ResourceAllocation net : filter(vm.getVirtualHardwareSection().getResourceAllocations(),
-                  resourceType(ResourceType.ETHERNET_ADAPTER))) {
+         for (ResourceAllocationSettingData net : filter(vm.getVirtualHardwareSection().getItems(),
+               CIMPredicates.resourceTypeIn(ResourceType.ETHERNET_ADAPTER))) {
             if (net instanceof VCloudNetworkAdapter) {
                VCloudNetworkAdapter vNet = VCloudNetworkAdapter.class.cast(net);
-               ips.add(vNet.getIpAddress());
+               if (vNet.getIpAddress() != null)
+                  ips.add(vNet.getIpAddress());
             }
          }
       }
-      return ips;
-   }
-
-   public static Set<String> getPrivateIpsFromVApp(VApp vApp) {
-      return Sets.newLinkedHashSet();
+      return ips.build();
    }
 }

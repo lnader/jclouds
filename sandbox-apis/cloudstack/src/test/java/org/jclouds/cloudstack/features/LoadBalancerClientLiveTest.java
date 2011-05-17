@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -9,14 +9,13 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agred to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * Se the License for the specific language governing permissions and
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import static com.google.common.collect.Iterables.find;
@@ -24,6 +23,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -49,13 +49,14 @@ import com.google.common.base.Predicate;
  * 
  * @author Adrian Cole
  */
-@Test(groups = "live", sequential = true, testName = "LoadBalancerClientLiveTest")
+@Test(groups = "live", singleThreaded = true, testName = "LoadBalancerClientLiveTest")
 public class LoadBalancerClientLiveTest extends BaseCloudStackClientLiveTest {
    private PublicIPAddress ip = null;
    private VirtualMachine vm;
    private LoadBalancerRule rule;
    private RetryablePredicate<LoadBalancerRule> loadBalancerRuleActive;
    private Network network;
+   private boolean networksDisabled;
 
    @BeforeGroups(groups = "live")
    public void setupClient() {
@@ -64,14 +65,20 @@ public class LoadBalancerClientLiveTest extends BaseCloudStackClientLiveTest {
       loadBalancerRuleActive = new RetryablePredicate<LoadBalancerRule>(new LoadBalancerRuleActive(client), 60, 1, 1,
                TimeUnit.SECONDS);
       prefix += "rule";
-      network = find(client.getNetworkClient().listNetworks(), NetworkPredicates.hasLoadBalancerService());
-      vm = VirtualMachineClientLiveTest.createVirtualMachineInNetwork(network, client, jobComplete,
-               virtualMachineRunning);
-      if (vm.getPassword() != null)
-         password = vm.getPassword();
+      try {
+         network = find(client.getNetworkClient().listNetworks(), NetworkPredicates.hasLoadBalancerService());
+         vm = VirtualMachineClientLiveTest.createVirtualMachineInNetwork(network, client, jobComplete,
+                  virtualMachineRunning);
+         if (vm.getPassword() != null)
+            password = vm.getPassword();
+      } catch (NoSuchElementException e) {
+         networksDisabled = true;
+      }
    }
 
    public void testCreateLoadBalancerRule() throws Exception {
+      if (networksDisabled)
+         return;
       while (rule == null) {
          ip = reuseOrAssociate.apply(network);
          try {
@@ -94,6 +101,8 @@ public class LoadBalancerClientLiveTest extends BaseCloudStackClientLiveTest {
 
    @Test(dependsOnMethods = "testCreateLoadBalancerRule")
    public void testAssignToLoadBalancerRule() throws Exception {
+      if (networksDisabled)
+         return;
       assert jobComplete.apply(client.getLoadBalancerClient().assignVirtualMachinesToLoadBalancerRule(rule.getId(),
                vm.getId()));
       assertEquals(client.getLoadBalancerClient().listVirtualMachinesAssignedToLoadBalancerRule(rule.getId()).size(), 1);
@@ -120,6 +129,8 @@ public class LoadBalancerClientLiveTest extends BaseCloudStackClientLiveTest {
 
    @Test(dependsOnMethods = "testAssignToLoadBalancerRule", expectedExceptions = SshException.class)
    public void testRemoveFromLoadBalancerRule() throws Exception {
+      if (networksDisabled)
+         throw new SshException();
       assert jobComplete.apply(client.getLoadBalancerClient().removeVirtualMachinesFromLoadBalancerRule(rule.getId(),
                vm.getId()));
       assertEquals(client.getLoadBalancerClient().listVirtualMachinesAssignedToLoadBalancerRule(rule.getId()).size(), 0);

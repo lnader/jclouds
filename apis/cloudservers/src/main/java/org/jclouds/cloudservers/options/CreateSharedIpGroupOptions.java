@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudservers.options;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -25,8 +24,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import org.jclouds.http.HttpRequest;
+import org.jclouds.rest.MapBinder;
 import org.jclouds.rest.binders.BindToJsonPayload;
 
 import com.google.common.collect.ImmutableMap;
@@ -37,7 +38,10 @@ import com.google.common.collect.ImmutableMap;
  * @author Adrian Cole
  * 
  */
-public class CreateSharedIpGroupOptions extends BindToJsonPayload {
+public class CreateSharedIpGroupOptions implements MapBinder {
+   @Inject
+   private BindToJsonPayload jsonBinder;
+
    Integer serverId;
 
    @SuppressWarnings("unused")
@@ -54,9 +58,8 @@ public class CreateSharedIpGroupOptions extends BindToJsonPayload {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, String> postParams) {
-      SharedIpGroupRequest createRequest = new SharedIpGroupRequest(checkNotNull(postParams
-               .get("name")), serverId);
-      return super.bindToRequest(request, ImmutableMap.of("sharedIpGroup", createRequest));
+      SharedIpGroupRequest createRequest = new SharedIpGroupRequest(checkNotNull(postParams.get("name")), serverId);
+      return jsonBinder.bindToRequest(request, ImmutableMap.of("sharedIpGroup", createRequest));
    }
 
    @Override
@@ -85,4 +88,5 @@ public class CreateSharedIpGroupOptions extends BindToJsonPayload {
          return options.withServer(id);
       }
    }
+
 }

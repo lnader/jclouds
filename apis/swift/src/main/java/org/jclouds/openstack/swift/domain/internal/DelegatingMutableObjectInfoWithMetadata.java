@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.openstack.swift.domain.internal;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 
@@ -63,7 +63,8 @@ public class DelegatingMutableObjectInfoWithMetadata extends BaseMutableContentM
 
    @Override
    public void setContentLength(Long bytes) {
-      delegate.setBytes(bytes);
+      if (bytes != null)
+         delegate.setBytes(bytes);
    }
 
    @Override
@@ -107,7 +108,7 @@ public class DelegatingMutableObjectInfoWithMetadata extends BaseMutableContentM
 
    @Override
    public Long getBytes() {
-     return  delegate.getBytes();
+      return delegate.getBytes();
    }
 
    @Override
@@ -128,5 +129,25 @@ public class DelegatingMutableObjectInfoWithMetadata extends BaseMutableContentM
    @Override
    public int compareTo(ObjectInfo o) {
       return delegate.compareTo(o);
+   }
+
+   @Override
+   public void setContainer(String container) {
+      delegate.setContainer(container);
+   }
+
+   @Override
+   public String getContainer() {
+      return delegate.getContainer();
+   }
+
+   @Override
+   public void setUri(URI uri) {
+      delegate.setUri(uri);
+   }
+
+   @Override
+   public URI getUri() {
+      return delegate.getUri();
    }
 }

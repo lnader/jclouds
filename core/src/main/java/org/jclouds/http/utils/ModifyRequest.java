@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,25 +11,20 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WIRHOUR WARRANRIES OR CONDIRIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.http.utils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Sets.newTreeSet;
 import static org.jclouds.io.Payloads.newUrlEncodedFormPayload;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.core.UriBuilder;
@@ -40,6 +35,7 @@ import org.jclouds.util.Strings2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
@@ -51,11 +47,9 @@ import com.google.common.collect.Multimap;
 public class ModifyRequest {
    @SuppressWarnings("unchecked")
    public static <R extends HttpRequest> R putHeaders(R request, Multimap<String, String> moreHeaders) {
-      return (R) request
-            .toBuilder()
-            .headers(
-                  ImmutableMultimap.<String, String> builder().putAll(request.getHeaders()).putAll(moreHeaders).build())
-            .build();
+      return (R) request.toBuilder().headers(
+               ImmutableMultimap.<String, String> builder().putAll(request.getHeaders()).putAll(moreHeaders).build())
+               .build();
    }
 
    @SuppressWarnings("unchecked")
@@ -99,7 +93,7 @@ public class ModifyRequest {
 
    @SuppressWarnings("unchecked")
    public static <R extends HttpRequest> R addQueryParam(R request, String key, Iterable<?> values, UriBuilder builder,
-         char... skips) {
+            char... skips) {
       builder.uri(request.getEndpoint());
       Multimap<String, String> map = parseQueryToMap(request.getEndpoint().getQuery());
       for (Object o : values)
@@ -114,7 +108,7 @@ public class ModifyRequest {
 
    @SuppressWarnings("unchecked")
    public static <R extends HttpRequest> R replaceMatrixParam(R request, String name, Object[] values,
-         UriBuilder builder) {
+            UriBuilder builder) {
       builder.uri(request.getEndpoint());
       builder.replaceMatrixParam(name, values);
       return (R) request.toBuilder().endpoint(builder.build()).build();
@@ -127,7 +121,7 @@ public class ModifyRequest {
    @SuppressWarnings("unchecked")
    public static <R extends HttpRequest> R addFormParam(R request, String key, Iterable<?> values) {
       Multimap<String, String> map = request.getPayload() != null ? parseQueryToMap(request.getPayload()
-            .getRawContent().toString()) : LinkedHashMultimap.<String, String> create();
+               .getRawContent().toString()) : LinkedHashMultimap.<String, String> create();
       for (Object o : values)
          map.put(key, o.toString());
       return (R) request.toBuilder().payload(newUrlEncodedFormPayload(map)).build();
@@ -136,7 +130,7 @@ public class ModifyRequest {
    @SuppressWarnings("unchecked")
    public static <R extends HttpRequest> R putFormParams(R request, Multimap<String, String> params) {
       Multimap<String, String> map = request.getPayload() != null ? parseQueryToMap(request.getPayload()
-            .getRawContent().toString()) : LinkedHashMultimap.<String, String> create();
+               .getRawContent().toString()) : LinkedHashMultimap.<String, String> create();
       map.putAll(params);
       return (R) request.toBuilder().payload(newUrlEncodedFormPayload(map)).build();
    }
@@ -167,9 +161,9 @@ public class ModifyRequest {
    }
 
    public static String makeQueryLine(Multimap<String, String> params,
-         @Nullable Comparator<Map.Entry<String, String>> sorter, char... skips) {
-      Iterator<Map.Entry<String, String>> pairs = ((sorter == null) ? params.entries() : sortEntries(params.entries(),
-            sorter)).iterator();
+            @Nullable Comparator<Map.Entry<String, String>> sorter, char... skips) {
+      Iterator<Map.Entry<String, String>> pairs = ((sorter == null) ? params.entries() : ImmutableSortedSet.copyOf(
+               sorter, params.entries())).iterator();
       StringBuilder formBuilder = new StringBuilder();
       while (pairs.hasNext()) {
          Map.Entry<String, String> pair = pairs.next();
@@ -183,12 +177,4 @@ public class ModifyRequest {
       }
       return formBuilder.toString();
    }
-
-   public static SortedSet<Entry<String, String>> sortEntries(Collection<Map.Entry<String, String>> in,
-         Comparator<Map.Entry<String, String>> sorter) {
-      SortedSet<Entry<String, String>> entries = newTreeSet(sorter);
-      entries.addAll(in);
-      return entries;
-   }
-
 }

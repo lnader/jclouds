@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import java.io.IOException;
@@ -99,14 +98,14 @@ public class VirtualMachineAsyncClientTest extends BaseCloudStackAsyncClientTest
 
    }
 
-   public void testDeployVirtualMachine() throws SecurityException, NoSuchMethodException, IOException {
-      Method method = VirtualMachineAsyncClient.class.getMethod("deployVirtualMachine", long.class, long.class,
+   public void testDeployVirtualMachineInZone() throws SecurityException, NoSuchMethodException, IOException {
+      Method method = VirtualMachineAsyncClient.class.getMethod("deployVirtualMachineInZone", long.class, long.class,
                long.class, DeployVirtualMachineOptions[].class);
-      HttpRequest httpRequest = processor.createRequest(method, 4, 5, 6);
+      HttpRequest httpRequest = processor.createRequest(method, 6, 4, 5);
 
       assertRequestLineEquals(
                httpRequest,
-               "GET http://localhost:8080/client/api?response=json&command=deployVirtualMachine&serviceofferingid=4&zoneid=6&templateid=5 HTTP/1.1");
+               "GET http://localhost:8080/client/api?response=json&command=deployVirtualMachine&zoneid=6&templateid=5&serviceofferingid=4 HTTP/1.1");
       assertNonPayloadHeadersEqual(httpRequest, "Accept: application/json\n");
       assertPayloadEquals(httpRequest, null, null, false);
 

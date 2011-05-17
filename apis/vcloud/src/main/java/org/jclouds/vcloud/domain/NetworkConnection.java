@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.domain;
 
 import javax.annotation.Nullable;
@@ -29,6 +28,67 @@ import org.jclouds.vcloud.domain.network.IpAddressAllocationMode;
  * @author Adrian Cole
  */
 public class NetworkConnection {
+   public static Builder builder() {
+      return new Builder();
+   }
+
+   public static class Builder {
+
+      private String network;
+      private int networkConnectionIndex;
+      private String ipAddress;
+      private String externalIpAddress;
+      private boolean connected;
+      private String MACAddress;
+      private IpAddressAllocationMode ipAddressAllocationMode;
+
+      public Builder network(String network) {
+         this.network = network;
+         return this;
+      }
+
+      public Builder networkConnectionIndex(int networkConnectionIndex) {
+         this.networkConnectionIndex = networkConnectionIndex;
+         return this;
+      }
+
+      public Builder ipAddress(String ipAddress) {
+         this.ipAddress = ipAddress;
+         return this;
+      }
+
+      public Builder externalIpAddress(String externalIpAddress) {
+         this.externalIpAddress = externalIpAddress;
+         return this;
+      }
+
+      public Builder connected(boolean connected) {
+         this.connected = connected;
+         return this;
+      }
+
+      public Builder MACAddress(String MACAddress) {
+         this.MACAddress = MACAddress;
+         return this;
+      }
+
+      public Builder ipAddressAllocationMode(IpAddressAllocationMode ipAddressAllocationMode) {
+         this.ipAddressAllocationMode = ipAddressAllocationMode;
+         return this;
+      }
+
+      public NetworkConnection build() {
+         return new NetworkConnection(network, networkConnectionIndex, ipAddress, externalIpAddress, connected,
+               MACAddress, ipAddressAllocationMode);
+      }
+
+      public static Builder fromNetworkConnection(NetworkConnection in) {
+         return new Builder().network(in.getNetwork()).networkConnectionIndex(in.getNetworkConnectionIndex())
+               .ipAddress(in.getIpAddress()).externalIpAddress(in.getExternalIpAddress()).connected(in.isConnected())
+               .MACAddress(in.getMACAddress()).ipAddressAllocationMode(in.getIpAddressAllocationMode());
+      }
+   }
+
    private final String network;
    private final int networkConnectionIndex;
    @Nullable
@@ -41,8 +101,8 @@ public class NetworkConnection {
    private final IpAddressAllocationMode ipAddressAllocationMode;
 
    public NetworkConnection(String network, int networkConnectionIndex, @Nullable String ipAddress,
-            @Nullable String externalIpAddress, boolean connected, @Nullable String MACAddress,
-            IpAddressAllocationMode ipAddressAllocationMode) {
+         @Nullable String externalIpAddress, boolean connected, @Nullable String MACAddress,
+         IpAddressAllocationMode ipAddressAllocationMode) {
       this.network = network;
       this.networkConnectionIndex = networkConnectionIndex;
       this.ipAddress = ipAddress;
@@ -162,11 +222,15 @@ public class NetworkConnection {
       return true;
    }
 
+   public Builder toBuilder() {
+      return Builder.fromNetworkConnection(this);
+   }
+
    @Override
    public String toString() {
       return "[network=" + network + ", connected=" + connected + ", ipAddress=" + ipAddress + ", externalIpAddress="
-               + externalIpAddress + ", networkConnectionIndex=" + networkConnectionIndex
-               + ", ipAddressAllocationMode=" + ipAddressAllocationMode + ", MACAddress=" + MACAddress + "]";
+            + externalIpAddress + ", networkConnectionIndex=" + networkConnectionIndex + ", ipAddressAllocationMode="
+            + ipAddressAllocationMode + ", MACAddress=" + MACAddress + "]";
    }
 
 }

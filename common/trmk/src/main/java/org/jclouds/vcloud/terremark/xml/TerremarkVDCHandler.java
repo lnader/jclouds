@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.terremark.xml;
 
-import static org.jclouds.vcloud.util.Utils.cleanseAttributes;
+import static org.jclouds.util.SaxUtils.cleanseAttributes;
 
 import java.util.Map;
 

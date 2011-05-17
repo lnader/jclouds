@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.terremark;
 
 import static org.jclouds.vcloud.VCloudMediaType.CATALOGITEM_XML;
@@ -47,8 +46,8 @@ import org.jclouds.predicates.validators.DnsNameValidator;
 import org.jclouds.rest.annotations.EndpointParam;
 import org.jclouds.rest.annotations.ExceptionParser;
 import org.jclouds.rest.annotations.MapBinder;
-import org.jclouds.rest.annotations.PayloadParam;
 import org.jclouds.rest.annotations.ParamValidators;
+import org.jclouds.rest.annotations.PayloadParam;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.ResponseParser;
 import org.jclouds.rest.annotations.XMLResponseParser;
@@ -65,6 +64,7 @@ import org.jclouds.vcloud.filters.SetVCloudTokenCookie;
 import org.jclouds.vcloud.functions.OrgNameAndVDCNameToEndpoint;
 import org.jclouds.vcloud.functions.OrgNameCatalogNameItemNameToEndpoint;
 import org.jclouds.vcloud.functions.OrgNameToEndpoint;
+import org.jclouds.vcloud.functions.ParseTaskFromLocationHeader;
 import org.jclouds.vcloud.options.InstantiateVAppTemplateOptions;
 import org.jclouds.vcloud.terremark.binders.BindNodeConfigurationToXmlPayload;
 import org.jclouds.vcloud.terremark.binders.BindVAppConfigurationToXmlPayload;
@@ -78,7 +78,6 @@ import org.jclouds.vcloud.terremark.domain.TerremarkCatalogItem;
 import org.jclouds.vcloud.terremark.domain.TerremarkOrg;
 import org.jclouds.vcloud.terremark.domain.TerremarkVDC;
 import org.jclouds.vcloud.terremark.domain.VAppConfiguration;
-import org.jclouds.vcloud.terremark.functions.ParseTaskFromLocationHeader;
 import org.jclouds.vcloud.terremark.functions.ReturnVoidOnDeleteDefaultIp;
 import org.jclouds.vcloud.terremark.functions.VDCURIToInternetServicesEndpoint;
 import org.jclouds.vcloud.terremark.functions.VDCURIToPublicIPsEndpoint;

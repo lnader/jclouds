@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,11 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.domain;
+
+import java.net.URI;
+
+import javax.annotation.Nullable;
 
 import org.jclouds.blobstore.domain.internal.MutableBlobMetadataImpl;
 import org.jclouds.io.MutableContentMetadata;
@@ -31,8 +34,24 @@ import com.google.inject.ImplementedBy;
  */
 @ImplementedBy(MutableBlobMetadataImpl.class)
 public interface MutableBlobMetadata extends BlobMetadata, MutableStorageMetadata {
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    MutableContentMetadata getContentMetadata();
 
+   /**
+    * @see BlobMetadata#getContentMetadata
+    */
    void setContentMetadata(MutableContentMetadata md);
 
+   /**
+    * @see BlobMetadata#getPublicUri
+    */
+   void setPublicUri(@Nullable URI publicUri);
+
+   /**
+    * @see BlobMetadata#getContainer
+    */
+   void setContainer(@Nullable String container);
 }

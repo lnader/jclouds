@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import java.io.IOException;
@@ -101,8 +100,8 @@ public class AddressAsyncClientTest extends BaseCloudStackAsyncClientTest<Addres
 
    }
 
-   public void testAssociateIPAddress() throws SecurityException, NoSuchMethodException, IOException {
-      Method method = AddressAsyncClient.class.getMethod("associateIPAddress", 
+   public void testAssociateIPAddressInZone() throws SecurityException, NoSuchMethodException, IOException {
+      Method method = AddressAsyncClient.class.getMethod("associateIPAddressInZone", 
             long.class, AssociateIPAddressOptions[].class);
       HttpRequest httpRequest = processor.createRequest(method, 6);
 

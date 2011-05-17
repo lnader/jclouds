@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.nirvanix.sdn;
 
 import java.net.URI;
@@ -26,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.concurrent.Timeout;
 import org.jclouds.nirvanix.sdn.domain.UploadInfo;
+
+import com.google.inject.Provides;
 
 /**
  * Provides access to Nirvanix SDN resources via their REST API.
@@ -37,7 +38,7 @@ import org.jclouds.nirvanix.sdn.domain.UploadInfo;
  */
 @Timeout(duration = 30, timeUnit = TimeUnit.SECONDS)
 public interface SDNClient {
-
+   @Provides
    public Blob newBlob();
 
    /**

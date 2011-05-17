@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,15 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.domain;
 
 import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import org.jclouds.cim.ResourceAllocationSettingData;
+import org.jclouds.cim.VirtualSystemSettingData;
 import org.jclouds.vcloud.domain.internal.VCloudExpressVAppImpl;
-import org.jclouds.vcloud.domain.ovf.ResourceAllocation;
-import org.jclouds.vcloud.domain.ovf.System;
 
 import com.google.common.collect.ListMultimap;
 import com.google.inject.ImplementedBy;
@@ -62,8 +61,8 @@ public interface VCloudExpressVApp extends ReferenceType {
    @Nullable
    String getOperatingSystemDescription();
 
-   System getSystem();
+   VirtualSystemSettingData getSystem();
 
-   Set<ResourceAllocation> getResourceAllocations();
+   Set<ResourceAllocationSettingData> getResourceAllocations();
 
 }

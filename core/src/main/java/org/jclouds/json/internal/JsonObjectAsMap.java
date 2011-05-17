@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.json.internal;
 
 import java.lang.reflect.Field;
@@ -28,7 +27,7 @@ import com.google.gson.JsonObject;
 
 /**
  * Exposes the JsonObject as a map so that we can use gauva apis on it.
- * 
+ * http://code.google.com/p/google-gson/issues/detail?id=325
  * @author Adrian Cole
  */
 public enum JsonObjectAsMap implements Function<JsonObject, Map<String, JsonElement>> {

@@ -30,14 +30,16 @@
     </parent>
     <artifactId>jclouds-drivers-project</artifactId>
     <packaging>pom</packaging>
-    <name>jclouds extensions project</name>
+    <name>jclouds drivers project</name>
     <modules>
         <module>gae</module>
         <module>apachehc</module>
         <module>joda</module>
         <module>bouncycastle</module>
         <module>log4j</module>
+        <module>slf4j</module>
         <module>jsch</module>
+        <module>netty</module>
         <module>enterprise</module>
     </modules>
 </project>

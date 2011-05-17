@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3;
 
 import java.util.Set;
@@ -39,6 +38,8 @@ import org.jclouds.s3.options.PutObjectOptions;
 import org.jclouds.concurrent.Timeout;
 import org.jclouds.http.options.GetOptions;
 
+import com.google.inject.Provides;
+
 import java.util.concurrent.Future;
 
 /**
@@ -58,6 +59,7 @@ public interface S3Client {
    /**
     * Creates a default implementation of S3Object
     */
+   @Provides
    public S3Object newS3Object();
 
    /**

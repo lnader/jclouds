@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudsigma.compute.functions;
 
 import javax.inject.Inject;
@@ -26,7 +25,7 @@ import org.jclouds.cloudsigma.domain.DriveInfo;
 import org.jclouds.compute.domain.Image;
 import org.jclouds.compute.domain.ImageBuilder;
 import org.jclouds.compute.domain.OperatingSystemBuilder;
-import org.jclouds.compute.domain.os.OsFamilyVersion64Bit;
+import org.jclouds.compute.domain.OsFamilyVersion64Bit;
 import org.jclouds.domain.Credentials;
 import org.jclouds.domain.Location;
 

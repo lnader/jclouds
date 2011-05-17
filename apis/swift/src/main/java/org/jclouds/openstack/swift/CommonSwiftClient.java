@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.openstack.swift;
 
 import java.util.Map;
@@ -34,6 +33,8 @@ import org.jclouds.openstack.swift.domain.ObjectInfo;
 import org.jclouds.openstack.swift.domain.SwiftObject;
 import org.jclouds.openstack.swift.options.ListContainerOptions;
 
+import com.google.inject.Provides;
+
 /**
  * Common features between OpenStack Swift and CloudFiles
  * 
@@ -42,7 +43,7 @@ import org.jclouds.openstack.swift.options.ListContainerOptions;
  */
 @Timeout(duration = 120, timeUnit = TimeUnit.SECONDS)
 public interface CommonSwiftClient {
-
+   @Provides
    SwiftObject newSwiftObject();
 
    /**

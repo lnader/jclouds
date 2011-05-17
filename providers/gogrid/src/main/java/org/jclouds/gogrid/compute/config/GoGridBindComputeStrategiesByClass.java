@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.gogrid.compute.config;
 
 import org.jclouds.compute.config.BindComputeStrategiesByClass;
@@ -27,21 +26,19 @@ import org.jclouds.compute.strategy.ListNodesStrategy;
 import org.jclouds.compute.strategy.RebootNodeStrategy;
 import org.jclouds.compute.strategy.ResumeNodeStrategy;
 import org.jclouds.compute.strategy.SuspendNodeStrategy;
-import org.jclouds.gogrid.compute.strategy.FindPublicIpThenCreateNodeInGroup;
+import org.jclouds.gogrid.compute.strategy.FindIpThenCreateNodeInGroup;
 import org.jclouds.gogrid.compute.strategy.GoGridDestroyNodeStrategy;
 import org.jclouds.gogrid.compute.strategy.GoGridGetNodeMetadataStrategy;
 import org.jclouds.gogrid.compute.strategy.GoGridLifeCycleStrategy;
 import org.jclouds.gogrid.compute.strategy.GoGridListNodesStrategy;
 
 /**
- * 
  * @author Adrian Cole
- * 
  */
 public class GoGridBindComputeStrategiesByClass extends BindComputeStrategiesByClass {
    @Override
    protected Class<? extends CreateNodeWithGroupEncodedIntoName> defineAddNodeWithTagStrategy() {
-      return FindPublicIpThenCreateNodeInGroup.class;
+      return FindIpThenCreateNodeInGroup.class;
    }
 
    @Override

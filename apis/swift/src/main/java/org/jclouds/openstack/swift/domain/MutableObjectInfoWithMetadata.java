@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.openstack.swift.domain;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 
@@ -43,6 +43,10 @@ public interface MutableObjectInfoWithMetadata extends ObjectInfo {
    void setLastModified(Date lastModified);
 
    void setContentType(String contentType);
+
+   void setContainer(String container);
+
+   void setUri(URI uri);
 
    Map<String, String> getMetadata();
 

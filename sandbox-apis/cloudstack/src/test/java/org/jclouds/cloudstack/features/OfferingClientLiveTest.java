@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,11 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.jclouds.cloudstack.domain.DiskOffering;
@@ -42,7 +40,7 @@ import com.google.common.collect.Iterables;
  * 
  * @author Adrian Cole
  */
-@Test(groups = "live", sequential = true, testName = "OfferingClientLiveTest")
+@Test(groups = "live", singleThreaded = true, testName = "OfferingClientLiveTest")
 public class OfferingClientLiveTest extends BaseCloudStackClientLiveTest {
 
    public void testListDiskOfferings() throws Exception {
@@ -52,7 +50,7 @@ public class OfferingClientLiveTest extends BaseCloudStackClientLiveTest {
       assertTrue(offeringCount >= 0);
       for (DiskOffering offering : response) {
          DiskOffering newDetails = Iterables.getOnlyElement(client.getOfferingClient().listDiskOfferings(
-               ListDiskOfferingsOptions.Builder.id(offering.getId())));
+                  ListDiskOfferingsOptions.Builder.id(offering.getId())));
          assertEquals(offering, newDetails);
          assertEquals(offering, client.getOfferingClient().getDiskOffering(offering.getId()));
          assert offering.getId() > 0 : offering;
@@ -70,16 +68,9 @@ public class OfferingClientLiveTest extends BaseCloudStackClientLiveTest {
       long offeringCount = response.size();
       assertTrue(offeringCount >= 0);
       for (ServiceOffering offering : response) {
-         try {
-            ServiceOffering newDetails = Iterables.getOnlyElement(client.getOfferingClient().listServiceOfferings(
+         ServiceOffering newDetails = Iterables.getOnlyElement(client.getOfferingClient().listServiceOfferings(
                   ListServiceOfferingsOptions.Builder.id(offering.getId())));
-            assertEquals(offering, newDetails);
-            assert false : "should be a bug as of 2.2.0";
-         } catch (NoSuchElementException e) {
-
-         }
-         // bug as of 2.2.0
-         assertEquals(client.getOfferingClient().getServiceOffering(offering.getId()), null);
+         assertEquals(offering, newDetails);
 
          assert offering.getId() > 0 : offering;
          assert offering.getName() != null : offering;
@@ -100,7 +91,7 @@ public class OfferingClientLiveTest extends BaseCloudStackClientLiveTest {
       assertTrue(offeringCount >= 0);
       for (NetworkOffering offering : response) {
          NetworkOffering newDetails = Iterables.getOnlyElement(client.getOfferingClient().listNetworkOfferings(
-               ListNetworkOfferingsOptions.Builder.id(offering.getId())));
+                  ListNetworkOfferingsOptions.Builder.id(offering.getId())));
          assertEquals(offering, newDetails);
          assertEquals(offering, client.getOfferingClient().getNetworkOffering(offering.getId()));
          assert offering.getId() > 0 : offering;

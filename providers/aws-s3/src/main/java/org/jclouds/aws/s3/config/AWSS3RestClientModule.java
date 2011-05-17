@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,27 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.s3.config;
 
+import static org.jclouds.aws.domain.Region.US_STANDARD;
+import static org.jclouds.location.reference.LocationConstants.ENDPOINT;
+import static org.jclouds.location.reference.LocationConstants.PROPERTY_REGION;
+
+import java.net.URI;
+
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.jclouds.aws.s3.AWSS3AsyncClient;
 import org.jclouds.aws.s3.AWSS3Client;
+import org.jclouds.aws.s3.binders.AssignCorrectHostnameAndBindAsHostPrefixIfConfigured;
 import org.jclouds.http.RequiresHttp;
+import org.jclouds.location.Region;
 import org.jclouds.rest.ConfiguresRestClient;
+import org.jclouds.s3.Bucket;
 import org.jclouds.s3.S3AsyncClient;
 import org.jclouds.s3.S3Client;
+import org.jclouds.s3.binders.BindAsHostPrefixIfConfigured;
 import org.jclouds.s3.config.S3RestClientModule;
 
 import com.google.inject.Provides;
@@ -39,6 +49,24 @@ import com.google.inject.Provides;
 @RequiresHttp
 @ConfiguresRestClient
 public class AWSS3RestClientModule extends S3RestClientModule<AWSS3Client, AWSS3AsyncClient> {
+
+   @Provides
+   @Singleton
+   @Bucket
+   protected URI provideBucketURI(@Named(PROPERTY_REGION + "." + US_STANDARD + "." + ENDPOINT) String endpoint) {
+      return URI.create(endpoint);
+   }
+
+   @Override
+   protected String defaultRegionForBucket(@Region String defaultRegion) {
+      return US_STANDARD;
+   }
+
+   @Override
+   protected void configure() {
+      bind(BindAsHostPrefixIfConfigured.class).to(AssignCorrectHostnameAndBindAsHostPrefixIfConfigured.class);
+      super.configure();
+   }
 
    public AWSS3RestClientModule() {
       super(AWSS3Client.class, AWSS3AsyncClient.class);

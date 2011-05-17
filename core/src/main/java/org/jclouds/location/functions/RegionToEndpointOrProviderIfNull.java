@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.location.functions;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -63,7 +62,6 @@ public class RegionToEndpointOrProviderIfNull implements Function<Object, URI> {
             + ", but only the default location " + defaultProvider + " is configured");
       checkArgument(from.equals(defaultProvider) || (regionToEndpoint != null && regionToEndpoint.containsKey(from)),
             "requested location %s, which is not in the configured locations: %s", from, regionToEndpoint);
-
       return regionToEndpoint.get(from);
    }
 }

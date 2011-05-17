@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml;
 
-import static org.jclouds.vcloud.util.Utils.cleanseAttributes;
+import static org.jclouds.util.SaxUtils.equalsOrSuffix;
 import static org.jclouds.vcloud.util.Utils.newReferenceType;
 
 import java.util.List;
@@ -29,6 +28,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.jclouds.http.functions.ParseSax;
+import org.jclouds.util.SaxUtils;
 import org.jclouds.vcloud.domain.ReferenceType;
 import org.jclouds.vcloud.domain.Task;
 import org.jclouds.vcloud.domain.network.DhcpService;
@@ -144,7 +144,7 @@ public class OrgNetworkHandler extends ParseSax.HandlerWithResult<OrgNetwork> {
 
    @Override
    public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
-      Map<String, String> attributes = cleanseAttributes(attrs);
+      Map<String, String> attributes = SaxUtils.cleanseAttributes(attrs);
       if (qName.equals("OrgNetwork")) {
          network = newReferenceType(attributes);
       } else if (qName.equals("FirewallRule")) {
@@ -272,11 +272,11 @@ public class OrgNetworkHandler extends ParseSax.HandlerWithResult<OrgNetwork> {
          this.vmNicId = -1;
       } else if (qName.equalsIgnoreCase("ExternalPort")) {
          externalPort = Integer.parseInt(currentOrNull());
-      } else if (qName.equalsIgnoreCase("IxternalIP")) {
+      } else if (qName.equalsIgnoreCase("InternalIP")) {
          internalIP = currentOrNull();
       } else if (qName.equalsIgnoreCase("InternalPort")) {
          internalPort = Integer.parseInt(currentOrNull());
-      } else if (qName.equals("NatProtocol")) {
+      } else if (equalsOrSuffix(qName, "Protocol")) {
          natProtocol = NatProtocol.valueOf(currentOrNull());
       } else if (qName.equals("PortForwardingRule")) {
          natRules.add(new PortForwardingRule(externalIP, externalPort, internalIP, internalPort, natProtocol));

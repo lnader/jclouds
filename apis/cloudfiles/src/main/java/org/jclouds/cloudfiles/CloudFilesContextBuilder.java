@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,16 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudfiles;
 
 import java.util.List;
 import java.util.Properties;
 
 import org.jclouds.blobstore.BlobStoreContextBuilder;
+import org.jclouds.cloudfiles.blobstore.config.CloudFilesBlobStoreContextModule;
+import org.jclouds.cloudfiles.config.CloudFilesRestClientModule;
 import org.jclouds.http.config.JavaUrlHttpCommandExecutorServiceModule;
 import org.jclouds.logging.jdk.config.JDKLoggingModule;
-import org.jclouds.openstack.swift.blobstore.config.SwiftBlobStoreContextModule;
-import org.jclouds.cloudfiles.config.CloudFilesRestClientModule;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -44,8 +43,7 @@ import com.google.inject.Module;
  * @author Adrian Cole, Andrew Newdigate
  * @see CloudFilesBlobStoreContext
  */
-public class CloudFilesContextBuilder extends
-         BlobStoreContextBuilder<CloudFilesClient, CloudFilesAsyncClient> {
+public class CloudFilesContextBuilder extends BlobStoreContextBuilder<CloudFilesClient, CloudFilesAsyncClient> {
 
    public CloudFilesContextBuilder(Properties props) {
       super(CloudFilesClient.class, CloudFilesAsyncClient.class, props);
@@ -53,7 +51,7 @@ public class CloudFilesContextBuilder extends
 
    @Override
    protected void addContextModule(List<Module> modules) {
-      modules.add(new SwiftBlobStoreContextModule());
+      modules.add(new CloudFilesBlobStoreContextModule());
    }
 
    @Override

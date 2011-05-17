@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,11 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.filters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -43,16 +44,16 @@ import org.jclouds.rest.RequestSigner;
 import org.jclouds.util.Strings2;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.ImmutableMultimap.Builder;
 
 /**
  * 
- * @see <a href= "http://download.cloud.com/releases/2.2.0/api/user/2.2api_security_details.html" />
+ * @see <a href=
+ *      "http://download.cloud.com/releases/2.2.0/api/user/2.2api_security_details.html"
+ *      />
  * @author Adrian Cole
  * 
  */
@@ -72,8 +73,8 @@ public class QuerySigner implements HttpRequestFilter, RequestSigner {
 
    @Inject
    public QuerySigner(SignatureWire signatureWire, @Named(Constants.PROPERTY_IDENTITY) String accessKey,
-            @Named(Constants.PROPERTY_CREDENTIAL) String secretKey, Crypto crypto, HttpUtils utils,
-            Provider<UriBuilder> builder) {
+         @Named(Constants.PROPERTY_CREDENTIAL) String secretKey, Crypto crypto, HttpUtils utils,
+         Provider<UriBuilder> builder) {
       this.signatureWire = signatureWire;
       this.accessKey = accessKey;
       this.secretKey = secretKey;
@@ -89,9 +90,11 @@ public class QuerySigner implements HttpRequestFilter, RequestSigner {
       String stringToSign = createStringToSign(request, decodedParams);
       String signature = sign(stringToSign);
       addSignature(decodedParams, signature);
-      request = request.toBuilder().endpoint(
-               builder.get().uri(request.getEndpoint()).replaceQuery(ModifyRequest.makeQueryLine(decodedParams, null))
-                        .build()).build();
+      request = request
+            .toBuilder()
+            .endpoint(
+                  builder.get().uri(request.getEndpoint())
+                        .replaceQuery(ModifyRequest.makeQueryLine(decodedParams, null)).build()).build();
       utils.logRequest(signatureLog, request, "<<");
       return request;
    }
@@ -105,8 +108,8 @@ public class QuerySigner implements HttpRequestFilter, RequestSigner {
    public String sign(String stringToSign) {
       String signature;
       try {
-         signature = CryptoStreams.base64(CryptoStreams.mac(InputSuppliers.of(stringToSign), crypto.hmacSHA1(secretKey
-                  .getBytes())));
+         signature = CryptoStreams.base64(CryptoStreams.mac(InputSuppliers.of(stringToSign),
+               crypto.hmacSHA1(secretKey.getBytes())));
          if (signatureWire.enabled())
             signatureWire.input(Strings2.toInputStream(signature));
       } catch (Exception e) {
@@ -118,14 +121,17 @@ public class QuerySigner implements HttpRequestFilter, RequestSigner {
    @VisibleForTesting
    public String createStringToSign(HttpRequest request, Multimap<String, String> decodedParams) {
       utils.logRequest(signatureLog, request, ">>");
-      Builder<String, String> builder = ImmutableMultimap.<String, String> builder();
 
-      for (String key : ImmutableSortedSet.copyOf(decodedParams.keySet()))
-         builder.put(key.toLowerCase(), Iterables.getOnlyElement(decodedParams.get(key)).toLowerCase());
-
-      String stringToSign = ModifyRequest.makeQueryLine(builder.build(), null);
+      // encode each parameter value first,
+      ImmutableSortedSet.Builder<String> builder = ImmutableSortedSet.<String> naturalOrder();
+      for (Entry<String, String> entry : decodedParams.entries())
+         builder.add(entry.getKey() + "=" + Strings2.urlEncode(entry.getValue()));
+      
+      // then, lower case the entire query string
+      String stringToSign = Joiner.on('&').join(builder.build()).toLowerCase();
       if (signatureWire.enabled())
          signatureWire.output(stringToSign);
+
       return stringToSign;
    }
 

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,24 +16,26 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.gogrid.compute.config;
 
-import static org.jclouds.compute.util.ComputeServiceUtils.getCores;
-import static org.jclouds.compute.util.ComputeServiceUtils.getSpace;
+import static org.jclouds.compute.util.ComputeServiceUtils.*;
 
 import java.util.Map;
 
 import javax.inject.Singleton;
 
+import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeState;
 import org.jclouds.compute.internal.ComputeServiceContextImpl;
+import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.gogrid.GoGridAsyncClient;
 import org.jclouds.gogrid.GoGridClient;
+import org.jclouds.gogrid.compute.GoGridComputeService;
 import org.jclouds.gogrid.compute.functions.ServerToNodeMetadata;
+import org.jclouds.gogrid.compute.options.GoGridTemplateOptions;
 import org.jclouds.gogrid.domain.Server;
 import org.jclouds.gogrid.domain.ServerState;
 import org.jclouds.rest.RestContext;
@@ -50,11 +52,12 @@ import com.google.inject.TypeLiteral;
 /**
  * @author Oleksiy Yarmula
  * @author Adrian Cole
+ * @author Andrew Kennedy
  */
 public class GoGridComputeServiceDependenciesModule extends AbstractModule {
-
-   @Override
    protected void configure() {
+      bind(TemplateOptions.class).to(GoGridTemplateOptions.class);
+      bind(ComputeService.class).to(GoGridComputeService.class);
       bind(new TypeLiteral<Function<Server, NodeMetadata>>() {
       }).to(ServerToNodeMetadata.class);
       bind(new TypeLiteral<ComputeServiceContext>() {

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore;
 
 import java.util.Set;
@@ -28,8 +27,10 @@ import org.jclouds.blobstore.domain.BlobBuilder;
 import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
+import org.jclouds.blobstore.options.CreateContainerOptions;
 import org.jclouds.blobstore.options.GetOptions;
 import org.jclouds.blobstore.options.ListContainerOptions;
+import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.domain.Location;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -77,6 +78,12 @@ public interface AsyncBlobStore {
    ListenableFuture<Boolean> createContainerInLocation(@Nullable Location location, String container);
 
    /**
+    * @see BlobStore#createContainerInLocation(Location,String,CreateContainerOptions)
+    */
+   ListenableFuture<Boolean> createContainerInLocation(@Nullable Location location, String container,
+            CreateContainerOptions options);
+
+   /**
     * @see BlobStore#list(String)
     */
    ListenableFuture<PageSet<? extends StorageMetadata>> list(String container);
@@ -122,9 +129,14 @@ public interface AsyncBlobStore {
    ListenableFuture<Boolean> blobExists(String container, String name);
 
    /**
-    * @see BlobStore#putBlob
+    * @see BlobStore#putBlob(String,Blob)
     */
    ListenableFuture<String> putBlob(String container, Blob blob);
+
+   /**
+    * @see BlobStore#putBlob(String,Blob,PutOptions)
+    */
+   ListenableFuture<String> putBlob(String container, Blob blob, PutOptions options);
 
    /**
     * @see BlobStore#blobMetadata

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.options;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -24,6 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Set;
 
 import org.jclouds.domain.Credentials;
 import org.jclouds.io.Payload;
@@ -32,6 +32,7 @@ import org.jclouds.scriptbuilder.domain.Statements;
 import org.jclouds.util.Strings2;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Contains options supported in the {@code ComputeService#runNodesWithTag} operation. <h2>
@@ -49,12 +50,89 @@ import com.google.common.base.Throwables;
  * 
  * @author Adrian Cole
  */
-public class TemplateOptions extends RunScriptOptions {
+public class TemplateOptions extends RunScriptOptions implements Cloneable {
+
+   @Override
+   public TemplateOptions clone() {
+      TemplateOptions options = new TemplateOptions();
+      copyTo(options);
+      return options;
+   }
+
+   public void copyTo(TemplateOptions to) {
+      if (!Arrays.equals(to.getInboundPorts(), this.getInboundPorts()))
+         to.inboundPorts(this.getInboundPorts());
+      if (this.getRunScript() != null)
+         to.runScript(this.getRunScript());
+      if (this.getPrivateKey() != null)
+         to.installPrivateKey(this.getPrivateKey());
+      if (this.getPublicKey() != null)
+         to.authorizePublicKey(this.getPublicKey());
+      if (this.getPort() != -1)
+         to.blockOnPort(this.getPort(), this.getSeconds());
+      if (this.isIncludeMetadata())
+         to.withMetadata();
+      if (this.getTags().size() > 0)
+         to.tags(getTags());
+      if (!this.shouldBlockUntilRunning())
+         to.blockUntilRunning(false);
+      if (!this.shouldBlockOnComplete())
+         to.blockOnComplete(false);
+      if (this.getOverridingCredentials() != null)
+         to.overrideCredentialsWith(this.getOverridingCredentials());
+      if (this.getTaskName() != null)
+         to.nameTask(this.getTaskName());
+   }
 
    public static final TemplateOptions NONE = new ImmutableTemplateOptions(new TemplateOptions());
 
    public static class ImmutableTemplateOptions extends TemplateOptions {
       private final TemplateOptions delegate;
+
+      @Override
+      public TemplateOptions clone() {
+         return delegate.clone();
+      }
+
+      @Override
+      public String getTaskName() {
+         return delegate.getTaskName();
+      }
+
+      @Override
+      public int getPort() {
+         return delegate.getPort();
+      }
+
+      @Override
+      public int getSeconds() {
+         return delegate.getSeconds();
+      }
+
+      @Override
+      public Credentials getOverridingCredentials() {
+         return delegate.getOverridingCredentials();
+      }
+
+      @Override
+      public boolean shouldRunAsRoot() {
+         return delegate.shouldRunAsRoot();
+      }
+
+      @Override
+      public boolean shouldBlockOnComplete() {
+         return delegate.shouldBlockOnComplete();
+      }
+
+      @Override
+      public boolean shouldWrapInInitScript() {
+         return delegate.shouldWrapInInitScript();
+      }
+
+      @Override
+      public void copyTo(TemplateOptions to) {
+         delegate.copyTo(to);
+      }
 
       public ImmutableTemplateOptions(TemplateOptions delegate) {
          this.delegate = delegate;
@@ -66,13 +144,79 @@ public class TemplateOptions extends RunScriptOptions {
       }
 
       @Override
+      public TemplateOptions runScript(Payload script) {
+         throw new IllegalArgumentException("script is immutable");
+      }
+
+      @Override
+      public TemplateOptions runScript(Statement script) {
+         throw new IllegalArgumentException("script is immutable");
+      }
+
+      @Override
+      public TemplateOptions installPrivateKey(Payload privateKey) {
+         throw new IllegalArgumentException("privateKey is immutable");
+      }
+
+      @Override
+      public TemplateOptions dontAuthorizePublicKey() {
+         throw new IllegalArgumentException("public key is immutable");
+      }
+
+      @Override
+      @Deprecated
+      public TemplateOptions authorizePublicKey(Payload publicKey) {
+         throw new IllegalArgumentException("public key is immutable");
+      }
+
+      @Override
+      public TemplateOptions blockOnPort(int port, int seconds) {
+         throw new IllegalArgumentException("ports are immutable");
+      }
+
+      @Override
+      public TemplateOptions nameTask(String name) {
+         throw new IllegalArgumentException("task name is immutable");
+      }
+
+      @Override
+      public TemplateOptions runAsRoot(boolean runAsRoot) {
+         throw new IllegalArgumentException("runAsRoot is immutable");
+      }
+
+      @Override
+      public TemplateOptions overrideCredentialsWith(Credentials overridingCredentials) {
+         throw new IllegalArgumentException("credentials are immutable");
+      }
+
+      @Override
+      public TemplateOptions overrideLoginUserWith(String loginUser) {
+         throw new IllegalArgumentException("credentials are immutable");
+      }
+
+      @Override
+      public TemplateOptions overrideLoginCredentialWith(String loginCredential) {
+         throw new IllegalArgumentException("credentials are immutable");
+      }
+
+      @Override
+      public TemplateOptions wrapInInitScript(boolean wrapInInitScript) {
+         throw new IllegalArgumentException("wrapInInitScript is immutable");
+      }
+
+      @Override
+      public TemplateOptions blockOnComplete(boolean blockOnComplete) {
+         throw new IllegalArgumentException("blockOnComplete is immutable");
+      }
+
+      @Override
       public <T extends TemplateOptions> T as(Class<T> clazz) {
          return delegate.as(clazz);
       }
 
       @Override
       public TemplateOptions authorizePublicKey(String publicKey) {
-         throw new IllegalArgumentException("authorizePublicKey is immutable");
+         throw new IllegalArgumentException("publicKey is immutable");
       }
 
       @Override
@@ -107,7 +251,7 @@ public class TemplateOptions extends RunScriptOptions {
 
       @Override
       public TemplateOptions inboundPorts(int... ports) {
-         throw new IllegalArgumentException("ports is immutable");
+         throw new IllegalArgumentException("ports are immutable");
       }
 
       @Override
@@ -122,12 +266,12 @@ public class TemplateOptions extends RunScriptOptions {
 
       @Override
       public TemplateOptions runScript(byte[] script) {
-         throw new IllegalArgumentException("withMetadata is immutable");
+         throw new IllegalArgumentException("script is immutable");
       }
 
       @Override
       public TemplateOptions withMetadata() {
-         throw new IllegalArgumentException("withMetadata is immutable");
+         throw new IllegalArgumentException("metadata is immutable");
       }
 
    }
@@ -135,6 +279,8 @@ public class TemplateOptions extends RunScriptOptions {
    protected int[] inboundPorts = new int[] { 22 };
 
    protected Statement script;
+
+   protected Set<String> tags = ImmutableSet.of();
 
    protected String privateKey;
 
@@ -150,6 +296,10 @@ public class TemplateOptions extends RunScriptOptions {
 
    public Statement getRunScript() {
       return script;
+   }
+
+   public Set<String> getTags() {
+      return tags;
    }
 
    public String getPrivateKey() {
@@ -264,6 +414,14 @@ public class TemplateOptions extends RunScriptOptions {
    }
 
    /**
+    * assigns tags to the created nodes
+    */
+   public TemplateOptions tags(Iterable<String> tags) {
+      this.tags = ImmutableSet.copyOf(checkNotNull(tags, "tags"));
+      return this;
+   }
+
+   /**
     * Opens the set of ports to public access.
     */
    public TemplateOptions inboundPorts(int... ports) {
@@ -285,9 +443,19 @@ public class TemplateOptions extends RunScriptOptions {
          return options.nameTask(name);
       }
 
+      public static TemplateOptions overrideLoginUserWith(String user) {
+         TemplateOptions options = new TemplateOptions();
+         return options.overrideLoginUserWith(user);
+      }
+
+      public static TemplateOptions overrideLoginCredentialWith(String credential) {
+         TemplateOptions options = new TemplateOptions();
+         return options.overrideLoginCredentialWith(credential);
+      }
+
       public static TemplateOptions overrideCredentialsWith(Credentials credentials) {
          TemplateOptions options = new TemplateOptions();
-         return options.withOverridingCredentials(credentials);
+         return options.overrideCredentialsWith(credentials);
       }
 
       public static TemplateOptions runAsRoot(boolean value) {
@@ -309,6 +477,14 @@ public class TemplateOptions extends RunScriptOptions {
       public static TemplateOptions inboundPorts(int... ports) {
          TemplateOptions options = new TemplateOptions();
          return options.inboundPorts(ports);
+      }
+
+      /**
+       * @see TemplateOptions#tags
+       */
+      public static TemplateOptions tags(Iterable<String> tags) {
+         TemplateOptions options = new TemplateOptions();
+         return options.tags(tags);
       }
 
       /**
@@ -486,8 +662,23 @@ public class TemplateOptions extends RunScriptOptions {
    }
 
    @Override
-   public TemplateOptions withOverridingCredentials(Credentials overridingCredentials) {
-      return TemplateOptions.class.cast(super.withOverridingCredentials(overridingCredentials));
+   public TemplateOptions overrideCredentialsWith(Credentials overridingCredentials) {
+      return TemplateOptions.class.cast(super.overrideCredentialsWith(overridingCredentials));
+   }
+
+   @Override
+   public TemplateOptions overrideLoginUserWith(String loginUser) {
+      return TemplateOptions.class.cast(super.overrideLoginUserWith(loginUser));
+   }
+
+   @Override
+   public TemplateOptions overrideLoginCredentialWith(String loginCredential) {
+      return TemplateOptions.class.cast(super.overrideLoginCredentialWith(loginCredential));
+   }
+
+   @Override
+   public TemplateOptions wrapInInitScript(boolean wrapInInitScript) {
+      return TemplateOptions.class.cast(super.wrapInInitScript(wrapInInitScript));
    }
 
    @Override

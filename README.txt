@@ -1,6 +1,6 @@
 ====
 
-    Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+    Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
 
     ====================================================================
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,11 +26,11 @@ two abstractions at the moment: compute and blobstore.  compute helps you
 bootstrap machines in the cloud.  blobstore helps you manage key-value
 data.
  
-our current version is 1.0-beta-9b
+our current version is 1.0-beta-9c
 our dev version is 1.0-SNAPSHOT
  
-our compute api supports: aws-ec2, gogrid, cloudservers-us, stub (in-memory),
-                          cloudservers-uk, vcloud (generic), ec2 (generic), byon,
+our compute api supports: aws-ec2, gogrid, cloudservers-us, stub (in-memory), deltacloud,
+                          cloudservers-uk, vcloud (generic), ec2 (generic), byon, nova,
                           trmk-ecloud, trmk-vcloudexpress, eucalyptus (generic),
                           cloudsigma-zrh, elasticstack(generic), bluelock-vclouddirector,
                           slicehost, eucalyptus-partnercloud-ec2, elastichosts-lon-p (Peer 1), 
@@ -42,10 +42,16 @@ our compute api supports: aws-ec2, gogrid, cloudservers-us, stub (in-memory),
 
 our blobstore api supports: aws-s3, cloudfiles-us, cloudfiles-uk, filesystem,
                             azureblob, atmos (generic), synaptic-storage, scaleup-storage,
-                            cloudonestorage, walrus(generic), googlestorage, 
+                            cloudonestorage, walrus(generic), googlestorage, ninefold-storage,
+                            scality-rs2 (generic), hosteurope-storage, tiscali-storage,
                             eucalyptus-partnercloud-s3, swift (generic), transient (in-mem)
  
   * note * the pom dependency org.jclouds/jclouds-allblobstore gives you access to
+           to all of these providers
+
+our loadbalancer api supports: cloudloadbalancers-us
+ 
+  * note * the pom dependency org.jclouds/jclouds-allloadbalancer gives you access to
            to all of these providers
 
 we also have support for: ibmdev, mezeo, nirvanix, boxdotnet, rimuhosting, openstack nova,
@@ -108,15 +114,22 @@ Compute Example (Clojure):
     (create-nodes "mycluster" 2))
  
 Downloads:
-  * distribution zip: http://jclouds.googlecode.com/files/jclouds-1.0-beta-9b.zip
+  * distribution zip: http://jclouds.googlecode.com/files/jclouds-1.0-beta-9c.zip
   * maven repo: http://repo2.maven.org/maven2 (maven central - the default repository)
   * snapshot repo: https://oss.sonatype.org/content/repositories/snapshots
  
 Links:
   * project page: http://code.google.com/p/jclouds/
-  * javadocs (1.0-beta-9b): http://jclouds.rimuhosting.com/apidocs/
+  * javadocs (1.0-beta-9c): http://jclouds.rimuhosting.com/apidocs/
   * javadocs (1.0-SNAPSHOT): http://jclouds.rimuhosting.com/apidocs-SNAPSHOT/
   * community: http://code.google.com/p/jclouds/wiki/AppsThatUseJClouds
   * user group: http://groups.google.com/group/jclouds
   * dev group: http://groups.google.com/group/jclouds-dev
   * twitter: http://twitter.com/jclouds
+
+## License
+
+Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
+
+Licensed under the Apache License, Version 2.0
+

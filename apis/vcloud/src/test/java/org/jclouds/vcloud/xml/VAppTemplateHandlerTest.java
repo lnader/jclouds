@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml;
 
 import static org.testng.Assert.assertEquals;
@@ -28,6 +27,7 @@ import org.jclouds.date.DateService;
 import org.jclouds.http.functions.ParseSax;
 import org.jclouds.http.functions.ParseSax.Factory;
 import org.jclouds.http.functions.config.SaxParserModule;
+import org.jclouds.ovf.Network;
 import org.jclouds.vcloud.VCloudMediaType;
 import org.jclouds.vcloud.domain.GuestCustomizationSection;
 import org.jclouds.vcloud.domain.Status;
@@ -37,7 +37,6 @@ import org.jclouds.vcloud.domain.Vm;
 import org.jclouds.vcloud.domain.internal.ReferenceTypeImpl;
 import org.jclouds.vcloud.domain.internal.TaskImpl;
 import org.jclouds.vcloud.domain.ovf.VCloudNetworkSection;
-import org.jclouds.vcloud.domain.ovf.network.Network;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;

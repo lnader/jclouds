@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -28,10 +28,13 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.cloudstack.domain.OSType;
 import org.jclouds.cloudstack.filters.QuerySigner;
+import org.jclouds.cloudstack.functions.ParseIdToNameEntryFromHttpResponse;
+import org.jclouds.cloudstack.functions.ParseIdToNameFromHttpResponse;
 import org.jclouds.cloudstack.options.ListOSTypesOptions;
 import org.jclouds.rest.annotations.ExceptionParser;
 import org.jclouds.rest.annotations.QueryParams;
 import org.jclouds.rest.annotations.RequestFilters;
+import org.jclouds.rest.annotations.ResponseParser;
 import org.jclouds.rest.annotations.Unwrap;
 import org.jclouds.rest.functions.ReturnEmptySetOnNotFoundOr404;
 import org.jclouds.rest.functions.ReturnNullOnNotFoundOr404;
@@ -69,4 +72,23 @@ public interface GuestOSAsyncClient {
    @Consumes(MediaType.APPLICATION_JSON)
    @ExceptionParser(ReturnNullOnNotFoundOr404.class)
    ListenableFuture<OSType> getOSType(@QueryParam("id") long id);
+
+   /**
+    * @see GuestOSClient#listOSCategories
+    */
+   @GET
+   @QueryParams(keys = "command", values = "listOsCategories")
+   @ResponseParser(ParseIdToNameFromHttpResponse.class)
+   @ExceptionParser(ReturnEmptySetOnNotFoundOr404.class)
+   ListenableFuture<Map<Long, String>> listOSCategories();
+
+   /**
+    * @see GuestOSClient#getOSCategory
+    */
+   @GET
+   @QueryParams(keys = "command", values = "listOsCategories")
+   @ResponseParser(ParseIdToNameEntryFromHttpResponse.class)
+   @ExceptionParser(ReturnNullOnNotFoundOr404.class)
+   ListenableFuture<Map.Entry<Long, String>> getOSCategory(@QueryParam("id") long id);
+
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import java.util.Set;
@@ -74,13 +73,13 @@ public interface AddressAsyncClient {
    ListenableFuture<PublicIPAddress> getPublicIPAddress(@QueryParam("id") long id);
 
    /**
-    * @see AddressClient#associateIPAddress
+    * @see AddressClient#associateIPAddressInZone
     */
    @GET
    @QueryParams(keys = "command", values = "associateIpAddress")
    @Unwrap
    @Consumes(MediaType.APPLICATION_JSON)
-   ListenableFuture<AsyncCreateResponse> associateIPAddress(@QueryParam("zoneid") long zoneId,
+   ListenableFuture<AsyncCreateResponse> associateIPAddressInZone(@QueryParam("zoneid") long zoneId,
             AssociateIPAddressOptions... options);
 
    /**

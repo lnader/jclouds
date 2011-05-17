@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.options;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -42,7 +41,7 @@ import java.util.Map;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
 import org.jclouds.s3.domain.CannedAccessPolicy;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -61,11 +60,12 @@ public class CopyObjectOptionsTest {
    private String nowExpected;
    private Map<String, String> goodMeta;
 
-   @BeforeMethod
+   @BeforeTest
    void setUp() {
       goodMeta = ImmutableMap.of(USER_METADATA_PREFIX + "adrian", "foo");
-      now = new Date();
-      nowExpected = new SimpleDateFormatDateService().rfc822DateFormat(now);
+      Date date = new Date();
+      nowExpected = new SimpleDateFormatDateService().rfc822DateFormat(date);
+      now = new SimpleDateFormatDateService().rfc822DateParse(nowExpected);
       etag = "mama";
    }
 

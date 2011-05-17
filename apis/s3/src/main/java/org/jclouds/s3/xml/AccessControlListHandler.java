@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.xml;
+
+import static org.jclouds.util.SaxUtils.currentOrNull;
 
 import java.net.URI;
 
@@ -79,11 +80,11 @@ public class AccessControlListHandler extends ParseSax.HandlerWithResult<AccessC
       }
 
       else if (qName.equals("ID") || qName.equals("EmailAddress") || qName.equals("URI")) {
-         currentId = currentText.toString().trim();
+         currentId = currentOrNull(currentText);
       } else if (qName.equals("DisplayName")) {
-         currentDisplayName = currentText.toString().trim();
+         currentDisplayName = currentOrNull(currentText);
       } else if (qName.equals("Permission")) {
-         currentPermission = currentText.toString().trim();
+         currentPermission = currentOrNull(currentText);
       }
       currentText = new StringBuilder();
    }

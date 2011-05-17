@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud;
 
 import java.net.URI;
@@ -43,7 +42,7 @@ import org.jclouds.vcloud.options.InstantiateVAppTemplateOptions;
 public interface VCloudExpressClient extends CommonVCloudClient {
 
    VCloudExpressVApp instantiateVAppTemplateInVDC(URI vDC, URI template, String appName,
-            InstantiateVAppTemplateOptions... options);
+         InstantiateVAppTemplateOptions... options);
 
    Task cloneVAppInVDC(URI vDC, URI toClone, String newName, CloneVAppOptions... options);
 
@@ -64,7 +63,7 @@ public interface VCloudExpressClient extends CommonVCloudClient {
     *            if you specified an org, catalog, or catalog item name that isn't present
     */
    VCloudExpressVAppTemplate findVAppTemplateInOrgCatalogNamed(@Nullable String orgName, @Nullable String catalogName,
-            String itemName);
+         String itemName);
 
    VCloudExpressVApp findVAppInOrgVDCNamed(@Nullable String orgName, @Nullable String catalogName, String vAppName);
 
@@ -102,6 +101,6 @@ public interface VCloudExpressClient extends CommonVCloudClient {
     */
    Task suspendVApp(URI vAppId);
 
-   void deleteVApp(URI vAppId);
+   Task deleteVApp(URI vAppId);
 
 }

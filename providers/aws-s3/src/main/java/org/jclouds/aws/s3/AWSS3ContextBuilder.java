@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,12 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.aws.s3;
 
 import java.util.List;
 import java.util.Properties;
 
+import org.jclouds.aws.s3.blobstore.config.AWSS3BlobStoreContextModule;
 import org.jclouds.aws.s3.config.AWSS3RestClientModule;
 import org.jclouds.s3.S3ContextBuilder;
 
@@ -35,6 +35,11 @@ public class AWSS3ContextBuilder extends S3ContextBuilder {
 
    public AWSS3ContextBuilder(Properties props) {
       super(props);
+   }
+
+   @Override
+   protected void addContextModule(List<Module> modules) {
+      modules.add(new AWSS3BlobStoreContextModule());
    }
 
    @Override

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,11 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud;
 
 import static org.jclouds.vcloud.VCloudMediaType.DEPLOYVAPPPARAMS_XML;
 import static org.jclouds.vcloud.VCloudMediaType.GUESTCUSTOMIZATIONSECTION_XML;
+import static org.jclouds.vcloud.VCloudMediaType.NETWORKCONNECTIONSECTION_XML;
 import static org.jclouds.vcloud.VCloudMediaType.TASK_XML;
 import static org.jclouds.vcloud.VCloudMediaType.UNDEPLOYVAPPPARAMS_XML;
 import static org.jclouds.vcloud.VCloudMediaType.VAPPTEMPLATE_XML;
@@ -41,15 +41,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.jclouds.ovf.Envelope;
+import org.jclouds.ovf.xml.EnvelopeHandler;
 import org.jclouds.predicates.validators.DnsNameValidator;
 import org.jclouds.rest.annotations.BinderParam;
 import org.jclouds.rest.annotations.Endpoint;
 import org.jclouds.rest.annotations.EndpointParam;
 import org.jclouds.rest.annotations.ExceptionParser;
 import org.jclouds.rest.annotations.MapBinder;
+import org.jclouds.rest.annotations.ParamValidators;
 import org.jclouds.rest.annotations.PayloadParam;
 import org.jclouds.rest.annotations.PayloadParams;
-import org.jclouds.rest.annotations.ParamValidators;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.XMLResponseParser;
 import org.jclouds.rest.functions.ReturnNullOnNotFoundOr404;
@@ -59,14 +61,15 @@ import org.jclouds.vcloud.binders.BindCloneVAppParamsToXmlPayload;
 import org.jclouds.vcloud.binders.BindDeployVAppParamsToXmlPayload;
 import org.jclouds.vcloud.binders.BindGuestCustomizationSectionToXmlPayload;
 import org.jclouds.vcloud.binders.BindInstantiateVAppTemplateParamsToXmlPayload;
+import org.jclouds.vcloud.binders.BindNetworkConnectionSectionToXmlPayload;
 import org.jclouds.vcloud.binders.BindUndeployVAppParamsToXmlPayload;
 import org.jclouds.vcloud.domain.GuestCustomizationSection;
+import org.jclouds.vcloud.domain.NetworkConnectionSection;
 import org.jclouds.vcloud.domain.ReferenceType;
 import org.jclouds.vcloud.domain.Task;
 import org.jclouds.vcloud.domain.VApp;
 import org.jclouds.vcloud.domain.VAppTemplate;
 import org.jclouds.vcloud.domain.Vm;
-import org.jclouds.vcloud.domain.ovf.OvfEnvelope;
 import org.jclouds.vcloud.endpoints.OrgList;
 import org.jclouds.vcloud.filters.SetVCloudTokenCookie;
 import org.jclouds.vcloud.functions.OrgNameCatalogNameVAppTemplateNameToEndpoint;
@@ -79,7 +82,6 @@ import org.jclouds.vcloud.xml.TaskHandler;
 import org.jclouds.vcloud.xml.VAppHandler;
 import org.jclouds.vcloud.xml.VAppTemplateHandler;
 import org.jclouds.vcloud.xml.VmHandler;
-import org.jclouds.vcloud.xml.ovf.OvfEnvelopeHandler;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -128,9 +130,9 @@ public interface VCloudAsyncClient extends CommonVCloudAsyncClient {
    @GET
    @Consumes(MediaType.TEXT_XML)
    @Path("/ovf")
-   @XMLResponseParser(OvfEnvelopeHandler.class)
+   @XMLResponseParser(EnvelopeHandler.class)
    @ExceptionParser(ReturnNullOnNotFoundOr404.class)
-   ListenableFuture<? extends OvfEnvelope> getOvfEnvelopeForVAppTemplate(@EndpointParam URI vAppTemplate);
+   ListenableFuture<? extends Envelope> getOvfEnvelopeForVAppTemplate(@EndpointParam URI vAppTemplate);
 
    /**
     * @see VCloudClient#findVAppTemplateInOrgCatalogNamed
@@ -140,9 +142,9 @@ public interface VCloudAsyncClient extends CommonVCloudAsyncClient {
    @XMLResponseParser(VAppTemplateHandler.class)
    @ExceptionParser(ReturnNullOnNotFoundOr404.class)
    ListenableFuture<? extends VAppTemplate> findVAppTemplateInOrgCatalogNamed(
-            @Nullable @EndpointParam(parser = OrgNameCatalogNameVAppTemplateNameToEndpoint.class) String orgName,
-            @Nullable @EndpointParam(parser = OrgNameCatalogNameVAppTemplateNameToEndpoint.class) String catalogName,
-            @EndpointParam(parser = OrgNameCatalogNameVAppTemplateNameToEndpoint.class) String itemName);
+         @Nullable @EndpointParam(parser = OrgNameCatalogNameVAppTemplateNameToEndpoint.class) String orgName,
+         @Nullable @EndpointParam(parser = OrgNameCatalogNameVAppTemplateNameToEndpoint.class) String catalogName,
+         @EndpointParam(parser = OrgNameCatalogNameVAppTemplateNameToEndpoint.class) String itemName);
 
    /**
     * @see VCloudClient#instantiateVAppTemplateInVDC
@@ -154,9 +156,9 @@ public interface VCloudAsyncClient extends CommonVCloudAsyncClient {
    @XMLResponseParser(VAppHandler.class)
    @MapBinder(BindInstantiateVAppTemplateParamsToXmlPayload.class)
    ListenableFuture<? extends VApp> instantiateVAppTemplateInVDC(@EndpointParam URI vdc,
-            @PayloadParam("template") URI template,
-            @PayloadParam("name") @ParamValidators(DnsNameValidator.class) String appName,
-            InstantiateVAppTemplateOptions... options);
+         @PayloadParam("template") URI template,
+         @PayloadParam("name") @ParamValidators(DnsNameValidator.class) String appName,
+         InstantiateVAppTemplateOptions... options);
 
    /**
     * @see VCloudClient#cloneVAppInVDC
@@ -168,8 +170,7 @@ public interface VCloudAsyncClient extends CommonVCloudAsyncClient {
    @XMLResponseParser(TaskHandler.class)
    @MapBinder(BindCloneVAppParamsToXmlPayload.class)
    ListenableFuture<? extends Task> cloneVAppInVDC(@EndpointParam URI vdc, @PayloadParam("vApp") URI toClone,
-            @PayloadParam("newName") @ParamValidators(DnsNameValidator.class) String newName,
-            CloneVAppOptions... options);
+         @PayloadParam("newName") @ParamValidators(DnsNameValidator.class) String newName, CloneVAppOptions... options);
 
    /**
     * @see VCloudClient#captureVAppInVDC
@@ -181,9 +182,9 @@ public interface VCloudAsyncClient extends CommonVCloudAsyncClient {
    @XMLResponseParser(VAppTemplateHandler.class)
    @MapBinder(BindCaptureVAppParamsToXmlPayload.class)
    ListenableFuture<? extends VAppTemplate> captureVAppInVDC(@EndpointParam URI vdc,
-            @PayloadParam("vApp") URI toCapture,
-            @PayloadParam("templateName") @ParamValidators(DnsNameValidator.class) String templateName,
-            CaptureVAppOptions... options);
+         @PayloadParam("vApp") URI toCapture,
+         @PayloadParam("templateName") @ParamValidators(DnsNameValidator.class) String templateName,
+         CaptureVAppOptions... options);
 
    /**
     * @see VCloudClient#findVAppInOrgVDCNamed
@@ -193,9 +194,9 @@ public interface VCloudAsyncClient extends CommonVCloudAsyncClient {
    @XMLResponseParser(VAppHandler.class)
    @ExceptionParser(ReturnNullOnNotFoundOr404.class)
    ListenableFuture<? extends VApp> findVAppInOrgVDCNamed(
-            @Nullable @EndpointParam(parser = OrgNameVDCNameResourceEntityNameToEndpoint.class) String orgName,
-            @Nullable @EndpointParam(parser = OrgNameVDCNameResourceEntityNameToEndpoint.class) String catalogName,
-            @EndpointParam(parser = OrgNameVDCNameResourceEntityNameToEndpoint.class) String vAppName);
+         @Nullable @EndpointParam(parser = OrgNameVDCNameResourceEntityNameToEndpoint.class) String orgName,
+         @Nullable @EndpointParam(parser = OrgNameVDCNameResourceEntityNameToEndpoint.class) String catalogName,
+         @EndpointParam(parser = OrgNameVDCNameResourceEntityNameToEndpoint.class) String vAppName);
 
    /**
     * @see VCloudClient#getVApp
@@ -224,8 +225,19 @@ public interface VCloudAsyncClient extends CommonVCloudAsyncClient {
    @Path("/guestCustomizationSection")
    @XMLResponseParser(TaskHandler.class)
    ListenableFuture<? extends Task> updateGuestCustomizationOfVm(
-            @EndpointParam URI vm,
-            @BinderParam(BindGuestCustomizationSectionToXmlPayload.class) GuestCustomizationSection guestCustomizationSection);
+         @EndpointParam URI vm,
+         @BinderParam(BindGuestCustomizationSectionToXmlPayload.class) GuestCustomizationSection guestCustomizationSection);
+
+   /**
+    * @see VCloudClient#updateNetworkConnectionOfVm
+    */
+   @PUT
+   @Consumes(TASK_XML)
+   @Produces(NETWORKCONNECTIONSECTION_XML)
+   @Path("/networkConnectionSection")
+   @XMLResponseParser(TaskHandler.class)
+   ListenableFuture<? extends Task> updateNetworkConnectionOfVm(@EndpointParam URI vm,
+         @BinderParam(BindNetworkConnectionSectionToXmlPayload.class) NetworkConnectionSection networkConnectionSection);
 
    /**
     * @see VCloudClient#deployVAppOrVm

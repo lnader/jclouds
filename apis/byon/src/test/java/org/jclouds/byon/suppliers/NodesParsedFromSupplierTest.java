@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.byon.suppliers;
 
-import org.jclouds.byon.functions.NodesFromYaml;
+import org.jclouds.byon.functions.NodesFromYamlStream;
 import org.jclouds.util.Strings2;
 import org.testng.annotations.Test;
 
@@ -34,7 +33,7 @@ public class NodesParsedFromSupplierTest {
    @Test(expectedExceptions = IllegalStateException.class)
    public void testMustParseSomething() throws Exception {
 
-      new NodesParsedFromSupplier(Suppliers.ofInstance(Strings2.toInputStream("nodes:\n")), new NodesFromYaml()).get();
+      new NodesParsedFromSupplier(Suppliers.ofInstance(Strings2.toInputStream("nodes:\n")), new NodesFromYamlStream()).get();
 
    }
 }

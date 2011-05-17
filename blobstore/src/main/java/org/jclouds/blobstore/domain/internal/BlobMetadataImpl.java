@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.blobstore.domain.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -42,12 +41,33 @@ import org.jclouds.io.ContentMetadata;
 public class BlobMetadataImpl extends StorageMetadataImpl implements Serializable, BlobMetadata {
    /** The serialVersionUID */
    private static final long serialVersionUID = -5932618957134612231L;
+   private final URI publicUri;
+   private final String container;
    private final ContentMetadata contentMetadata;
 
    public BlobMetadataImpl(String id, String name, @Nullable Location location, URI uri, String eTag,
-            Date lastModified, Map<String, String> userMetadata, ContentMetadata contentMetadata) {
+            Date lastModified, Map<String, String> userMetadata, @Nullable URI publicUri, @Nullable String container,
+            ContentMetadata contentMetadata) {
       super(StorageType.BLOB, id, name, location, uri, eTag, lastModified, userMetadata);
+      this.publicUri = publicUri;
+      this.container = container;
       this.contentMetadata = checkNotNull(contentMetadata, "contentMetadata");
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public URI getPublicUri() {
+      return publicUri;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public String getContainer() {
+      return container;
    }
 
    /**

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.http;
 
 import static com.google.common.base.Throwables.propagate;
@@ -46,6 +45,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.jclouds.Constants;
 import org.jclouds.crypto.CryptoStreams;
 import org.jclouds.io.InputSuppliers;
@@ -53,17 +58,12 @@ import org.jclouds.rest.RestContext;
 import org.jclouds.rest.RestContextBuilder;
 import org.jclouds.rest.RestContextSpec;
 import org.jclouds.util.Strings2;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.AbstractHandler;
-import org.mortbay.jetty.ssl.SslSocketConnector;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
@@ -96,63 +96,70 @@ public abstract class BaseJettyTest {
       md5 = CryptoStreams.md5Base64(oneHundredOneConstitutions);
 
       Handler server1Handler = new AbstractHandler() {
-         public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
+         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
                   throws IOException, ServletException {
-            if (failIfNoContentLength(request, response)) {
-               return;
-            } else if (target.indexOf("sleep") > 0) {
-               try {
-                  Thread.sleep(100);
-               } catch (InterruptedException e) {
-                  propagate(e);
-               }
-               response.setContentType("text/xml");
-               response.setStatus(HttpServletResponse.SC_OK);
-            } else if (target.indexOf("redirect") > 0) {
-               response.sendRedirect("https://localhost:" + (testPort + 1) + "/");
-            } else if (target.indexOf("101constitutions") > 0) {
-               response.setContentType("text/plain");
-               response.setHeader("Content-MD5", md5);
-               response.setStatus(HttpServletResponse.SC_OK);
-               copy(oneHundredOneConstitutions.getInput(), response.getOutputStream());
-            } else if (request.getMethod().equals("PUT")) {
-               if (request.getContentLength() > 0) {
+            InputStream body = request.getInputStream();
+            try {
+               if (failIfNoContentLength(request, response)) {
+                  return;
+               } else if (target.indexOf("sleep") > 0) {
+                  try {
+                     Thread.sleep(100);
+                  } catch (InterruptedException e) {
+                     propagate(e);
+                  }
+                  response.setContentType("text/xml");
                   response.setStatus(HttpServletResponse.SC_OK);
-                  response.getWriter().println(Strings2.toStringAndClose(request.getInputStream()) + "PUT");
+               } else if (target.indexOf("redirect") > 0) {
+                  response.sendRedirect("https://localhost:" + (testPort + 1) + "/");
+               } else if (target.indexOf("101constitutions") > 0) {
+                  response.setContentType("text/plain");
+                  response.setHeader("Content-MD5", md5);
+                  response.setStatus(HttpServletResponse.SC_OK);
+                  copy(oneHundredOneConstitutions.getInput(), response.getOutputStream());
+               } else if (request.getMethod().equals("PUT")) {
+                  if (request.getContentLength() > 0) {
+                     response.setStatus(HttpServletResponse.SC_OK);
+                     response.getWriter().println(Strings2.toStringAndClose(body) + "PUT");
+                  } else {
+                     response.sendError(500, "no content");
+                  }
+               } else if (request.getMethod().equals("POST")) {
+                  // don't redirect large objects
+                  if (request.getContentLength() < 10240 && redirectEveryTwentyRequests(request, response))
+                     return;
+                  if (failEveryTenRequests(request, response))
+                     return;
+                  if (request.getContentLength() > 0) {
+                     handlePost(request, response);
+                  } else {
+                     handleAction(request, response);
+                  }
+               } else if (request.getHeader("range") != null) {
+                  response.sendError(404, "no content");
+               } else if (request.getHeader("test") != null) {
+                  response.setContentType("text/plain");
+                  response.setStatus(HttpServletResponse.SC_OK);
+                  response.getWriter().println("test");
+               } else if (request.getMethod().equals("HEAD")) {
+                  /*
+                   * NOTE: by HTML specification, HEAD response MUST NOT include a body
+                   */
+                  response.setContentType("text/xml");
+                  response.setStatus(HttpServletResponse.SC_OK);
                } else {
-                  response.sendError(500, "no content");
+                  if (failEveryTenRequests(request, response))
+                     return;
+                  response.setContentType("text/xml");
+                  response.setStatus(HttpServletResponse.SC_OK);
+                  response.getWriter().println(XML);
                }
-            } else if (request.getMethod().equals("POST")) {
-               // don't redirect large objects
-               if (request.getContentLength() < 10240 && redirectEveryTwentyRequests(request, response))
-                  return;
-               if (failEveryTenRequests(request, response))
-                  return;
-               if (request.getContentLength() > 0) {
-                  handlePost(request, response);
-               } else {
-                  handleAction(request, response);
-               }
-            } else if (request.getHeader("range") != null) {
-               response.sendError(404, "no content");
-            } else if (request.getHeader("test") != null) {
-               response.setContentType("text/plain");
-               response.setStatus(HttpServletResponse.SC_OK);
-               response.getWriter().println("test");
-            } else if (request.getMethod().equals("HEAD")) {
-               /*
-                * NOTE: by HTML specification, HEAD response MUST NOT include a body
-                */
-               response.setContentType("text/xml");
-               response.setStatus(HttpServletResponse.SC_OK);
-            } else {
-               if (failEveryTenRequests(request, response))
-                  return;
-               response.setContentType("text/xml");
-               response.setStatus(HttpServletResponse.SC_OK);
-               response.getWriter().println(XML);
+               ((Request) request).setHandled(true);
+            } catch (IOException e) {
+               if (body != null)
+                  closeQuietly(body);
+               response.sendError(500, Throwables.getStackTraceAsString(e));
             }
-            ((Request) request).setHandled(true);
          }
 
       };
@@ -173,11 +180,12 @@ public abstract class BaseJettyTest {
    }
 
    private static void handlePost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      InputStream body = request.getInputStream();
       try {
          if (request.getHeader("Content-MD5") != null) {
             String expectedMd5 = request.getHeader("Content-MD5");
             String realMd5FromRequest;
-            realMd5FromRequest = CryptoStreams.md5Base64(InputSuppliers.of(request.getInputStream()));
+            realMd5FromRequest = CryptoStreams.md5Base64(InputSuppliers.of(body));
             boolean matched = expectedMd5.equals(realMd5FromRequest);
             if (matched) {
                response.setStatus(HttpServletResponse.SC_OK);
@@ -186,52 +194,60 @@ public abstract class BaseJettyTest {
                response.sendError(500, "didn't match");
             }
          } else {
+            String responseString = (request.getContentLength() < 10240) ? Strings2.toStringAndClose(body) + "POST"
+                     : "POST";
+            body = null;
             for (String header : new String[] { "Content-Disposition", HttpHeaders.CONTENT_LANGUAGE,
                      HttpHeaders.CONTENT_ENCODING })
                if (request.getHeader(header) != null) {
                   response.addHeader("x-" + header, request.getHeader(header));
                }
             response.setStatus(HttpServletResponse.SC_OK);
-            String responseString = "POST";
-            if (request.getContentLength() < 10240) {
-               responseString = Strings2.toStringAndClose(request.getInputStream()) + "POST";
-            } else {
-               closeQuietly(request.getInputStream());
-            }
             response.getWriter().println(responseString);
          }
       } catch (IOException e) {
-         response.sendError(500, e.toString());
+         if (body != null)
+            closeQuietly(body);
+         response.sendError(500, Throwables.getStackTraceAsString(e));
       }
    }
 
    protected void setupAndStartSSLServer(final int testPort) throws Exception {
       Handler server2Handler = new AbstractHandler() {
-         public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
+         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
                   throws IOException, ServletException {
-            if (request.getMethod().equals("PUT")) {
-               if (request.getContentLength() > 0) {
+            InputStream body = request.getInputStream();
+            try {
+               if (request.getMethod().equals("PUT")) {
+                  String text = Strings2.toStringAndClose(body);
+                  body = null;
+                  if (request.getContentLength() > 0) {
+                     response.setStatus(HttpServletResponse.SC_OK);
+                     response.getWriter().println(text + "PUTREDIRECT");
+                  }
+               } else if (request.getMethod().equals("POST")) {
+                  if (request.getContentLength() > 0) {
+                     handlePost(request, response);
+                  } else {
+                     handleAction(request, response);
+                  }
+               } else if (request.getMethod().equals("HEAD")) {
+                  /*
+                   * NOTE: by HTML specification, HEAD response MUST NOT include a body
+                   */
+                  response.setContentType("text/xml");
                   response.setStatus(HttpServletResponse.SC_OK);
-                  response.getWriter().println(Strings2.toStringAndClose(request.getInputStream()) + "PUTREDIRECT");
-               }
-            } else if (request.getMethod().equals("POST")) {
-               if (request.getContentLength() > 0) {
-                  handlePost(request, response);
                } else {
-                  handleAction(request, response);
+                  response.setContentType("text/xml");
+                  response.setStatus(HttpServletResponse.SC_OK);
+                  response.getWriter().println(XML2);
                }
-            } else if (request.getMethod().equals("HEAD")) {
-               /*
-                * NOTE: by HTML specification, HEAD response MUST NOT include a body
-                */
-               response.setContentType("text/xml");
-               response.setStatus(HttpServletResponse.SC_OK);
-            } else {
-               response.setContentType("text/xml");
-               response.setStatus(HttpServletResponse.SC_OK);
-               response.getWriter().println(XML2);
+               ((Request) request).setHandled(true);
+            } catch (IOException e) {
+               if (body != null)
+                  closeQuietly(body);
+               response.sendError(500, Throwables.getStackTraceAsString(e));
             }
-            ((Request) request).setHandled(true);
          }
       };
 
@@ -293,7 +309,7 @@ public abstract class BaseJettyTest {
     */
    protected boolean failEveryTenRequests(HttpServletRequest request, HttpServletResponse response) throws IOException {
       if (cycle.incrementAndGet() % 10 == 0) {
-         response.sendError(500);
+         response.sendError(500, "unlucky 10");
          ((Request) request).setHandled(true);
          return true;
       }
@@ -325,7 +341,7 @@ public abstract class BaseJettyTest {
       if (realHeaders.get(CONTENT_LENGTH) == null) {
          response.getWriter().println("no content length!");
          response.getWriter().println(realHeaders.toString());
-         response.sendError(500);
+         response.sendError(500, "no content length!");
          ((Request) request).setHandled(true);
          return true;
       }

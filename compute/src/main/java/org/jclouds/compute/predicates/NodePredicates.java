@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.predicates;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,7 +29,7 @@ import org.jclouds.util.Preconditions2;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Container for node filters (predicates).
@@ -161,13 +160,13 @@ public class NodePredicates {
     *           ids of the resources
     * @return predicate
     */
-   public static Predicate<ComputeMetadata> withIds(String... ids) {
+   public static <T extends ComputeMetadata> Predicate<T> withIds(String... ids) {
       checkNotNull(ids, "ids must be defined");
-      final Set<String> search = Sets.newHashSet(ids);
-      return new Predicate<ComputeMetadata>() {
+      final Set<String> search = ImmutableSet.copyOf(ids);
+      return new Predicate<T>() {
          @Override
-         public boolean apply(ComputeMetadata nodeMetadata) {
-            return search.contains(nodeMetadata.getProviderId());
+         public boolean apply(T nodeMetadata) {
+            return search.contains(nodeMetadata.getId());
          }
 
          @Override
@@ -223,7 +222,7 @@ public class NodePredicates {
     * @return predicate
     */
    public static Predicate<NodeMetadata> runningInGroup(final String group) {
-      Preconditions2.checkNotEmpty(group, "Tag must be defined");
+      Preconditions2.checkNotEmpty(group, "group must be defined");
       return new Predicate<NodeMetadata>() {
          @Override
          public boolean apply(NodeMetadata nodeMetadata) {

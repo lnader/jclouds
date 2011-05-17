@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.functions;
 
 import javax.inject.Inject;
@@ -53,7 +52,6 @@ public class ParseObjectFromHeadersAndHttpContent implements Function<HttpRespon
       S3Object object = objectProvider.create(metadata);
       object.getAllHeaders().putAll(from.getHeaders());
       object.setPayload(from.getPayload());
-
       return object;
    }
 

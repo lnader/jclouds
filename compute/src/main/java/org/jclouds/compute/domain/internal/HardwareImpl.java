@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.compute.domain.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -26,6 +25,7 @@ import static org.jclouds.compute.util.ComputeServiceUtils.getSpace;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -54,9 +54,9 @@ public class HardwareImpl extends ComputeMetadataImpl implements Hardware {
    private final Predicate<Image> supportsImage;
 
    public HardwareImpl(String providerId, String name, String id, @Nullable Location location, URI uri,
-         Map<String, String> userMetadata, Iterable<? extends Processor> processors, int ram,
+         Map<String, String> userMetadata, Set<String> tags, Iterable<? extends Processor> processors, int ram,
          Iterable<? extends Volume> volumes, Predicate<Image> supportsImage) {
-      super(ComputeType.HARDWARE, providerId, name, id, location, uri, userMetadata);
+      super(ComputeType.HARDWARE, providerId, name, id, location, uri, userMetadata, tags);
       this.processors = ImmutableList.copyOf(checkNotNull(processors, "processors"));
       this.ram = ram;
       this.volumes = ImmutableList.copyOf(checkNotNull(volumes, "volumes"));
@@ -107,7 +107,7 @@ public class HardwareImpl extends ComputeMetadataImpl implements Hardware {
    @Override
    public String toString() {
       return "[id=" + getId() + ", providerId=" + getProviderId() + ", name=" + getName() + ", processors="
-            + processors + ", ram=" + ram + ", volumes=" + volumes + ", supportsImage=" + supportsImage + "]";
+            + processors + ", ram=" + ram + ", volumes=" + volumes + ", supportsImage=" + supportsImage + ", tags=" + tags + "]";
    }
 
    /**
@@ -118,43 +118,4 @@ public class HardwareImpl extends ComputeMetadataImpl implements Hardware {
       return supportsImage;
    }
 
-   @Override
-   public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((processors == null) ? 0 : processors.hashCode());
-      result = prime * result + ram;
-      result = prime * result + ((supportsImage == null) ? 0 : supportsImage.hashCode());
-      result = prime * result + ((volumes == null) ? 0 : volumes.hashCode());
-      return result;
-   }
-
-   @Override
-   public boolean equals(Object obj) {
-      if (this == obj)
-         return true;
-      if (!super.equals(obj))
-         return false;
-      if (getClass() != obj.getClass())
-         return false;
-      HardwareImpl other = (HardwareImpl) obj;
-      if (processors == null) {
-         if (other.processors != null)
-            return false;
-      } else if (!processors.equals(other.processors))
-         return false;
-      if (ram != other.ram)
-         return false;
-      if (supportsImage == null) {
-         if (other.supportsImage != null)
-            return false;
-      } else if (!supportsImage.equals(other.supportsImage))
-         return false;
-      if (volumes == null) {
-         if (other.volumes != null)
-            return false;
-      } else if (!volumes.equals(other.volumes))
-         return false;
-      return true;
-   }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,12 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.blobstore.config;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Singleton;
 
 import org.jclouds.blobstore.AsyncBlobStore;
 import org.jclouds.blobstore.BlobRequestSigner;
@@ -34,10 +38,13 @@ import org.jclouds.s3.blobstore.S3AsyncBlobStore;
 import org.jclouds.s3.blobstore.S3BlobRequestSigner;
 import org.jclouds.s3.blobstore.S3BlobStore;
 import org.jclouds.s3.blobstore.functions.LocationFromBucketLocation;
+import org.jclouds.s3.domain.AccessControlList;
 import org.jclouds.s3.domain.BucketMetadata;
 
 import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 
@@ -55,10 +62,14 @@ public class S3BlobStoreContextModule extends AbstractModule {
       bind(ConsistencyModel.class).toInstance(ConsistencyModel.EVENTUAL);
       bind(AsyncBlobStore.class).to(S3AsyncBlobStore.class).in(Scopes.SINGLETON);
       bind(BlobStore.class).to(S3BlobStore.class).in(Scopes.SINGLETON);
-      bind(BlobStoreContext.class).to(new TypeLiteral<BlobStoreContextImpl<S3Client, S3AsyncClient>>() {
-      }).in(Scopes.SINGLETON);
+      bindContext();
       bind(BlobRequestSigner.class).to(S3BlobRequestSigner.class);
       bindBucketLocationStrategy();
+   }
+
+   protected void bindContext() {
+      bind(BlobStoreContext.class).to(new TypeLiteral<BlobStoreContextImpl<S3Client, S3AsyncClient>>() {
+      }).in(Scopes.SINGLETON);
    }
 
    protected void bindBucketLocationStrategy() {
@@ -66,5 +77,19 @@ public class S3BlobStoreContextModule extends AbstractModule {
       }).to(LocationFromBucketLocation.class);
    }
 
-   
+   @Provides
+   @Singleton
+   protected Map<String, AccessControlList> bucketAcls(final S3Client client) {
+      return new MapMaker().expireAfterWrite(30, TimeUnit.SECONDS).makeComputingMap(
+               new Function<String, AccessControlList>() {
+                  public AccessControlList apply(String bucketName) {
+                     return client.getBucketACL(bucketName);
+                  }
+
+                  @Override
+                  public String toString() {
+                     return "getBucketAcl()";
+                  }
+               });
+   }
 }

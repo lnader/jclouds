@@ -37,7 +37,9 @@
        <module>byon</module>
        <module>s3</module>
        <module>ec2</module>
+       <module>deltacloud</module>
        <module>walrus</module>
+       <module>scality-rs2</module>
        <module>eucalyptus</module>
        <module>swift</module>
        <module>cloudfiles</module>
@@ -46,5 +48,6 @@
        <module>vcloudexpress</module>
        <module>elasticstack</module>
        <module>atmos</module>
+       <module>nova</module>
     </modules>
 </project>

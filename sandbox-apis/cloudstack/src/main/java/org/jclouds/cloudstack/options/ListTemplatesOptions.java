@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,9 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.options;
 
 import org.jclouds.cloudstack.domain.TemplateFilter;
-import org.jclouds.http.options.BaseHttpRequestOptions;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -30,7 +28,7 @@ import com.google.common.collect.ImmutableSet;
  * @see <a href="http://download.cloud.com/releases/2.2.0/api/user/listTemplates.html" />
  * @author Adrian Cole
  */
-public class ListTemplatesOptions extends BaseHttpRequestOptions {
+public class ListTemplatesOptions extends AccountInDomainOptions {
    public ListTemplatesOptions() {
       filter(TemplateFilter.EXECUTABLE);
    }
@@ -56,35 +54,12 @@ public class ListTemplatesOptions extends BaseHttpRequestOptions {
    }
 
    /**
-    * 
-    * @param account
-    *           account id
-    * @param domain
-    *           domain id
-    */
-   public ListTemplatesOptions accountInDomain(String account, long domain) {
-      this.queryParameters.replaceValues("account", ImmutableSet.of(account + ""));
-      return domainId(domain);
-   }
-
-   /**
     * @param name
     *           the template name
     */
    public ListTemplatesOptions name(String name) {
       this.queryParameters.replaceValues("name", ImmutableSet.of(name));
       return this;
-   }
-
-   /**
-    * @param domainId
-    *           list all templates in specified domain. If used with the account parameter, lists
-    *           all templates for an account in the specified domain.
-    */
-   public ListTemplatesOptions domainId(long domainId) {
-      this.queryParameters.replaceValues("domainid", ImmutableSet.of(domainId + ""));
-      return this;
-
    }
 
    /**
@@ -165,4 +140,19 @@ public class ListTemplatesOptions extends BaseHttpRequestOptions {
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ListTemplatesOptions accountInDomain(String account, long domain) {
+      return ListTemplatesOptions.class.cast(super.accountInDomain(account, domain));
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ListTemplatesOptions domainId(long domainId) {
+      return ListTemplatesOptions.class.cast(super.domainId(domainId));
+   }
 }

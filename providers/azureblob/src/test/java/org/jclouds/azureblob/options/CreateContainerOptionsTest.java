@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,12 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.azureblob.options;
 
 import static org.testng.Assert.assertEquals;
 
 import org.jclouds.azure.storage.reference.AzureStorageHeaders;
+import org.jclouds.azureblob.domain.PublicAccess;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -35,16 +35,16 @@ import com.google.common.collect.ImmutableMultimap;
 @Test(groups = "unit")
 public class CreateContainerOptionsTest {
 
-   public void testPublicAcl() {
-      CreateContainerOptions options = new CreateContainerOptions().withPublicAcl();
-      assertEquals(ImmutableList.of("true"), options.buildRequestHeaders().get(
-               "x-ms-prop-publicaccess"));
+   public void testPublicAccess() {
+      CreateContainerOptions options = new CreateContainerOptions().withPublicAccess(PublicAccess.BLOB);
+      assertEquals(ImmutableList.of("blob"), options.buildRequestHeaders().get(
+               "x-ms-blob-public-access"));
    }
 
-   public void testPublicAclStatic() {
-      CreateContainerOptions options = CreateContainerOptions.Builder.withPublicAcl();
-      assertEquals(ImmutableList.of("true"), options.buildRequestHeaders().get(
-               "x-ms-prop-publicaccess"));
+   public void testPublicAccessStatic() {
+      CreateContainerOptions options = CreateContainerOptions.Builder.withPublicAccess(PublicAccess.BLOB);
+      assertEquals(ImmutableList.of("blob"), options.buildRequestHeaders().get(
+               "x-ms-blob-public-access"));
    }
 
    public void testMetadata() {

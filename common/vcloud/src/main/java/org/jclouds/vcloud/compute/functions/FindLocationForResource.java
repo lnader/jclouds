@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.compute.functions;
 
 import java.net.URI;
@@ -63,8 +62,7 @@ public class FindLocationForResource {
             // link that only includes href and type.
             if (URI.create(input.getId()).equals(resource.getHref()))
                return input;
-            input = input.getParent();
-         } while (input.getParent() != null);
+         } while ((input = input.getParent()) != null);
       }
       throw new NoSuchElementException(String.format("resource: %s not found in locations: %s", resource, locations
                .get()));

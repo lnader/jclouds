@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.ec2.compute.internal;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -37,7 +36,6 @@ import org.jclouds.compute.domain.internal.TemplateBuilderImpl;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Location;
 import org.jclouds.ec2.compute.domain.RegionAndName;
-import org.jclouds.ec2.compute.options.EC2TemplateOptions;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ComputationException;
@@ -52,30 +50,11 @@ public class EC2TemplateBuilderImpl extends TemplateBuilderImpl {
 
    @Inject
    protected EC2TemplateBuilderImpl(@Memoized Supplier<Set<? extends Location>> locations,
-            @Memoized Supplier<Set<? extends Image>> images, @Memoized Supplier<Set<? extends Hardware>> sizes,
-            Supplier<Location> defaultLocation, Provider<TemplateOptions> optionsProvider,
-            @Named("DEFAULT") Provider<TemplateBuilder> defaultTemplateProvider, Map<RegionAndName, Image> imageMap) {
+         @Memoized Supplier<Set<? extends Image>> images, @Memoized Supplier<Set<? extends Hardware>> sizes,
+         Supplier<Location> defaultLocation, @Named("DEFAULT") Provider<TemplateOptions> optionsProvider,
+         @Named("DEFAULT") Provider<TemplateBuilder> defaultTemplateProvider, Map<RegionAndName, Image> imageMap) {
       super(locations, images, sizes, defaultLocation, optionsProvider, defaultTemplateProvider);
       this.imageMap = imageMap;
-   }
-
-   @Override
-   protected void copyTemplateOptions(TemplateOptions from, TemplateOptions to) {
-      super.copyTemplateOptions(from, to);
-      if (from instanceof EC2TemplateOptions) {
-         EC2TemplateOptions eFrom = EC2TemplateOptions.class.cast(from);
-         EC2TemplateOptions eTo = EC2TemplateOptions.class.cast(to);
-         if (eFrom.getGroupIds().size() > 0)
-            eTo.securityGroups(eFrom.getGroupIds());
-         if (eFrom.getKeyPair() != null)
-            eTo.keyPair(eFrom.getKeyPair());
-         if (eFrom.getBlockDeviceMappings().size() > 0)
-            eTo.blockDeviceMappings(eFrom.getBlockDeviceMappings());
-         if (!eFrom.shouldAutomaticallyCreateKeyPair())
-            eTo.noKeyPair();
-         if (eFrom.getUserData() != null)
-            eTo.userData(eFrom.getUserData());
-      }
    }
 
    final Provider<Image> lazyImageProvider = new Provider<Image>() {
@@ -85,8 +64,7 @@ public class EC2TemplateBuilderImpl extends TemplateBuilderImpl {
          if (imageId != null) {
             String[] regionName = imageId.split("/");
             checkArgument(regionName.length == 2,
-                     "amazon image ids must include the region ( ex. us-east-1/ami-7ea24a17 ) you specified: "
-                              + imageId);
+                  "amazon image ids must include the region ( ex. us-east-1/ami-7ea24a17 ) you specified: " + imageId);
             RegionAndName key = new RegionAndName(regionName[0], regionName[1]);
             try {
                return imageMap.get(key);

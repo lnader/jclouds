@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.vcloud.xml;
 
 import static org.testng.Assert.assertEquals;
@@ -24,6 +23,7 @@ import static org.testng.Assert.assertEquals;
 import java.io.InputStream;
 import java.net.URI;
 
+import org.jclouds.cim.xml.ResourceAllocationSettingDataHandler;
 import org.jclouds.http.functions.ParseSax;
 import org.jclouds.http.functions.ParseSax.Factory;
 import org.jclouds.http.functions.config.SaxParserModule;
@@ -32,6 +32,7 @@ import org.jclouds.vcloud.domain.Status;
 import org.jclouds.vcloud.domain.VApp;
 import org.jclouds.vcloud.domain.Vm;
 import org.jclouds.vcloud.domain.internal.ReferenceTypeImpl;
+import org.jclouds.vcloud.xml.ovf.VCloudResourceAllocationSettingDataHandler;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -46,17 +47,27 @@ import com.google.inject.Injector;
  */
 @Test(groups = "unit")
 public class VAppHandlerTest {
+
    public void testRhelOffStatic() {
       InputStream is = getClass().getResourceAsStream("/vapp-rhel-off-static.xml");
-      Injector injector = Guice.createInjector(new SaxParserModule());
+      Injector injector = Guice.createInjector(new SaxParserModule() {
+
+         @Override
+         protected void configure() {
+            super.configure();
+            bind(ResourceAllocationSettingDataHandler.class).to(VCloudResourceAllocationSettingDataHandler.class);
+         }
+      });
       Factory factory = injector.getInstance(ParseSax.Factory.class);
       VApp result = factory.create(injector.getInstance(VAppHandler.class)).parse(is);
       assertEquals(result.getName(), "vApp_acole_2");
       assertEquals(result.getHref(), URI.create("https://vcenterprise.bluelock.com/api/v1.0/vApp/vapp-607806320"));
       assertEquals(result.getType(), "application/vnd.vmware.vcloud.vApp+xml");
       assertEquals(result.getStatus(), Status.OFF);
-      assertEquals(result.getVDC(), new ReferenceTypeImpl(null, VCloudMediaType.VDC_XML, URI
-               .create("https://vcenterprise.bluelock.com/api/v1.0/vdc/1014839439")));
+      assertEquals(
+            result.getVDC(),
+            new ReferenceTypeImpl(null, VCloudMediaType.VDC_XML, URI
+                  .create("https://vcenterprise.bluelock.com/api/v1.0/vdc/1014839439")));
       assertEquals(result.getDescription(), null);
       assertEquals(result.getTasks(), ImmutableList.of());
       assert result.isOvfDescriptorUploaded();

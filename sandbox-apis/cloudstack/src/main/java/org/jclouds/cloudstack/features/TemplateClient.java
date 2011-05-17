@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.cloudstack.features;
 
 import java.util.Set;
@@ -57,9 +56,11 @@ public interface TemplateClient {
    /**
     * get a specific template by id
     * 
+    * @param zoneId
+    *           zone template is defined in
     * @param id
     *           template to get
     * @return template or null if not found
     */
-   Template getTemplate(long id);
+   Template getTemplateInZone(long zoneId, long id);
 }

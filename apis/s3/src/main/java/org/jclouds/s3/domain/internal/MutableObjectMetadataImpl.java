@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,19 +16,19 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.s3.domain.internal;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 
-import org.jclouds.s3.domain.CanonicalUser;
-import org.jclouds.s3.domain.MutableObjectMetadata;
-import org.jclouds.s3.domain.ObjectMetadata;
 import org.jclouds.http.HttpUtils;
 import org.jclouds.io.MutableContentMetadata;
 import org.jclouds.io.payloads.BaseMutableContentMetadata;
+import org.jclouds.s3.domain.CanonicalUser;
+import org.jclouds.s3.domain.MutableObjectMetadata;
+import org.jclouds.s3.domain.ObjectMetadata;
 
 import com.google.common.collect.Maps;
 
@@ -43,6 +43,8 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    private static final long serialVersionUID = -4648755473986695062L;
 
    private String key;
+   private String bucket;
+   private URI uri;
    private Date lastModified;
    private String eTag;
    private CanonicalUser owner;
@@ -60,11 +62,15 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
       this.storageClass = StorageClass.STANDARD;
       this.contentMetadata = new BaseMutableContentMetadata();
       HttpUtils.copy(from.getContentMetadata(), this.contentMetadata);
+      this.key = from.getKey();
+      this.uri = from.getUri();
+      this.bucket = from.getBucket();
    }
 
    /**
     *{@inheritDoc}
     */
+   @Override
    public String getKey() {
       return key;
    }
@@ -72,6 +78,31 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
+   public String getBucket() {
+      return bucket;
+   }
+
+   /**
+    *{@inheritDoc}
+    */
+   @Override
+   public URI getUri() {
+      return uri;
+   }
+
+   /**
+    *{@inheritDoc}
+    */
+   @Override
+   public void setUri(URI uri) {
+      this.uri = uri;
+   }
+
+   /**
+    *{@inheritDoc}
+    */
+   @Override
    public CanonicalUser getOwner() {
       return owner;
    }
@@ -79,6 +110,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public StorageClass getStorageClass() {
       return storageClass;
    }
@@ -86,6 +118,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public String getCacheControl() {
       return cacheControl;
    }
@@ -93,6 +126,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public Date getLastModified() {
       return lastModified;
    }
@@ -100,6 +134,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public String getETag() {
       return eTag;
    }
@@ -107,6 +142,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public int compareTo(ObjectMetadata o) {
       return (this == o) ? 0 : getKey().compareTo(o.getKey());
    }
@@ -114,6 +150,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public Map<String, String> getUserMetadata() {
       return userMetadata;
    }
@@ -121,6 +158,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public void setCacheControl(String cacheControl) {
       this.cacheControl = cacheControl;
    }
@@ -128,6 +166,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public void setETag(String eTag) {
       this.eTag = eTag;
    }
@@ -135,6 +174,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public void setKey(String key) {
       this.key = key;
    }
@@ -142,6 +182,15 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
+   public void setBucket(String bucket) {
+      this.bucket = bucket;
+   }
+
+   /**
+    *{@inheritDoc}
+    */
+   @Override
    public void setLastModified(Date lastModified) {
       this.lastModified = lastModified;
    }
@@ -149,6 +198,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public void setOwner(CanonicalUser owner) {
       this.owner = owner;
    }
@@ -156,6 +206,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public void setStorageClass(StorageClass storageClass) {
       this.storageClass = storageClass;
    }
@@ -163,6 +214,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    /**
     *{@inheritDoc}
     */
+   @Override
    public void setUserMetadata(Map<String, String> userMetadata) {
       this.userMetadata = userMetadata;
    }
@@ -187,14 +239,7 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
    public int hashCode() {
       final int prime = 31;
       int result = 1;
-      result = prime * result + ((cacheControl == null) ? 0 : cacheControl.hashCode());
-      result = prime * result + ((contentMetadata == null) ? 0 : contentMetadata.hashCode());
-      result = prime * result + ((eTag == null) ? 0 : eTag.hashCode());
-      result = prime * result + ((key == null) ? 0 : key.hashCode());
-      result = prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-      result = prime * result + ((owner == null) ? 0 : owner.hashCode());
-      result = prime * result + ((storageClass == null) ? 0 : storageClass.hashCode());
-      result = prime * result + ((userMetadata == null) ? 0 : userMetadata.hashCode());
+      result = prime * result + ((uri == null) ? 0 : uri.hashCode());
       return result;
    }
 
@@ -207,54 +252,21 @@ public class MutableObjectMetadataImpl implements Serializable, MutableObjectMet
       if (getClass() != obj.getClass())
          return false;
       MutableObjectMetadataImpl other = (MutableObjectMetadataImpl) obj;
-      if (cacheControl == null) {
-         if (other.cacheControl != null)
+      if (uri == null) {
+         if (other.uri != null)
             return false;
-      } else if (!cacheControl.equals(other.cacheControl))
-         return false;
-      if (contentMetadata == null) {
-         if (other.contentMetadata != null)
-            return false;
-      } else if (!contentMetadata.equals(other.contentMetadata))
-         return false;
-      if (eTag == null) {
-         if (other.eTag != null)
-            return false;
-      } else if (!eTag.equals(other.eTag))
-         return false;
-      if (key == null) {
-         if (other.key != null)
-            return false;
-      } else if (!key.equals(other.key))
-         return false;
-      if (lastModified == null) {
-         if (other.lastModified != null)
-            return false;
-      } else if (!lastModified.equals(other.lastModified))
-         return false;
-      if (owner == null) {
-         if (other.owner != null)
-            return false;
-      } else if (!owner.equals(other.owner))
-         return false;
-      if (storageClass == null) {
-         if (other.storageClass != null)
-            return false;
-      } else if (!storageClass.equals(other.storageClass))
-         return false;
-      if (userMetadata == null) {
-         if (other.userMetadata != null)
-            return false;
-      } else if (!userMetadata.equals(other.userMetadata))
+      } else if (!uri.equals(other.uri))
          return false;
       return true;
    }
 
    @Override
    public String toString() {
-      return "[key=" + key + ", cacheControl=" + cacheControl + ", contentMetadata=" + contentMetadata + ", eTag="
-               + eTag + ", lastModified=" + lastModified + ", owner=" + owner + ", storageClass=" + storageClass
-               + ", userMetadata=" + userMetadata + "]";
+      return String
+               .format(
+                        "[key=%s, bucket=%s, uri=%s, eTag=%s, cacheControl=%s, contentMetadata=%s, lastModified=%s, owner=%s, storageClass=%s, userMetadata=%s]",
+                        key, bucket, uri, eTag, cacheControl, contentMetadata, lastModified, owner, storageClass,
+                        userMetadata);
    }
 
 }

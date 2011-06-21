@@ -18,6 +18,7 @@
  */
 package org.jclouds.providers;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
@@ -51,7 +52,7 @@ public class ProviderPredicates {
       Preconditions2.checkNotEmpty(id, "id must be defined");
       return new Predicate<ProviderMetadata>() {
          /**
-          * {@see com.google.common.base.Predicate#apply(T)
+          * {@inheritDoc}
           */
          @Override
          public boolean apply(ProviderMetadata providerMetadata) {
@@ -59,7 +60,7 @@ public class ProviderPredicates {
          }
 
          /**
-          * {@see java.lang.Object#toString()
+          * {@inheritDoc}
           */
          @Override
          public String toString() {
@@ -80,7 +81,7 @@ public class ProviderPredicates {
       Preconditions2.checkNotEmpty(type, "type must be defined");
       return new Predicate<ProviderMetadata>() {
          /**
-          * {@see com.google.common.base.Predicate#apply(T)
+          * {@inheritDoc}
           */
          @Override
          public boolean apply(ProviderMetadata providerMetadata) {
@@ -88,7 +89,7 @@ public class ProviderPredicates {
          }
 
          /**
-          * {@see java.lang.Object#toString()
+          * {@inheritDoc}
           */
          @Override
          public String toString() {
@@ -97,4 +98,96 @@ public class ProviderPredicates {
       };
    }
 
+   /**
+    * Returns the providers that are bound to the same location as the given ISO 3166 code.
+    * 
+    * @param isoCode
+    *                the ISO 3166 code to filter providers by
+    * 
+    * @return the providers with the given ISO 3166 code
+    */
+   public static Predicate<ProviderMetadata> boundedByIso3166Code(final String iso3166Code) {
+      Preconditions.checkNotNull(iso3166Code, "iso3166Code must not be null");
+
+      return new Predicate<ProviderMetadata>() {
+         /**
+          * {@inheritDoc}
+          */
+         @Override
+         public boolean apply(ProviderMetadata providerMetadata) {
+            return providerContainsIso3166Code(providerMetadata, iso3166Code);
+         }
+
+         /**
+          * {@inheritDoc}
+          */
+         @Override
+         public String toString() {
+            return "boundedByIso3166Code(" + iso3166Code + ")";
+         }
+      };
+   }
+
+   /**
+    * Return all providers that have at least one ISO 3166 code in common with the given provider metadata.
+    * 
+    * @param refProviderMetadata
+    *                            the provider metadata to use to filter providers by
+    * 
+    * @return the providers that have at least one ISO 3166 code in common
+    */
+   public static Predicate<ProviderMetadata> intersectingIso3166Code(final ProviderMetadata refProviderMetadata) {
+      Preconditions.checkNotNull(refProviderMetadata, "refProviderMetadata must not be null");
+
+      return new Predicate<ProviderMetadata>() {
+         /**
+          * {@inheritDoc}
+          */
+         @Override
+         public boolean apply(ProviderMetadata providerMetadata) {
+            for (String refIso3166Code : refProviderMetadata.getIso3166Codes()) {
+               // Return only if the potential provider contains the same ISO 3166 code and the provider and
+               // reference provider are not the same.
+               if (providerContainsIso3166Code(providerMetadata, refIso3166Code) &&
+                     !refProviderMetadata.equals(providerMetadata)) {
+                  return true;
+               }
+            }
+            return false;
+         }
+
+         /**
+          * {@inheritDoc}
+          */
+         @Override
+         public String toString() {
+            return "intersectingIso3166Code(" + refProviderMetadata + ")";
+         }
+      };
+   }
+
+   /**
+    * Returns whether or not the provided provider contains the ISO 3166 code provider or is within the same
+    * "global" region, like "US" would contain "US-*".
+    * 
+    * @param providerMetadata
+    *                         the provider metadata to search
+    * @param iso3166Code
+    *                    the ISO 3166 code to search the provider metadata for
+    * 
+    * @return the result
+    */
+   private static boolean providerContainsIso3166Code(ProviderMetadata providerMetadata, String iso3166Code) {
+      for (String availCode : providerMetadata.getIso3166Codes()) {
+         if(iso3166Code.indexOf('-') == -1) {
+            if (availCode.startsWith(iso3166Code + "-")) {
+               return true;
+            }
+         } else if (availCode.equals(iso3166Code)) {
+            return true;
+         }
+      }
+
+      return false;
+   }
 }

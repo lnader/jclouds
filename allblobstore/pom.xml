@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.jclouds</groupId>
         <artifactId>jclouds-project</artifactId>        
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../project/pom.xml</relativePath>
     </parent>
     <artifactId>jclouds-allblobstore</artifactId>
@@ -41,32 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.jclouds.provider</groupId>
-            <artifactId>googlestorage</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jclouds.api</groupId>
-            <artifactId>scality-rs2</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jclouds.provider</groupId>
             <artifactId>ninefold-storage</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jclouds.provider</groupId>
-            <artifactId>scaleup-storage</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jclouds.provider</groupId>
-            <artifactId>tiscali-storage</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jclouds.provider</groupId>
-            <artifactId>hosteurope-storage</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

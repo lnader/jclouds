@@ -25,7 +25,7 @@
     <parent>
         <artifactId>jclouds-project</artifactId>
         <groupId>org.jclouds</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../project/pom.xml</relativePath>
     </parent>
     <groupId>org.jclouds.provider</groupId>
@@ -39,10 +39,6 @@
         <module>azureblob</module>
         <module>aws-s3</module>
         <module>aws-ec2</module>
-        <module>googlestorage</module>
-        <module>scaleup-storage</module>
-        <module>tiscali-storage</module>
-        <module>hosteurope-storage</module>
         <module>synaptic-storage</module>
         <module>ninefold-storage</module>
         <module>cloudonestorage</module>
@@ -54,11 +50,15 @@
         <module>cloudfiles-uk</module>
         <module>cloudloadbalancers-us</module>
         <module>bluelock-vcdirector</module>
+        <module>bluelock-vcloud-vcenterprise</module>
+        <module>bluelock-vcloud-zone01</module>
+        <module>stratogen-vcloud-mycloud</module>
         <module>trmk-ecloud</module>
         <module>trmk-vcloudexpress</module>
         <module>elastichosts-lon-p</module>
         <module>elastichosts-sat-p</module>
         <module>elastichosts-lon-b</module>
+        <module>rimuhosting</module>
         <module>openhosting-east1</module>
         <module>serverlove-z1-man</module>
         <module>skalicloud-sdg-my</module>

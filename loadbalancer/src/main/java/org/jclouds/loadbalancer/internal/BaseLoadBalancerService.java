@@ -23,6 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,11 +40,12 @@ import org.jclouds.loadbalancer.LoadBalancerService;
 import org.jclouds.loadbalancer.LoadBalancerServiceContext;
 import org.jclouds.loadbalancer.domain.LoadBalancerMetadata;
 import org.jclouds.loadbalancer.reference.LoadBalancerConstants;
+import org.jclouds.loadbalancer.strategy.AddMembersToLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.DestroyLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.GetLoadBalancerMetadataStrategy;
 import org.jclouds.loadbalancer.strategy.ListLoadBalancersStrategy;
 import org.jclouds.loadbalancer.strategy.LoadBalanceNodesStrategy;
-import org.jclouds.loadbalancer.strategy.UpdateLoadBalancerStrategy;
+import org.jclouds.loadbalancer.strategy.RemoveMembersFromLoadBalancerStrategy;
 import org.jclouds.logging.Logger;
 import org.jclouds.predicates.RetryablePredicate;
 
@@ -68,24 +70,28 @@ public class BaseLoadBalancerService implements LoadBalancerService {
    protected final LoadBalanceNodesStrategy loadBalancerStrategy;
    protected final GetLoadBalancerMetadataStrategy getLoadBalancerMetadataStrategy;
    protected final DestroyLoadBalancerStrategy destroyLoadBalancerStrategy;
-   protected final UpdateLoadBalancerStrategy updateLoadBalancerStrategy;
    protected final ListLoadBalancersStrategy listLoadBalancersStrategy;
+   protected final AddMembersToLoadBalancerStrategy addMembersToLoadBalancerStrategy;
+   protected final RemoveMembersFromLoadBalancerStrategy removeMembersFromLoadBalancerStrategy;
    protected final Supplier<Set<? extends Location>> locations;
 
    @Inject
    protected BaseLoadBalancerService(Supplier<Location> defaultLocationSupplier, LoadBalancerServiceContext context,
          LoadBalanceNodesStrategy loadBalancerStrategy,
-         GetLoadBalancerMetadataStrategy getLoadBalancerMetadataStrategy, UpdateLoadBalancerStrategy updateLoadBalancerStrategy,
+         GetLoadBalancerMetadataStrategy getLoadBalancerMetadataStrategy, 
          DestroyLoadBalancerStrategy destroyLoadBalancerStrategy, ListLoadBalancersStrategy listLoadBalancersStrategy,
+         AddMembersToLoadBalancerStrategy addMembersToLoadBalancerStrategy,
+         RemoveMembersFromLoadBalancerStrategy removeMembersFromLoadBalancerStrategy,
          @Memoized Supplier<Set<? extends Location>> locations) {
       this.defaultLocationSupplier = checkNotNull(defaultLocationSupplier, "defaultLocationSupplier");
       this.context = checkNotNull(context, "context");
       this.loadBalancerStrategy = checkNotNull(loadBalancerStrategy, "loadBalancerStrategy");
       this.getLoadBalancerMetadataStrategy = checkNotNull(getLoadBalancerMetadataStrategy,
             "getLoadBalancerMetadataStrategy");
-      this.updateLoadBalancerStrategy = checkNotNull(updateLoadBalancerStrategy, "updateLoadBalancerStrategy");
       this.destroyLoadBalancerStrategy = checkNotNull(destroyLoadBalancerStrategy, "destroyLoadBalancerStrategy");
       this.listLoadBalancersStrategy = checkNotNull(listLoadBalancersStrategy, "listLoadBalancersStrategy");
+      this.addMembersToLoadBalancerStrategy = addMembersToLoadBalancerStrategy;
+      this.removeMembersFromLoadBalancerStrategy = removeMembersFromLoadBalancerStrategy;
       this.locations = checkNotNull(locations, "locations");
    }
 
@@ -120,18 +126,6 @@ public class BaseLoadBalancerService implements LoadBalancerService {
       LoadBalancerMetadata lb = loadBalancerStrategy.createLoadBalancerInLocation(location, loadBalancerName, protocol,
             loadBalancerPort, instancePort, nodes);
       logger.debug("<< created load balancer (%s)", loadBalancerName, lb);
-      return lb;
-   }
-   
-   @Override
-   public LoadBalancerMetadata updateLoadBalancer(String loadBalancerId,
-          Iterable<? extends NodeMetadata> nodes) {
-
-      checkNotNull(loadBalancerId, "loadBalancerId");
-
-      logger.debug(">> updating load balancer (%s)", loadBalancerId);
-      LoadBalancerMetadata lb = updateLoadBalancerStrategy.updateLoadBalancer(loadBalancerId,  nodes);
-      logger.debug("<< updated load balancer (%s)", loadBalancerId, lb);
       return lb;
    }
 
@@ -181,6 +175,20 @@ public class BaseLoadBalancerService implements LoadBalancerService {
       LinkedHashSet<LoadBalancerMetadata> set = newLinkedHashSet(listLoadBalancersStrategy.listLoadBalancers());
       logger.debug("<< list(%d)", set.size());
       return set;
+   }
+
+   @Override
+   public LoadBalancerMetadata addMembersToLoadBalancer(String id,
+        List<String> members)
+   {
+      return addMembersToLoadBalancerStrategy.addMembersToLoadBalancer(id, members);
+   }
+
+   @Override
+   public LoadBalancerMetadata removeMembersFromLoadBalancer(String id,
+        List<String> members)
+   {
+       return removeMembersFromLoadBalancerStrategy.removeMembersFromLoadBalancer(id, members);
    }
 
 }

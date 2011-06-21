@@ -18,429 +18,267 @@
  */
 package org.jclouds.elb.domain;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
 
 /**
- * 
+ * AvailabilityZones:       Specifies a list of Availability Zones. Type: String list
+ * CreatedTime:             Provides the date and time the LoadBalancer was created. Type: DateTime
+ * DNSName:                 Specifies the external DNS name associated with the LoadBalancer. Type: String 
+ * HealthCheck:             Specifies information regarding the various health probes conducted on the LoadBalancer. Type: HealthCheck
+ * Instances:               Provides a list of EC2 instance IDs for the LoadBalancer. Type: Instance list 
+ * ListenerDescriptions:    LoadBalancerPort, InstancePort, Protocol, and PolicyNames are returned in a list 
+ *                          of tuples in the ListenerDescriptions element. Type: ListenerDescription list 
+ * LoadBalancerName:        Specifies the name associated with the LoadBalancer. Type: String 
+ * Policies:                Provides a list of policies defined for the LoadBalancer. Type: Policies
  * 
  * @author Lili Nader
  */
 @Beta
-// Missing fields, this class is too big, please cut out inner classes into top-level
-public class LoadBalancer implements Comparable<LoadBalancer> {
+public class LoadBalancer
+{
 
-   // Missing: createdTime, healthcheck
-   private String region;
-   private String name;
-   private Set<String> instanceIds;
-   private Set<String> availabilityZones;
-   private String dnsName;
-   // TODO: this could be cleaned up to be a policy collection of subclasses of Policy. note that
-   // docs suggest there could be many
-   private AppCookieStickinessPolicy appCookieStickinessPolicy;
-   private LBCookieStickinessPolicy lBCookieStickinessPolicy;
-   private Set<LoadBalancerListener> loadBalancerListeners;
+    private String region;
+    private String name;
+    private Set<String> instanceIds = new HashSet<String>();
+    private Set<String> availabilityZones = new HashSet<String>();
+    private String dnsName;
+    private Set<ListenerDescription> listeners = new HashSet<ListenerDescription>();
+    private HealthCheck healthCheck;
+    private Set<Policy> policies = new HashSet<Policy>();
+    private Date createdTime;
+    
+    public LoadBalancer(){}
 
-   public LoadBalancer() {
-      super();
-      this.instanceIds = new HashSet<String>();
-      this.availabilityZones = new HashSet<String>();
-      this.loadBalancerListeners = new HashSet<LoadBalancerListener>();
-   }
+    public LoadBalancer(String region, String name, Set<String> instanceIds,
+            Set<String> availabilityZones, String dnsName,
+            Set<ListenerDescription> listeners, HealthCheck healthCheck,
+            Set<Policy> policies, Date createdTime)
+    {
+        this.region = region;
+        this.name = name;
+        this.instanceIds = instanceIds;
+        this.availabilityZones = availabilityZones;
+        this.dnsName = dnsName;
+        this.listeners = listeners;
+        this.healthCheck = healthCheck;
+        this.policies = policies;
+        this.createdTime = createdTime;
+    }
+    
+    public LoadBalancer(String region, String name, Set<String> instanceIds,
+            Set<String> availabilityZones, String dnsName, Date createdTime)
+    {
+        this.region = region;
+        this.name = name;
+        this.instanceIds = instanceIds;
+        this.availabilityZones = availabilityZones;
+        this.dnsName = dnsName;
+        this.createdTime = createdTime;
+    }
 
-   public LoadBalancer(String region, String name, Set<String> instanceIds, Set<String> availabilityZones,
-            String dnsName) {
-      this.region = region;
-      this.name = name;
-      this.instanceIds = instanceIds;
-      this.availabilityZones = availabilityZones;
-      this.dnsName = dnsName;
-      this.loadBalancerListeners = new HashSet<LoadBalancerListener>();
-   }
+    public String getRegion()
+    {
+        return region;
+    }
 
-   public void setRegion(String region) {
-      this.region = region;
-   }
+    public void setRegion(String region)
+    {
+        this.region = region;
+    }
 
-   public void setName(String name) {
-      this.name = name;
-   }
+    public String getName()
+    {
+        return name;
+    }
 
-   public void setInstanceIds(Set<String> instanceIds) {
-      this.instanceIds = instanceIds;
-   }
+    public void setName(String name)
+    {
+        this.name = name;
+    }
 
-   public void setAvailabilityZones(Set<String> availabilityZones) {
-      this.availabilityZones = availabilityZones;
-   }
+    public Set<String> getInstanceIds()
+    {
+        return instanceIds;
+    }
 
-   public void setDnsName(String dnsName) {
-      this.dnsName = dnsName;
-   }
+    public void setInstanceIds(Set<String> instanceIds)
+    {
+        this.instanceIds = instanceIds;
+    }
 
-   public void setAppCookieStickinessPolicy(AppCookieStickinessPolicy appCookieStickinessPolicy) {
-      this.appCookieStickinessPolicy = appCookieStickinessPolicy;
-   }
+    public Set<String> getAvailabilityZones()
+    {
+        return availabilityZones;
+    }
 
-   public void setlBCookieStickinessPolicy(LBCookieStickinessPolicy lBCookieStickinessPolicy) {
-      this.lBCookieStickinessPolicy = lBCookieStickinessPolicy;
-   }
+    public void setAvailabilityZones(Set<String> availabilityZones)
+    {
+        this.availabilityZones = availabilityZones;
+    }
 
-   public void setLoadBalancerListeners(Set<LoadBalancerListener> loadBalancerListeners) {
-      this.loadBalancerListeners = loadBalancerListeners;
-   }
+    public String getDnsName()
+    {
+        return dnsName;
+    }
 
-   public String getName() {
-      return name;
-   }
+    public void setDnsName(String dnsName)
+    {
+        this.dnsName = dnsName;
+    }
 
-   public Set<String> getInstanceIds() {
-      return instanceIds;
-   }
+    public Set<ListenerDescription> getListeners()
+    {
+        return listeners;
+    }
 
-   public Set<String> getAvailabilityZones() {
-      return availabilityZones;
-   }
+    public void setListeners(Set<ListenerDescription> listeners)
+    {
+        this.listeners = listeners;
+    }
 
-   public String getDnsName() {
-      return dnsName;
-   }
+    public HealthCheck getHealthCheck()
+    {
+        return healthCheck;
+    }
 
-   public AppCookieStickinessPolicy getAppCookieStickinessPolicy() {
-      return appCookieStickinessPolicy;
-   }
+    public void setHealthCheck(HealthCheck healthCheck)
+    {
+        this.healthCheck = healthCheck;
+    }
 
-   public LBCookieStickinessPolicy getlBCookieStickinessPolicy() {
-      return lBCookieStickinessPolicy;
-   }
+    public Set<Policy> getPolicies()
+    {
+        return policies;
+    }
 
-   public Set<LoadBalancerListener> getLoadBalancerListeners() {
-      return loadBalancerListeners;
-   }
+    public void setPolicies(Set<Policy> policies)
+    {
+        this.policies = policies;
+    }
 
-   public String getRegion() {
-      return region;
-   }
+    public Date getCreatedTime()
+    {
+        return createdTime;
+    }
 
-   @Override
-   public int compareTo(LoadBalancer that) {
-      return name.compareTo(that.name);
-   }
+    public void setCreatedTime(Date createdTime)
+    {
+        this.createdTime = createdTime;
+    }
 
-   @Override
-   public String toString() {
-      return "[region=" + region + ", name=" + name + ", instanceIds=" + instanceIds + ", availabilityZones="
-               + availabilityZones + ", dnsName=" + dnsName + ", appCookieStickinessPolicy="
-               + appCookieStickinessPolicy + ", lBCookieStickinessPolicy=" + lBCookieStickinessPolicy
-               + ", loadBalancerListeners=" + loadBalancerListeners + "]";
-   }
+    
+    @Override
+    public String toString()
+    {
+        return "LoadBalancer [region=" + region + ", name=" + name
+                + ", instanceIds=" + instanceIds + ", availabilityZones="
+                + availabilityZones + ", dnsName=" + dnsName + ", listeners="
+                + listeners + ", healthCheck=" + healthCheck + ", policies="
+                + policies + ", createdTime=" + createdTime + "]";
+    }
 
-   @Override
-   public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((appCookieStickinessPolicy == null) ? 0 : appCookieStickinessPolicy.hashCode());
-      result = prime * result + ((availabilityZones == null) ? 0 : availabilityZones.hashCode());
-      result = prime * result + ((dnsName == null) ? 0 : dnsName.hashCode());
-      result = prime * result + ((instanceIds == null) ? 0 : instanceIds.hashCode());
-      result = prime * result + ((lBCookieStickinessPolicy == null) ? 0 : lBCookieStickinessPolicy.hashCode());
-      result = prime * result + ((loadBalancerListeners == null) ? 0 : loadBalancerListeners.hashCode());
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((region == null) ? 0 : region.hashCode());
-      return result;
-   }
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime
+                * result
+                + ((availabilityZones == null) ? 0 : availabilityZones
+                        .hashCode());
+        result = prime * result
+                + ((createdTime == null) ? 0 : createdTime.hashCode());
+        result = prime * result + ((dnsName == null) ? 0 : dnsName.hashCode());
+        result = prime * result
+                + ((healthCheck == null) ? 0 : healthCheck.hashCode());
+        result = prime * result
+                + ((instanceIds == null) ? 0 : instanceIds.hashCode());
+        result = prime * result
+                + ((listeners == null) ? 0 : listeners.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result
+                + ((policies == null) ? 0 : policies.hashCode());
+        result = prime * result + ((region == null) ? 0 : region.hashCode());
+        return result;
+    }
 
-   @Override
-   public boolean equals(Object obj) {
-      if (this == obj)
-         return true;
-      if (obj == null)
-         return false;
-      if (getClass() != obj.getClass())
-         return false;
-      LoadBalancer other = (LoadBalancer) obj;
-      if (appCookieStickinessPolicy == null) {
-         if (other.appCookieStickinessPolicy != null)
-            return false;
-      } else if (!appCookieStickinessPolicy.equals(other.appCookieStickinessPolicy))
-         return false;
-      if (availabilityZones == null) {
-         if (other.availabilityZones != null)
-            return false;
-      } else if (!availabilityZones.equals(other.availabilityZones))
-         return false;
-      if (dnsName == null) {
-         if (other.dnsName != null)
-            return false;
-      } else if (!dnsName.equals(other.dnsName))
-         return false;
-      if (instanceIds == null) {
-         if (other.instanceIds != null)
-            return false;
-      } else if (!instanceIds.equals(other.instanceIds))
-         return false;
-      if (lBCookieStickinessPolicy == null) {
-         if (other.lBCookieStickinessPolicy != null)
-            return false;
-      } else if (!lBCookieStickinessPolicy.equals(other.lBCookieStickinessPolicy))
-         return false;
-      if (loadBalancerListeners == null) {
-         if (other.loadBalancerListeners != null)
-            return false;
-      } else if (!loadBalancerListeners.equals(other.loadBalancerListeners))
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (region == null) {
-         if (other.region != null)
-            return false;
-      } else if (!region.equals(other.region))
-         return false;
-      return true;
-   }
-
-   public static class AppCookieStickinessPolicy {
-      private String policyName;
-      private String cookieName;
-
-      public AppCookieStickinessPolicy() {
-         super();
-      }
-
-      public AppCookieStickinessPolicy(String policyName, String cookieName) {
-         super();
-         this.policyName = policyName;
-         this.cookieName = cookieName;
-      }
-
-      public String getPolicyName() {
-         return policyName;
-      }
-
-      public String getCookieName() {
-         return cookieName;
-      }
-
-      public void setPolicyName(String policyName) {
-         this.policyName = policyName;
-      }
-
-      public void setCookieName(String cookieName) {
-         this.cookieName = cookieName;
-      }
-
-      @Override
-      public int hashCode() {
-         final int prime = 31;
-         int result = 1;
-         result = prime * result + ((cookieName == null) ? 0 : cookieName.hashCode());
-         result = prime * result + ((policyName == null) ? 0 : policyName.hashCode());
-         return result;
-      }
-
-      @Override
-      public String toString() {
-         return "[policyName=" + policyName + ", cookieName=" + cookieName + "]";
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-         if (this == obj)
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
             return true;
-         if (obj == null)
+        if (obj == null)
             return false;
-         if (getClass() != obj.getClass())
+        if (getClass() != obj.getClass())
             return false;
-         AppCookieStickinessPolicy other = (AppCookieStickinessPolicy) obj;
-         if (cookieName == null) {
-            if (other.cookieName != null)
-               return false;
-         } else if (!cookieName.equals(other.cookieName))
+        LoadBalancer other = (LoadBalancer) obj;
+        if (availabilityZones == null)
+        {
+            if (other.availabilityZones != null)
+                return false;
+        }
+        else if (!availabilityZones.equals(other.availabilityZones))
             return false;
-         if (policyName == null) {
-            if (other.policyName != null)
-               return false;
-         } else if (!policyName.equals(other.policyName))
+        if (createdTime == null)
+        {
+            if (other.createdTime != null)
+                return false;
+        }
+        else if (!createdTime.equals(other.createdTime))
             return false;
-         return true;
-      }
-
-   }
-
-   public static class LBCookieStickinessPolicy {
-      private String policyName;
-      private Integer cookieExpirationPeriod;
-
-      public LBCookieStickinessPolicy() {
-         super();
-      }
-
-      public LBCookieStickinessPolicy(String policyName, Integer cookieExpirationPeriod) {
-         super();
-         this.policyName = policyName;
-         this.cookieExpirationPeriod = cookieExpirationPeriod;
-      }
-
-      public String getPolicyName() {
-         return policyName;
-      }
-
-      public Integer getCookieExpirationPeriod() {
-         return cookieExpirationPeriod;
-      }
-
-      public void setPolicyName(String policyName) {
-         this.policyName = policyName;
-      }
-
-      public void setCookieExpirationPeriod(Integer cookieExpirationPeriod) {
-         this.cookieExpirationPeriod = cookieExpirationPeriod;
-      }
-
-      @Override
-      public int hashCode() {
-         final int prime = 31;
-         int result = 1;
-         result = prime * result + ((cookieExpirationPeriod == null) ? 0 : cookieExpirationPeriod.hashCode());
-         result = prime * result + ((policyName == null) ? 0 : policyName.hashCode());
-         return result;
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-         if (this == obj)
-            return true;
-         if (obj == null)
+        if (dnsName == null)
+        {
+            if (other.dnsName != null)
+                return false;
+        }
+        else if (!dnsName.equals(other.dnsName))
             return false;
-         if (getClass() != obj.getClass())
+        if (healthCheck == null)
+        {
+            if (other.healthCheck != null)
+                return false;
+        }
+        else if (!healthCheck.equals(other.healthCheck))
             return false;
-         LBCookieStickinessPolicy other = (LBCookieStickinessPolicy) obj;
-         if (cookieExpirationPeriod == null) {
-            if (other.cookieExpirationPeriod != null)
-               return false;
-         } else if (!cookieExpirationPeriod.equals(other.cookieExpirationPeriod))
+        if (instanceIds == null)
+        {
+            if (other.instanceIds != null)
+                return false;
+        }
+        else if (!instanceIds.equals(other.instanceIds))
             return false;
-         if (policyName == null) {
-            if (other.policyName != null)
-               return false;
-         } else if (!policyName.equals(other.policyName))
+        if (listeners == null)
+        {
+            if (other.listeners != null)
+                return false;
+        }
+        else if (!listeners.equals(other.listeners))
             return false;
-         return true;
-      }
-
-      @Override
-      public String toString() {
-         return "[policyName=" + policyName + ", cookieExpirationPeriod=" + cookieExpirationPeriod + "]";
-      }
-
-   }
-
-   public static class LoadBalancerListener {
-      // TODO: missing SSLCertificateId
-      private Set<String> policyNames;
-      private Integer instancePort;
-      private Integer loadBalancerPort;
-      private String protocol;
-
-      public LoadBalancerListener(Set<String> policyNames, Integer instancePort, Integer loadBalancerPort,
-               String protocol) {
-         super();
-         this.policyNames = policyNames;
-         this.instancePort = instancePort;
-         this.loadBalancerPort = loadBalancerPort;
-         this.protocol = protocol;
-      }
-
-      public LoadBalancerListener() {
-         super();
-      }
-
-      public Set<String> getPolicyNames() {
-         return policyNames;
-      }
-
-      public Integer getInstancePort() {
-         return instancePort;
-      }
-
-      public Integer getLoadBalancerPort() {
-         return loadBalancerPort;
-      }
-
-      public String getProtocol() {
-         return protocol;
-      }
-
-      public void setPolicyNames(Set<String> policyNames) {
-         this.policyNames = policyNames;
-      }
-
-      public void setInstancePort(Integer instancePort) {
-         this.instancePort = instancePort;
-      }
-
-      public void setLoadBalancerPort(Integer loadBalancerPort) {
-         this.loadBalancerPort = loadBalancerPort;
-      }
-
-      public void setProtocol(String protocol) {
-         this.protocol = protocol;
-      }
-
-      @Override
-      public int hashCode() {
-         final int prime = 31;
-         int result = 1;
-         result = prime * result + ((instancePort == null) ? 0 : instancePort.hashCode());
-         result = prime * result + ((loadBalancerPort == null) ? 0 : loadBalancerPort.hashCode());
-         result = prime * result + ((policyNames == null) ? 0 : policyNames.hashCode());
-         result = prime * result + ((protocol == null) ? 0 : protocol.hashCode());
-         return result;
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-         if (this == obj)
-            return true;
-         if (obj == null)
+        if (name == null)
+        {
+            if (other.name != null)
+                return false;
+        }
+        else if (!name.equals(other.name))
             return false;
-         if (getClass() != obj.getClass())
+        if (policies == null)
+        {
+            if (other.policies != null)
+                return false;
+        }
+        else if (!policies.equals(other.policies))
             return false;
-         LoadBalancerListener other = (LoadBalancerListener) obj;
-         if (instancePort == null) {
-            if (other.instancePort != null)
-               return false;
-         } else if (!instancePort.equals(other.instancePort))
+        if (region == null)
+        {
+            if (other.region != null)
+                return false;
+        }
+        else if (!region.equals(other.region))
             return false;
-         if (loadBalancerPort == null) {
-            if (other.loadBalancerPort != null)
-               return false;
-         } else if (!loadBalancerPort.equals(other.loadBalancerPort))
-            return false;
-         if (policyNames == null) {
-            if (other.policyNames != null)
-               return false;
-         } else if (!policyNames.equals(other.policyNames))
-            return false;
-         if (protocol == null) {
-            if (other.protocol != null)
-               return false;
-         } else if (!protocol.equals(other.protocol))
-            return false;
-         return true;
-      }
-
-      @Override
-      public String toString() {
-         return "[policyNames=" + policyNames + ", instancePort=" + instancePort + ", loadBalancerPort="
-                  + loadBalancerPort + ", protocol=" + protocol + "]";
-      }
-
-   }
+        return true;
+    }
 }

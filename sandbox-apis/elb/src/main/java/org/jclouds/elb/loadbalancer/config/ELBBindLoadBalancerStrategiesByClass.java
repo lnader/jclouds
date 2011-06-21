@@ -18,17 +18,19 @@
  */
 package org.jclouds.elb.loadbalancer.config;
 
+import org.jclouds.elb.loadbalancer.strategy.ELBAddMembersToLoadBalancerStrategy;
 import org.jclouds.elb.loadbalancer.strategy.ELBDestroyLoadBalancerStrategy;
 import org.jclouds.elb.loadbalancer.strategy.ELBGetLoadBalancerMetadataStrategy;
 import org.jclouds.elb.loadbalancer.strategy.ELBListLoadBalancersStrategy;
 import org.jclouds.elb.loadbalancer.strategy.ELBLoadBalanceNodesStrategy;
-import org.jclouds.elb.loadbalancer.strategy.ELBUpdateLoadBalancerStrategy;
+import org.jclouds.elb.loadbalancer.strategy.ELBRemoveMembersFromLoadBalancerStrategy;
 import org.jclouds.loadbalancer.config.BindLoadBalancerStrategiesByClass;
+import org.jclouds.loadbalancer.strategy.AddMembersToLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.DestroyLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.GetLoadBalancerMetadataStrategy;
 import org.jclouds.loadbalancer.strategy.ListLoadBalancersStrategy;
 import org.jclouds.loadbalancer.strategy.LoadBalanceNodesStrategy;
-import org.jclouds.loadbalancer.strategy.UpdateLoadBalancerStrategy;
+import org.jclouds.loadbalancer.strategy.RemoveMembersFromLoadBalancerStrategy;
 
 /**
  * @author Adrian Cole
@@ -56,7 +58,13 @@ public class ELBBindLoadBalancerStrategiesByClass extends BindLoadBalancerStrate
    }
    
    @Override
-   protected Class<? extends UpdateLoadBalancerStrategy> defineUpdateLoadBalancerStrategy() {
-      return ELBUpdateLoadBalancerStrategy.class;
+   protected Class<? extends AddMembersToLoadBalancerStrategy> defineAddMembersToLoadBalancerStrategy() {
+      return ELBAddMembersToLoadBalancerStrategy.class;
    }
+   
+   @Override
+   protected Class<? extends RemoveMembersFromLoadBalancerStrategy> defineRemoveMembersFromLoadBalancerStrategy() {
+      return ELBRemoveMembersFromLoadBalancerStrategy.class;
+   }
+   
 }

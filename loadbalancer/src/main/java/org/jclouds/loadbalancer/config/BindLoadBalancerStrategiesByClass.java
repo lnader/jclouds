@@ -18,11 +18,12 @@
  */
 package org.jclouds.loadbalancer.config;
 
+import org.jclouds.loadbalancer.strategy.AddMembersToLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.DestroyLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.GetLoadBalancerMetadataStrategy;
 import org.jclouds.loadbalancer.strategy.ListLoadBalancersStrategy;
 import org.jclouds.loadbalancer.strategy.LoadBalanceNodesStrategy;
-import org.jclouds.loadbalancer.strategy.UpdateLoadBalancerStrategy;
+import org.jclouds.loadbalancer.strategy.RemoveMembersFromLoadBalancerStrategy;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -38,7 +39,8 @@ public abstract class BindLoadBalancerStrategiesByClass extends AbstractModule {
       bindListLoadBalancersStrategy(defineListLoadBalancersStrategy());
       bindGetLoadBalancerMetadataStrategy(defineGetLoadBalancerMetadataStrategy());
       bindDestroyLoadBalancerStrategy(defineDestroyLoadBalancerStrategy());
-      bindUpdateLoadBalancerStrategy(defineUpdateLoadBalancerStrategy());
+      bindAddMembersToLoadBalancerStrategy(defineAddMembersToLoadBalancerStrategy());
+      bindRemoveMembersFromLoadBalancerStrategy(defineRemoveMembersFromLoadBalancerStrategy());
    }
 
    protected void bindLoadBalanceNodesStrategy(Class<? extends LoadBalanceNodesStrategy> clazz) {
@@ -57,9 +59,13 @@ public abstract class BindLoadBalancerStrategiesByClass extends AbstractModule {
       bind(ListLoadBalancersStrategy.class).to(clazz).in(Scopes.SINGLETON);
    }
    
-   protected void bindUpdateLoadBalancerStrategy(Class<? extends UpdateLoadBalancerStrategy> clazz) {
-       bind(UpdateLoadBalancerStrategy.class).to(clazz).in(Scopes.SINGLETON);
-    }
+   protected void bindAddMembersToLoadBalancerStrategy(Class<? extends AddMembersToLoadBalancerStrategy> clazz) {
+       bind(AddMembersToLoadBalancerStrategy.class).to(clazz).in(Scopes.SINGLETON);
+   }
+   
+   protected void bindRemoveMembersFromLoadBalancerStrategy(Class<? extends RemoveMembersFromLoadBalancerStrategy> clazz) {
+       bind(RemoveMembersFromLoadBalancerStrategy.class).to(clazz).in(Scopes.SINGLETON);
+   }
 
    protected abstract Class<? extends LoadBalanceNodesStrategy> defineLoadBalanceNodesStrategy();
 
@@ -69,5 +75,8 @@ public abstract class BindLoadBalancerStrategiesByClass extends AbstractModule {
 
    protected abstract Class<? extends ListLoadBalancersStrategy> defineListLoadBalancersStrategy();
    
-   protected abstract Class<? extends UpdateLoadBalancerStrategy> defineUpdateLoadBalancerStrategy();
+   protected abstract Class<? extends AddMembersToLoadBalancerStrategy> defineAddMembersToLoadBalancerStrategy();
+   
+   protected abstract Class<? extends RemoveMembersFromLoadBalancerStrategy> defineRemoveMembersFromLoadBalancerStrategy();
+   
 }

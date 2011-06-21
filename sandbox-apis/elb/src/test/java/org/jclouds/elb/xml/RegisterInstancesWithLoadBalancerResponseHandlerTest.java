@@ -50,8 +50,8 @@ public class RegisterInstancesWithLoadBalancerResponseHandlerTest extends BaseHa
    }
 
    private Set<String> parseXML(InputStream is) {
-      RegisterInstancesWithLoadBalancerResponseHandler handler = injector
-            .getInstance(RegisterInstancesWithLoadBalancerResponseHandler.class);
+      InstancesResponseHandler handler = injector
+            .getInstance(InstancesResponseHandler.class);
       Set<String> result = factory.create(handler).parse(is);
       return result;
    }

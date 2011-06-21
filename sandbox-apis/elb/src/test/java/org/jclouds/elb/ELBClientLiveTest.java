@@ -21,10 +21,12 @@ package org.jclouds.elb;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.testng.Assert.assertNotNull;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
 import org.jclouds.Constants;
+import org.jclouds.elb.domain.Listener;
 import org.jclouds.elb.domain.LoadBalancer;
 import org.jclouds.loadbalancer.LoadBalancerServiceContextFactory;
 import org.jclouds.logging.log4j.config.Log4JLoggingModule;
@@ -33,7 +35,10 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Module;
 
 /**
@@ -91,7 +96,12 @@ public class ELBClientLiveTest {
    }
 
    protected void createLoadBalancerInRegionZone(String region, String zone, String name) {
-      String dnsName = client.createLoadBalancerInRegion(region, name, "http", 80, 80, zone);
+      Listener listener = new Listener(80, 80, "http", null);
+      Set<Listener> listeners = Sets.newHashSet();
+      listeners.add(listener);
+      List<String> zones = Lists.newArrayList();
+      zones.add(zone);
+      String dnsName = client.createLoadBalancerInRegion(region, name, listeners, zones);
       assertNotNull(dnsName);
       assert (dnsName.startsWith(name));
    }
@@ -106,8 +116,21 @@ public class ELBClientLiveTest {
       assertNotNull(allResults);
       assert (allResults.size() >= 1) : region;
    }
+   
+   @Test(dependsOnMethods = "testCreateLoadBalancer")
+   public void testEnableAvailabilityZonesForLoadBalancerInRegion() {
+       enableAvailabilityZonesForLoadBalancerInRegion(null);
+   }
 
-   @Test
+   protected void enableAvailabilityZonesForLoadBalancerInRegion(String region) {
+      List<String> zones = ImmutableList.of("us-east-1a","us-east-1b", "us-east-1c", "us-east-1d");
+      
+      Set<String> allResults = client.enableAvailabilityZonesForLoadBalancerInRegion(null, name, zones);
+      assertNotNull(allResults);
+      assert (allResults.size() >= 4) : region;
+   }
+
+   @Test(dependsOnMethods = "testCreateLoadBalancer")
    public void testDeleteLoadBalancer() {
       deleteLoadBalancerInRegion(null);
    }

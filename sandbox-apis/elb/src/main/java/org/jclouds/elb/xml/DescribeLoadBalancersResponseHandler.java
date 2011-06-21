@@ -25,10 +25,11 @@ import javax.inject.Inject;
 
 import org.jclouds.aws.util.AWSUtils;
 import org.jclouds.date.DateService;
+import org.jclouds.elb.domain.AppCookieStickinessPolicy;
+import org.jclouds.elb.domain.HealthCheck;
+import org.jclouds.elb.domain.LBCookieStickinessPolicy;
+import org.jclouds.elb.domain.ListenerDescription;
 import org.jclouds.elb.domain.LoadBalancer;
-import org.jclouds.elb.domain.LoadBalancer.AppCookieStickinessPolicy;
-import org.jclouds.elb.domain.LoadBalancer.LBCookieStickinessPolicy;
-import org.jclouds.elb.domain.LoadBalancer.LoadBalancerListener;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.functions.ParseSax;
 import org.jclouds.logging.Logger;
@@ -41,156 +42,255 @@ import com.google.common.collect.Sets;
  * @author Lili Nadar
  */
 public class DescribeLoadBalancersResponseHandler extends
-      ParseSax.HandlerForGeneratedRequestWithResult<Set<LoadBalancer>> {
-   private final DateService dateService;
-   private final LoadBalancerListenerHandler listenerHandler;
+        ParseSax.HandlerForGeneratedRequestWithResult<Set<LoadBalancer>>
+{
+    private final DateService dateService;
 
-   @Inject
-   public DescribeLoadBalancersResponseHandler(DateService dateService, LoadBalancerListenerHandler listenerHandler) {
-      this.dateService = dateService;
-      this.listenerHandler = listenerHandler;
-   }
+    @Inject
+    public DescribeLoadBalancersResponseHandler(DateService dateService)
+    {
+        this.dateService = dateService;
+    }
 
-   @Resource
-   protected Logger logger = Logger.NULL;
+    @Resource
+    protected Logger logger = Logger.NULL;
 
-   private Set<LoadBalancer> contents = Sets.newLinkedHashSet();
-   private StringBuilder currentText = new StringBuilder();
+    private Set<LoadBalancer> contents = Sets.newLinkedHashSet();
+    private StringBuilder currentText = new StringBuilder();
 
-   private boolean inListenerDescriptions = false;
-   private boolean inInstances = false;
-   private boolean inAppCookieStickinessPolicies = false;
-   private boolean inLBCookieStickinessPolicies = false;
-   private boolean inAvailabilityZones = false;
-   // TODO unused?
-   private boolean inLoadBalancerDescriptions = false;
+    private boolean inListenerDescriptions = false;
+    private boolean inInstances = false;
+    private boolean inAppCookieStickinessPolicies = false;
+    private boolean inLBCookieStickinessPolicies = false;
+    private boolean inAvailabilityZones = false;
+    private boolean inPolicies = false;
+    private boolean inPolicyNames = false;
+    private LoadBalancer elb;
+    private ListenerDescription listener;
+    private AppCookieStickinessPolicy appPolicy;
+    private LBCookieStickinessPolicy lbPolicy;
+    public void startElement(String uri, String localName, String qName,
+            Attributes attributes)
+    {
 
-   private LoadBalancer elb;
-   // TODO unused?
-   private AppCookieStickinessPolicy appCookieStickinessPolicy;
-   // TODO unused?
-   private LBCookieStickinessPolicy lBCookieStickinessPolicy;
+        if (qName.equals("ListenerDescriptions"))
+        {
+            inListenerDescriptions = true;
+        }
+        else if (qName.equals("AppCookieStickinessPolicies"))
+        {
+            inAppCookieStickinessPolicies = true;
+            appPolicy = new AppCookieStickinessPolicy();
+        }
+        else if (qName.equals("LBCookieStickinessPolicies"))
+        {
+            inLBCookieStickinessPolicies = true;
+            lbPolicy = new LBCookieStickinessPolicy();
+        }
+        else if (qName.equals("Instances"))
+        {
+            inInstances = true;
+        }
+        else if (qName.equals("AvailabilityZones"))
+        {
+            inAvailabilityZones = true;
+        }
+        else if (qName.equals("Policies"))
+        {
+            inPolicies = true;
+        }
+        else if (qName.equals("PolicyNames"))
+        {
+            inPolicyNames = true;
+        }
 
-   public void startElement(String uri, String localName, String qName, Attributes attributes) {
+        if (qName.equals("HealthCheck"))
+        {
+            HealthCheck healthCheck = new HealthCheck();
+            elb.setHealthCheck(healthCheck);
+        }
 
-      if (qName.equals("ListenerDescriptions") || inListenerDescriptions) {
-         inListenerDescriptions = true;
-      } else if (qName.equals("AppCookieStickinessPolicies")) {
-         inAppCookieStickinessPolicies = true;
-      } else if (qName.equals("LBCookieStickinessPolicies")) {
-         inLBCookieStickinessPolicies = true;
-      } else if (qName.equals("LoadBalancerDescriptions")) {
-         inLoadBalancerDescriptions = true;
-      } else if (qName.equals("Instances")) {
-         inInstances = true;
-      } else if (qName.equals("AvailabilityZones")) {
-         inAvailabilityZones = true;
-      }
+        if (qName.equals("member"))
+        {
+            if (!(inListenerDescriptions || inInstances
+                    || inAppCookieStickinessPolicies
+                    || inLBCookieStickinessPolicies || inAvailabilityZones
+                    || inPolicies || inPolicyNames))
+            {
+                elb = new LoadBalancer();
+                try
+                {
+                    String region = AWSUtils
+                            .findRegionInArgsOrNull(getRequest());
+                    elb.setRegion(region);
+                    contents.add(elb);
+                }
+                catch (NullPointerException e)
+                {
+                    logger.warn(e, "malformed load balancer: %s", localName);
+                }
+            }
+            else if (inListenerDescriptions && !inPolicyNames)
+            {
+                listener = new ListenerDescription();
+            }
+        }
+    }
 
-      if (qName.equals("member")) {
-         if (!(inListenerDescriptions || inAppCookieStickinessPolicies || inInstances || inLBCookieStickinessPolicies || inAvailabilityZones)) {
-            elb = new LoadBalancer();
-         }
-      }
-   }
+    public void endElement(String uri, String localName, String qName)
+    {
+        // if end tag is one of below then set inXYZ to false
+        if (qName.equals("ListenerDescriptions"))
+        {
+            inListenerDescriptions = false;
+        }
+        else if (qName.equals("AppCookieStickinessPolicies"))
+        {
+            inAppCookieStickinessPolicies = false;
+            elb.getPolicies().add(appPolicy);
+        }
+        else if (qName.equals("LBCookieStickinessPolicies"))
+        {
+            inLBCookieStickinessPolicies = false;
+            elb.getPolicies().add(lbPolicy);
+        }
+        else if (qName.equals("Instances"))
+        {
+            inInstances = false;
+        }
+        else if (qName.equals("AvailabilityZones"))
+        {
+            inAvailabilityZones = false;
+        }
+        else if (qName.equals("Policies"))
+        {
+            inPolicies = false;
+        }
+        else if (qName.equals("PolicyNames"))
+        {
+            inPolicyNames = false;
+        }
 
-   public void endElement(String uri, String localName, String qName) {
-      // if end tag is one of below then set inXYZ to false
-      if (qName.equals("ListenerDescriptions")) {
-         inListenerDescriptions = false;
-      } else if (qName.equals("AppCookieStickinessPolicies")) {
-         inAppCookieStickinessPolicies = false;
-      } else if (qName.equals("LBCookieStickinessPolicies")) {
-         inLBCookieStickinessPolicies = false;
-      } else if (qName.equals("LoadBalancerDescriptions")) {
-         inLoadBalancerDescriptions = false;
-      } else if (qName.equals("Instances")) {
-         inInstances = false;
-      } else if (qName.equals("AvailabilityZones")) {
-         inAvailabilityZones = false;
-      }
+        // get values
+        if (qName.equals("DNSName"))
+        {
+            elb.setDnsName(currentText.toString().trim());
+        }
+        else if (qName.equals("LoadBalancerName"))
+        {
+            elb.setName(currentText.toString().trim());
+        }
+        else if (qName.equals("InstanceId"))
+        {
+            elb.getInstanceIds().add(currentText.toString().trim());
+        }
+        else if (qName.equals("CreatedTime"))
+        {
+            elb.setCreatedTime(dateService.iso8601DateParse(currentText
+                    .toString().trim()));
+        }
+        else if (qName.equals("Interval"))
+        {
+            elb.getHealthCheck().setInterval(
+                    Integer.parseInt(currentText.toString().trim()));
+        }
+        else if (qName.equals("Target"))
+        {
+            elb.getHealthCheck().setTarget((currentText.toString().trim()));
+        }
+        else if (qName.equals("HealthyThreshold"))
+        {
+            elb.getHealthCheck().setHealthThreshold(
+                    Integer.parseInt(currentText.toString().trim()));
+        }
+        else if (qName.equals("Timeout"))
+        {
+            elb.getHealthCheck().setTimeout(
+                    Integer.parseInt(currentText.toString().trim()));
+        }
+        else if (qName.equals("UnhealthyThreshold"))
+        {
+            elb.getHealthCheck().setUnhealthyThreshold(
+                    Integer.parseInt(currentText.toString().trim()));
+        }
+        else if (qName.equals("Protocol"))
+        {
+            listener.setProtocol(currentText.toString().trim());
+        }
+        else if (qName.equals("LoadBalancerPort"))
+        {
+            listener.setLoadBalancerPort(Integer.parseInt((currentText
+                    .toString().trim())));
+        }
+        else if (qName.equals("InstancePort"))
+        {
+            listener.setInstancePort(Integer.parseInt((currentText.toString()
+                    .trim())));
+        }
+        else if (qName.equals("SSLCertificateId"))
+        {
+            listener.setSslCertificateId(currentText.toString().trim());
+        }
+        else if (qName.equals("CookieName"))
+        {
+            appPolicy.setCookieName(currentText.toString().trim());
+        }
+        else if (qName.equals("PolicyName"))
+        {
+            if(inAppCookieStickinessPolicies)
+                appPolicy.setPolicyName(currentText.toString().trim());
+            if(inLBCookieStickinessPolicies)
+                lbPolicy.setPolicyName(currentText.toString().trim());
+        }
+        else if(qName.equals("CookieExpirationPeriod"))
+        {
+            lbPolicy.setCookieExpirationPeriod(Long.parseLong(currentText.toString().trim()));
+        }
+        else if (qName.equals("member"))
+        {
 
-      if (qName.equals("DNSName")) {
-         elb.setDnsName(currentText.toString().trim());
-      } else if (qName.equals("LoadBalancerName")) {
-         elb.setName(currentText.toString().trim());
-      } else if (qName.equals("InstanceId")) {
-         elb.getInstanceIds().add(currentText.toString().trim());
-      }
+            if (inAvailabilityZones)
+            {
+                elb.getAvailabilityZones().add(currentText.toString().trim());
+            }
+            if (inListenerDescriptions && !inPolicyNames)
+            {
+                elb.getListeners().add(listener);
+            }
+            if (inListenerDescriptions && inPolicyNames)
+            {
+                listener.getPolicyNames().add(currentText.toString().trim());
+            }
+            if (!(inListenerDescriptions || inInstances
+                    || inAppCookieStickinessPolicies
+                    || inLBCookieStickinessPolicies || inAvailabilityZones
+                    || inPolicies || inPolicyNames))
+            {
 
-      else if (qName.equals("member")) {
+                this.elb = null;
 
-         if (inAvailabilityZones) {
-            elb.getAvailabilityZones().add(currentText.toString().trim());
-         } else if (!(inListenerDescriptions || inAppCookieStickinessPolicies || inInstances
-               || inLBCookieStickinessPolicies || inAvailabilityZones)) {
-            try {
-               String region = AWSUtils.findRegionInArgsOrNull(getRequest());
-               elb.setRegion(region);
-               contents.add(elb);
-            } catch (NullPointerException e) {
-               logger.warn(e, "malformed load balancer: %s", localName);
             }
 
-            this.elb = null;
+        }
 
-         }
+        currentText = new StringBuilder();
+    }
 
-      }
+    @Override
+    public Set<LoadBalancer> getResult()
+    {
+        return contents;
+    }
 
-      currentText = new StringBuilder();
-   }
+    public void characters(char ch[], int start, int length)
+    {
+        currentText.append(ch, start, length);
+    }
 
-   @Override
-   public Set<LoadBalancer> getResult() {
-      return contents;
-   }
-
-   public void characters(char ch[], int start, int length) {
-      currentText.append(ch, start, length);
-   }
-
-   @Override
-   public DescribeLoadBalancersResponseHandler setContext(HttpRequest request) {
-      listenerHandler.setContext(request);
-      super.setContext(request);
-      return this;
-   }
-
-   public static class LoadBalancerListenerHandler extends ParseSax.HandlerWithResult<Set<LoadBalancerListener>> {
-      private Set<LoadBalancerListener> listeners = Sets.newHashSet();
-      private StringBuilder currentText = new StringBuilder();
-      private LoadBalancerListener listener;
-
-      public void startElement(String uri, String name, String qName, Attributes attrs) {
-         if (qName.equals("member")) {
-            listener = new LoadBalancerListener();
-         }
-      }
-
-      public void endElement(String uri, String name, String qName) {
-         if (qName.equals("Protocol")) {
-            listener.setProtocol(currentText.toString().trim());
-         } else if (qName.equals("LoadBalancerPort")) {
-            listener.setLoadBalancerPort(Integer.parseInt(currentText.toString().trim()));
-         } else if (qName.equals("InstancePort")) {
-            listener.setInstancePort(Integer.parseInt(currentText.toString().trim()));
-         } else if (qName.equals("member")) {
-            listeners.add(listener);
-         }
-
-         currentText = new StringBuilder();
-
-      }
-
-      @Override
-      public Set<LoadBalancerListener> getResult() {
-         return listeners;
-      }
-
-      public void characters(char ch[], int start, int length) {
-         currentText.append(ch, start, length);
-      }
-
-   }
+    @Override
+    public DescribeLoadBalancersResponseHandler setContext(HttpRequest request)
+    {
+        super.setContext(request);
+        return this;
+    }
 }

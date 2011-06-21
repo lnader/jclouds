@@ -28,9 +28,9 @@ import org.jclouds.logging.Logger;
 
 import com.google.common.collect.Sets;
 
-public class RegisterInstancesWithLoadBalancerResponseHandler extends ParseSax.HandlerWithResult<Set<String>> {
+public class InstancesResponseHandler extends ParseSax.HandlerWithResult<Set<String>> {
    @Inject
-   public RegisterInstancesWithLoadBalancerResponseHandler() {
+   public InstancesResponseHandler() {
    }
 
    @Resource

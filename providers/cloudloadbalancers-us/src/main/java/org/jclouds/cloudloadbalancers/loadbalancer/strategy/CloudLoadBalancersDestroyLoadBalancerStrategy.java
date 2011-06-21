@@ -47,7 +47,7 @@ public class CloudLoadBalancersDestroyLoadBalancerStrategy implements DestroyLoa
 
    @Inject
    protected CloudLoadBalancersDestroyLoadBalancerStrategy(CloudLoadBalancersClient client,
-            GetLoadBalancerMetadataStrategy getLoadBalancer) {
+           GetLoadBalancerMetadataStrategy getLoadBalancer) {
       this.client = checkNotNull(client, "client");
       this.getLoadBalancer = checkNotNull(getLoadBalancer, "getLoadBalancer");
    }

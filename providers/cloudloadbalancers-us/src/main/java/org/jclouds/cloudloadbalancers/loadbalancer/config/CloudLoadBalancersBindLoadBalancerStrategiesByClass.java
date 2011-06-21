@@ -18,15 +18,19 @@
  */
 package org.jclouds.cloudloadbalancers.loadbalancer.config;
 
+import org.jclouds.cloudloadbalancers.loadbalancer.strategy.CloudLoadBalancersAddMembersToLoadBalancerStrategy;
 import org.jclouds.cloudloadbalancers.loadbalancer.strategy.CloudLoadBalancersDestroyLoadBalancerStrategy;
 import org.jclouds.cloudloadbalancers.loadbalancer.strategy.CloudLoadBalancersGetLoadBalancerMetadataStrategy;
 import org.jclouds.cloudloadbalancers.loadbalancer.strategy.CloudLoadBalancersListLoadBalancersStrategy;
 import org.jclouds.cloudloadbalancers.loadbalancer.strategy.CloudLoadBalancersLoadBalanceNodesStrategy;
+import org.jclouds.cloudloadbalancers.loadbalancer.strategy.CloudLoadBalancersRemoveMembersFromLoadBalancerStrategy;
 import org.jclouds.loadbalancer.config.BindLoadBalancerStrategiesByClass;
+import org.jclouds.loadbalancer.strategy.AddMembersToLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.DestroyLoadBalancerStrategy;
 import org.jclouds.loadbalancer.strategy.GetLoadBalancerMetadataStrategy;
 import org.jclouds.loadbalancer.strategy.ListLoadBalancersStrategy;
 import org.jclouds.loadbalancer.strategy.LoadBalanceNodesStrategy;
+import org.jclouds.loadbalancer.strategy.RemoveMembersFromLoadBalancerStrategy;
 
 /**
  * @author Adrian Cole
@@ -52,4 +56,15 @@ public class CloudLoadBalancersBindLoadBalancerStrategiesByClass extends BindLoa
    protected Class<? extends ListLoadBalancersStrategy> defineListLoadBalancersStrategy() {
       return CloudLoadBalancersListLoadBalancersStrategy.class;
    }
+   
+   @Override
+   protected Class<? extends AddMembersToLoadBalancerStrategy> defineAddMembersToLoadBalancerStrategy() {
+      return CloudLoadBalancersAddMembersToLoadBalancerStrategy.class;
+   }
+   
+   @Override
+   protected Class<? extends RemoveMembersFromLoadBalancerStrategy> defineRemoveMembersFromLoadBalancerStrategy() {
+      return CloudLoadBalancersRemoveMembersFromLoadBalancerStrategy.class;
+   }
+
 }

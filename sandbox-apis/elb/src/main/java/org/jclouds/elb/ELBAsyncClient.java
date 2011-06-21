@@ -21,6 +21,7 @@ package org.jclouds.elb;
 import static org.jclouds.aws.reference.FormParameters.ACTION;
 import static org.jclouds.aws.reference.FormParameters.VERSION;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -31,11 +32,18 @@ import javax.ws.rs.Path;
 import org.jclouds.aws.filters.FormSigner;
 import org.jclouds.elb.binders.BindAvailabilityZonesToIndexedFormParams;
 import org.jclouds.elb.binders.BindInstanceIdsToIndexedFormParams;
+import org.jclouds.elb.binders.BindListenerPortsToIndexedFormParams;
+import org.jclouds.elb.binders.BindListenersToIndexedFormParams;
 import org.jclouds.elb.binders.BindLoadBalancerNamesToIndexedFormParams;
+import org.jclouds.elb.binders.BindPolicyNamesToIndexedFormParams;
+import org.jclouds.elb.domain.HealthCheck;
+import org.jclouds.elb.domain.InstanceState;
+import org.jclouds.elb.domain.Listener;
 import org.jclouds.elb.domain.LoadBalancer;
+import org.jclouds.elb.xml.AvailabilityZonesResponseHandler;
 import org.jclouds.elb.xml.CreateLoadBalancerResponseHandler;
 import org.jclouds.elb.xml.DescribeLoadBalancersResponseHandler;
-import org.jclouds.elb.xml.RegisterInstancesWithLoadBalancerResponseHandler;
+import org.jclouds.elb.xml.InstancesResponseHandler;
 import org.jclouds.location.functions.RegionToEndpointOrProviderIfNull;
 import org.jclouds.rest.annotations.BinderParam;
 import org.jclouds.rest.annotations.EndpointParam;
@@ -74,14 +82,11 @@ public interface ELBAsyncClient {
    @XMLResponseParser(CreateLoadBalancerResponseHandler.class)
    @FormParams(keys = ACTION, values = "CreateLoadBalancer")
    @Beta
-   // TODO:The way this handles arguments needs to be refactored. it needs to deal with collections
-   // of listeners.
    ListenableFuture<String> createLoadBalancerInRegion(
             @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
-            @FormParam("LoadBalancerName") String name, @FormParam("Listeners.member.1.Protocol") String protocol,
-            @FormParam("Listeners.member.1.LoadBalancerPort") int loadBalancerPort,
-            @FormParam("Listeners.member.1.InstancePort") int instancePort,
-            @BinderParam(BindAvailabilityZonesToIndexedFormParams.class) String... availabilityZones);
+            @FormParam("LoadBalancerName") String name,
+            @BinderParam(BindListenersToIndexedFormParams.class) Set<Listener> listeners,
+            @BinderParam(BindAvailabilityZonesToIndexedFormParams.class) List<String> availabilityZones);
 
    /**
     * @see ELBClient#deleteLoadBalancerInRegion
@@ -98,23 +103,24 @@ public interface ELBAsyncClient {
     */
    @POST
    @Path("/")
-   @XMLResponseParser(RegisterInstancesWithLoadBalancerResponseHandler.class)
+   @XMLResponseParser(InstancesResponseHandler.class)
    @FormParams(keys = ACTION, values = "RegisterInstancesWithLoadBalancer")
    ListenableFuture<Set<String>> registerInstancesWithLoadBalancerInRegion(
             @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
             @FormParam("LoadBalancerName") String name,
-            @BinderParam(BindInstanceIdsToIndexedFormParams.class) String... instanceIds);
+            @BinderParam(BindInstanceIdsToIndexedFormParams.class) List<String> instanceIds);
 
    /**
     * @see ELBClient#deregisterInstancesWithLoadBalancerInRegion
     */
    @POST
    @Path("/")
+   @XMLResponseParser(InstancesResponseHandler.class)
    @FormParams(keys = ACTION, values = "DeregisterInstancesFromLoadBalancer")
-   ListenableFuture<Void> deregisterInstancesWithLoadBalancerInRegion(
+   ListenableFuture<Set<String>> deregisterInstancesWithLoadBalancerInRegion(
             @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
             @FormParam("LoadBalancerName") String name,
-            @BinderParam(BindInstanceIdsToIndexedFormParams.class) String... instanceIds);
+            @BinderParam(BindInstanceIdsToIndexedFormParams.class) List<String> instanceIds);
 
    /**
     * @see ELBClient#describeLoadBalancersInRegion
@@ -131,14 +137,107 @@ public interface ELBAsyncClient {
    /**
     * @see ELBClient#enableAvailabilityZonesForLoadBalancerInRegion
     */
+   
    @POST
    @Path("/")
+   @XMLResponseParser(AvailabilityZonesResponseHandler.class)
    @FormParams(keys = ACTION, values = "EnableAvailabilityZonesForLoadBalancer")
    @Beta
-   // TODO:The way this handles arguments needs to be refactored. it needs to deal with collections
-   // of listeners.
-   ListenableFuture<String> enableAvailabilityZonesForLoadBalancerInRegion(
+   ListenableFuture<Set<String>> enableAvailabilityZonesForLoadBalancerInRegion(
             @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
             @FormParam("LoadBalancerName") String name,
-            @BinderParam(BindAvailabilityZonesToIndexedFormParams.class) String... availabilityZones);
+            @BinderParam(BindAvailabilityZonesToIndexedFormParams.class) List<String> availabilityZones);
+   
+   @POST
+   @Path("/")
+   @XMLResponseParser(AvailabilityZonesResponseHandler.class)
+   @FormParams(keys = ACTION, values = "DisableAvailabilityZonesForLoadBalancer")
+   @Beta
+   ListenableFuture<Set<String>> disableAvailabilityZonesForLoadBalancerInRegion(
+            @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+            @FormParam("LoadBalancerName") String name,
+            @BinderParam(BindAvailabilityZonesToIndexedFormParams.class) List<String> availabilityZones);
+   
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "ConfigureHealthCheck")
+   @Beta
+   ListenableFuture<HealthCheck> configureHealthCheckInRegion(
+           @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+           @FormParam("LoadBalancerName") String name, 
+           @FormParam("HealthCheck") HealthCheck healcheck);
+   
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "CreateAppCookieStickinessPolicy")
+   @Beta
+   ListenableFuture<Void> createAppCookieStickinessPolicyInRegion(
+           @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+           @FormParam("LoadBalancerName") String loadBalancerName, 
+           @FormParam("CookieName") String cookieName,
+           @FormParam("PolicyName") String policyName);
+   
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "CreateLBCookieStickinessPolicy")
+   @Beta
+   ListenableFuture<Void> createLBCookieStickinessPolicyInRegion(
+           @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+           @Nullable @FormParam("CookieExpirationPeriod") Long cookieExpirationPeriod,
+           @FormParam("LoadBalancerName") String loadBalancerName, 
+           @FormParam("PolicyName") String policyName);
+   
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "CreateLoadBalancerListeners")
+   ListenableFuture<Void> createLoadBalancerListenersInRegion(
+            @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+            @FormParam("LoadBalancerName") String loadBalancerName,
+            @BinderParam(BindListenersToIndexedFormParams.class) Set<Listener> listeners);
+   
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "DeleteLoadBalancerListeners")
+   ListenableFuture<Void> deleteLoadBalancerListenersInRegion(
+            @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+            @FormParam("LoadBalancerName") String loadBalancerName,
+            @BinderParam(BindListenerPortsToIndexedFormParams.class) List<Integer> ports);
+   
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "DeleteLoadBalancerPolicy")
+   @Beta
+   ListenableFuture<Void> deleteLoadBalancerPolicyInRegion(
+           @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+           @FormParam("LoadBalancerName") String loadBalancerName, 
+           @FormParam("PolicyName") String policyName);
+   
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "DescribeInstanceHealth")
+   ListenableFuture<InstanceState> describeInstanceHealthInRegion(
+            @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+            @FormParam("LoadBalancerName") String loadBalancerName,
+            @BinderParam(BindInstanceIdsToIndexedFormParams.class) String... instanceIds);
+   
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "SetLoadBalancerListenerSSLCertificate")
+   @Beta
+   ListenableFuture<Void> setLoadBalancerListenerSSLCertificateInRegion(
+           @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+           @FormParam("LoadBalancerName") String loadBalancerName, 
+           @FormParam("LoadBalancerPort") Integer loadBalancerPort,
+           @FormParam("SSLCertificateId") String sslCertificateId);
+   
+   
+   @POST
+   @Path("/")
+   @FormParams(keys = ACTION, values = "SetLoadBalancerPoliciesOfListener")
+   @Beta
+   ListenableFuture<Void> setLoadBalancerPoliciesOfListenerInRegion(
+            @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+            @FormParam("LoadBalancerName") String loadBalancerName,
+            @FormParam("LoadBalancerPort") String loadBalancerPort,
+            @BinderParam(BindPolicyNamesToIndexedFormParams.class) Set<String> policyNames);
 }

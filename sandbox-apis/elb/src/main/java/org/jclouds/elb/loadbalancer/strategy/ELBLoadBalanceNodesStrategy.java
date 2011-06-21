@@ -22,6 +22,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.jclouds.aws.util.AWSUtils.getRegionFromLocationOrNull;
 
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -31,6 +33,7 @@ import javax.inject.Singleton;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.domain.Location;
 import org.jclouds.elb.ELBClient;
+import org.jclouds.elb.domain.Listener;
 import org.jclouds.elb.domain.LoadBalancer;
 import org.jclouds.loadbalancer.domain.LoadBalancerMetadata;
 import org.jclouds.loadbalancer.reference.LoadBalancerConstants;
@@ -81,9 +84,10 @@ public class ELBLoadBalanceNodesStrategy implements LoadBalanceNodesStrategy
                     }
                 }));
 
-        client.createLoadBalancerInRegion(region, name, protocol,
-                loadBalancerPort, instancePort,
-                availabilityZones.toArray(new String[] {}));
+        Listener listener = new Listener(instancePort, loadBalancerPort, protocol, null);
+        Set<Listener> listeners = new HashSet<Listener>();
+        listeners.add(listener);
+        client.createLoadBalancerInRegion(region, name, listeners, availabilityZones);
 
         List<String> instanceIds = Lists.newArrayList(Iterables.transform(
                 nodes, new Function<NodeMetadata, String>()
@@ -96,10 +100,8 @@ public class ELBLoadBalanceNodesStrategy implements LoadBalanceNodesStrategy
                     }
                 }));
 
-        String[] instanceIdArray = instanceIds.toArray(new String[] {});
-
         client.registerInstancesWithLoadBalancerInRegion(region, name,
-                        instanceIdArray);
+                instanceIds);
         return converter.apply(Iterables.getOnlyElement(client
                 .describeLoadBalancersInRegion(region, name)));
     }

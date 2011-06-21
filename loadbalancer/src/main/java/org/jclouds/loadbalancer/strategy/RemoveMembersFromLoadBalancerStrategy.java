@@ -1,6 +1,6 @@
 /**
  *
- * Copyright (C) 2010 Cloud Conscious, LLC. <info@cloudconscious.com>
+ * Copyright (C) 2011 Cloud Conscious, LLC. <info@cloudconscious.com>
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,22 +16,15 @@
  * limitations under the License.
  * ====================================================================
  */
-
 package org.jclouds.loadbalancer.strategy;
 
-import org.jclouds.compute.domain.NodeMetadata;
+import java.util.List;
+
 import org.jclouds.loadbalancer.domain.LoadBalancerMetadata;
 
-import com.google.common.annotations.Beta;
 
-/**
- * 
- * 
- * @author Adrian Cole
- */
-@Beta
-public interface UpdateLoadBalancerStrategy {
+public interface RemoveMembersFromLoadBalancerStrategy {
 
-   LoadBalancerMetadata updateLoadBalancer(String id, Iterable<? extends NodeMetadata> nodes);
+   LoadBalancerMetadata removeMembersFromLoadBalancer(String id, List<String> members);
 
 }

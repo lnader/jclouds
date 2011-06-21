@@ -32,7 +32,7 @@ import org.jclouds.date.DateService;
 import org.jclouds.elb.config.ELBRestClientModule;
 import org.jclouds.elb.xml.CreateLoadBalancerResponseHandler;
 import org.jclouds.elb.xml.DescribeLoadBalancersResponseHandler;
-import org.jclouds.elb.xml.RegisterInstancesWithLoadBalancerResponseHandler;
+import org.jclouds.elb.xml.InstancesResponseHandler;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.RequiresHttp;
 import org.jclouds.http.functions.ParseSax;
@@ -125,7 +125,7 @@ public class ELBAsyncClientTest extends RestClientTest<ELBAsyncClient> {
             "application/x-www-form-urlencoded", false);
 
       assertResponseParserClassEquals(method, request, ParseSax.class);
-      assertSaxResponseParserClassEquals(method, RegisterInstancesWithLoadBalancerResponseHandler.class);
+      assertSaxResponseParserClassEquals(method, InstancesResponseHandler.class);
       assertExceptionParserClassEquals(method, null);
 
       checkFilters(request);

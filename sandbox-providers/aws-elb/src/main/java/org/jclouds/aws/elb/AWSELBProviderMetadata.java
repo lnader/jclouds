@@ -108,7 +108,6 @@ public class AWSELBProviderMetadata extends BaseProviderMetadata {
    /**
     * {@inheritDoc}
     */
-   @Override
    public Set<String> getIso3166Codes() {
       return ImmutableSet.of("US-VA", "US-CA", "IE", "SG", "JP-13");
    }

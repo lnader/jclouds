@@ -55,7 +55,7 @@ public class CloudLoadBalancersLoadBalanceNodesStrategy implements LoadBalanceNo
 
    @Inject
    protected CloudLoadBalancersLoadBalanceNodesStrategy(CloudLoadBalancersClient client,
-            GetLoadBalancerMetadataStrategy getLB) {
+           GetLoadBalancerMetadataStrategy getLB) {
       this.client = checkNotNull(client, "client");
       this.getLB = checkNotNull(getLB, "getLB");
    }

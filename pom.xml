@@ -52,6 +52,7 @@
         <module>all</module>
         <module>sandbox-apis/elb</module>
         <module>sandbox-providers/aws-elb</module>
+        <module>sandbox-apis/cloudwatch</module>
     </modules>
     <build>
         <plugins>

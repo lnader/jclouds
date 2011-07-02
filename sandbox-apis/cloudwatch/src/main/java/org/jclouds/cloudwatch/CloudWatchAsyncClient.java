@@ -53,7 +53,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 @FormParams(keys = "Version", values = CloudWatchAsyncClient.VERSION)
 @VirtualHost
 public interface CloudWatchAsyncClient {
-   public static final String VERSION = "2009-05-15";
+   public static final String VERSION = "2010-08-01";
 
    /**
     * @see CloudWatchClient#getMetricStatisticsInRegion
@@ -64,8 +64,23 @@ public interface CloudWatchAsyncClient {
    @FormParams(keys = "Action", values = "GetMetricStatistics")
    ListenableFuture<? extends Set<Datapoint>> getMetricStatisticsInRegion(
          @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
-         @FormParam("MeasureName") String measureName,
+         @FormParam("MetricName") String metricName,
          @FormParam("StartTime") @ParamParser(ISO8601Format.class) Date startTime,
          @FormParam("EndTime") @ParamParser(ISO8601Format.class) Date endTime, @FormParam("Period") int period,
-         @FormParam("Statistics.member.1") String statistics);
+         @FormParam("Statistics.member.1") String statistics,
+         @FormParam("Namespace") String nameSpace);
+   
+   @POST
+   @Path("/")
+   @XMLResponseParser(GetMetricStatisticsResponseHandler.class)
+   @FormParams(keys = "Action", values = "GetMetricStatistics")
+   ListenableFuture<? extends Set<Datapoint>> getMetricStatisticsInRegionByInstanceId(
+         @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
+         @FormParam("MetricName") String metricName,
+         @FormParam("StartTime") @ParamParser(ISO8601Format.class) Date startTime,
+         @FormParam("EndTime") @ParamParser(ISO8601Format.class) Date endTime, @FormParam("Period") int period,
+         @FormParam("Statistics.member.1") String statistics,
+         @FormParam("Dimensions.member.1.Name") String name,
+         @FormParam("Dimensions.member.1.Value") String value,
+         @FormParam("Namespace") String nameSpace);
 }

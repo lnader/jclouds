@@ -87,7 +87,7 @@ public class CloudWatchClientLiveTest {
       Calendar cal = Calendar.getInstance();
       cal.add(Calendar.MINUTE, -1);
       for (String region : Region.DEFAULT_REGIONS) {
-         assert client.getMetricStatisticsInRegion(region, "CPUUtilization", cal.getTime(), new Date(), 60, "Average") != null;
+         assert client.getMetricStatisticsInRegion(region, "CPUUtilization", cal.getTime(), new Date(), 60, "Average", "AWS/EC2") != null;
       }
    }
 

@@ -72,6 +72,41 @@ public interface CloudWatchClient {
     *           The statistics to be returned for the given metric. ex. Average
     */
    Set<Datapoint> getMetricStatisticsInRegion(@Nullable String region, String measureName, Date startTime,
-            Date endTime, int period, String statistics);
+            Date endTime, int period, String statistics, String nameSpace);
+   
+   /**
+    * This call returns data for one or more statistics of given a metric. For more information, see
+    * Statistic and Metric.
+    * <p/>
+    * <h3>Note</h3> The maximum number of datapoints that the Amazon CloudWatch service will return
+    * in a single GetMetricStatistics request is 1,440. If a request is made that would generate
+    * more datapoints than this amount, Amazon CloudWatch will return an error. You can alter your
+    * request by narrowing the time range (StartTime, EndTime) or increasing the Period in your
+    * single request. You may also get all of the data at the granularity you originally asked for
+    * by making multiple requests with adjacent time ranges.
+    * 
+    * @param region
+    *           region to gather metrics in
+    * @param measureName
+    *           The measure name that corresponds to the measure for the gathered metric.
+    *           <p/>
+    *           note
+    *           <p/>
+    *           Must be a valid collected metric with the corresponding measure name, please see
+    *           Available Amazon CloudWatch Metrics
+    * @param startTime
+    *           The timestamp of the first datapoint to return, inclusive. We round your value down
+    *           to the nearest minute. You can set your start time for more than two weeks in the
+    *           past. However, you will only get data for the past two weeks.
+    * @param endTime
+    *           The timestamp to use for determining the last datapoint to return. This is the last
+    *           datapoint to fetch, exclusive.
+    * @param period
+    *           The granularity (in seconds) of the returned datapoints.
+    * @param statistics
+    *           The statistics to be returned for the given metric. ex. Average
+    */
+   Set<Datapoint> getMetricStatisticsInRegionByInstanceId(@Nullable String region, String measureName, Date startTime,
+            Date endTime, int period, String statistics, String name, String value, String nameSpace);
 
 }

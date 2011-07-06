@@ -18,19 +18,44 @@
  */
 package org.jclouds.elb.binders;
 
-import static org.jclouds.aws.util.AWSUtils.indexStringArrayToFormValuesWithStringFormat;
+import java.util.Set;
 
 import javax.inject.Singleton;
 
+import org.jclouds.elb.domain.Listener;
 import org.jclouds.http.HttpRequest;
+import org.jclouds.http.utils.ModifyRequest;
 import org.jclouds.rest.Binder;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableMultimap.Builder;
 
 @Singleton
-public class BindListenersToIndexedFormParams implements Binder {
-   @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Object input) {
-      return indexStringArrayToFormValuesWithStringFormat(request, "Listeners.member.%s", input);
-   }
+public class BindListenersToIndexedFormParams implements Binder
+{
+    @Override
+    public <R extends HttpRequest> R bindToRequest(R request, Object input)
+    {
+        @SuppressWarnings("unchecked")
+        Set<Listener> listeners = (Set<Listener> )input;
+        Builder<String, String> builder = ImmutableMultimap
+                .<String, String> builder();
+        
+        int i = 1;
+        for (Listener listener:listeners)
+        {
+            builder.put(
+                    String.format("Listeners.member.%s.%s", i, "InstancePort") , String.valueOf(listener.getInstancePort()));
+            builder.put(
+                    String.format("Listeners.member.%s.%s", i, "Protocol") , listener.getProtocol());
+            builder.put(
+                    String.format("Listeners.member.%s.%s", i, "LoadBalancerPort") , String.valueOf(listener.getLoadBalancerPort()));
+            i++;
+        }
+        
+        ImmutableMultimap<String, String> forms = builder.build();
+        return forms.size() == 0 ? request : ModifyRequest.putFormParams(
+                request, forms);
+    }
 
 }

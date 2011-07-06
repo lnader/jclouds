@@ -18,12 +18,18 @@
  */
 package org.jclouds.elb.binders;
 
-import static org.jclouds.aws.util.AWSUtils.indexStringArrayToFormValuesWithStringFormat;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.List;
 
 import javax.inject.Singleton;
 
 import org.jclouds.http.HttpRequest;
+import org.jclouds.http.utils.ModifyRequest;
 import org.jclouds.rest.Binder;
+
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableMultimap.Builder;
 
 /**
  * Binds the String [] to form parameters named with InstanceId.index
@@ -31,10 +37,26 @@ import org.jclouds.rest.Binder;
  * @author Adrian Cole
  */
 @Singleton
-public class BindAvailabilityZonesToIndexedFormParams implements Binder {
-   @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Object input) {
-      return indexStringArrayToFormValuesWithStringFormat(request, "AvailabilityZones.member.%s", input);
-   }
+public class BindAvailabilityZonesToIndexedFormParams implements Binder
+{
+    @Override
+    public <R extends HttpRequest> R bindToRequest(R request, Object input)
+    {
+        String format = "AvailabilityZones.member.%s";
+        @SuppressWarnings("unchecked")
+        List<String> zones = (List<String>) input;
+        Builder<String, String> builder = ImmutableMultimap
+                .<String, String> builder();
+        int i = 1;
+        for (String zone : zones)
+        {
+            builder.put(String.format(format, i),
+                    checkNotNull(zone, format.toLowerCase() + "s[" + i + "]"));
+            i++;
+        }
+        ImmutableMultimap<String, String> forms = builder.build();
+        return forms.size() == 0 ? request : ModifyRequest.putFormParams(
+                request, forms);
+    }
 
 }

@@ -20,7 +20,7 @@ package org.jclouds.elb.binders;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.inject.Singleton;
 
@@ -44,7 +44,7 @@ public class BindInstanceIdsToIndexedFormParams implements Binder {
    {
        String format = "Instances.member.%s.InstanceId";
        @SuppressWarnings("unchecked")
-       List<String> instanceIds = (List<String>) input;
+       Set<String> instanceIds = (Set<String>) input;
        Builder<String, String> builder = ImmutableMultimap
                .<String, String> builder();
        int i = 1;

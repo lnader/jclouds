@@ -179,14 +179,14 @@ public class BaseLoadBalancerService implements LoadBalancerService {
 
    @Override
    public LoadBalancerMetadata addMembersToLoadBalancer(String id,
-        List<String> members)
+        Set<String> members)
    {
       return addMembersToLoadBalancerStrategy.addMembersToLoadBalancer(id, members);
    }
 
    @Override
    public LoadBalancerMetadata removeMembersFromLoadBalancer(String id,
-        List<String> members)
+        Set<String> members)
    {
        return removeMembersFromLoadBalancerStrategy.removeMembersFromLoadBalancer(id, members);
    }

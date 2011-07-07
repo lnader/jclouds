@@ -18,7 +18,6 @@
  */
 package org.jclouds.loadbalancer;
 
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -89,9 +88,9 @@ public interface LoadBalancerService {
    LoadBalancerMetadata getLoadBalancerMetadata(String id);
    
    @Beta
-   LoadBalancerMetadata addMembersToLoadBalancer(String id, List<String> members);
+   LoadBalancerMetadata addMembersToLoadBalancer(String id, Set<String> members);
    
    @Beta
-   LoadBalancerMetadata removeMembersFromLoadBalancer(String id, List<String> members);
+   LoadBalancerMetadata removeMembersFromLoadBalancer(String id, Set<String> members);
 
 }

@@ -81,7 +81,7 @@ public interface ELBClient {
     * @return An updated list of instances for the LoadBalancer.
     * 
     */
-   Set<String> registerInstancesWithLoadBalancerInRegion(@Nullable String region, String name, List<String> instanceIds);
+   Set<String> registerInstancesWithLoadBalancerInRegion(@Nullable String region, String name, Set<String> instanceIds);
 
    /**
     *  Deregisters instances from the LoadBalancer. Once the instance is deregistered, it will stop 
@@ -93,7 +93,7 @@ public interface ELBClient {
     * @return An updated list of instances for the LoadBalancer.
     * 
     */
-   Set<String> deregisterInstancesWithLoadBalancerInRegion(@Nullable String region, String name, List<String> instanceIds);
+   Set<String> deregisterInstancesWithLoadBalancerInRegion(@Nullable String region, String name, Set<String> instanceIds);
 
    /**
     *  Returns detailed configuration information for the specified LoadBalancers. If no LoadBalancers 
@@ -226,7 +226,7 @@ public interface ELBClient {
      * @param instanceIds
      * @return A list containing health information for the specified instances. 
      */
-    Set<InstanceState> describeInstanceHealthInRegion(String region, String loadBalancerName, String... instanceIds);
+    Set<InstanceState> describeInstanceHealthInRegion(String region, String loadBalancerName, Set<String> instanceIds);
     
     /**
      * Sets the certificate that terminates the specified listener's SSL connections. The specified certificate 

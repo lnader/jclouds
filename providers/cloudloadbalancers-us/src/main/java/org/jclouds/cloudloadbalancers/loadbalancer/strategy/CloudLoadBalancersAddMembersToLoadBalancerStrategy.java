@@ -20,7 +20,7 @@ package org.jclouds.cloudloadbalancers.loadbalancer.strategy;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -52,7 +52,7 @@ public class CloudLoadBalancersAddMembersToLoadBalancerStrategy implements AddMe
 
    @Override
    public LoadBalancerMetadata addMembersToLoadBalancer(String id,
-           List<String> members) {
+           Set<String> members) {
       String[] parts = checkNotNull(id, "id").split("/");
       String region = parts[0];
       int lbId = Integer.parseInt(parts[1]);

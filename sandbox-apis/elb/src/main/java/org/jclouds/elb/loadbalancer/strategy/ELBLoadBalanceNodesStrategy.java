@@ -21,9 +21,9 @@ package org.jclouds.elb.loadbalancer.strategy;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.jclouds.aws.util.AWSUtils.getRegionFromLocationOrNull;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -43,6 +43,7 @@ import org.jclouds.logging.Logger;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * 
@@ -89,7 +90,7 @@ public class ELBLoadBalanceNodesStrategy implements LoadBalanceNodesStrategy
         listeners.add(listener);
         client.createLoadBalancerInRegion(region, name, listeners, availabilityZones);
 
-        List<String> instanceIds = Lists.newArrayList(Iterables.transform(
+        Set<String> instanceIds = Sets.newHashSet(Iterables.transform(
                 nodes, new Function<NodeMetadata, String>()
                 {
 

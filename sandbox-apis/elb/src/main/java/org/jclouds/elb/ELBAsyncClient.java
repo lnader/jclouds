@@ -108,7 +108,7 @@ public interface ELBAsyncClient {
    ListenableFuture<Set<String>> registerInstancesWithLoadBalancerInRegion(
             @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
             @FormParam("LoadBalancerName") String name,
-            @BinderParam(BindInstanceIdsToIndexedFormParams.class) List<String> instanceIds);
+            @BinderParam(BindInstanceIdsToIndexedFormParams.class) Set<String> instanceIds);
 
    /**
     * @see ELBClient#deregisterInstancesWithLoadBalancerInRegion
@@ -120,7 +120,7 @@ public interface ELBAsyncClient {
    ListenableFuture<Set<String>> deregisterInstancesWithLoadBalancerInRegion(
             @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
             @FormParam("LoadBalancerName") String name,
-            @BinderParam(BindInstanceIdsToIndexedFormParams.class) List<String> instanceIds);
+            @BinderParam(BindInstanceIdsToIndexedFormParams.class) Set<String> instanceIds);
 
    /**
     * @see ELBClient#describeLoadBalancersInRegion
@@ -218,7 +218,7 @@ public interface ELBAsyncClient {
    ListenableFuture<InstanceState> describeInstanceHealthInRegion(
             @EndpointParam(parser = RegionToEndpointOrProviderIfNull.class) @Nullable String region,
             @FormParam("LoadBalancerName") String loadBalancerName,
-            @BinderParam(BindInstanceIdsToIndexedFormParams.class) String... instanceIds);
+            @BinderParam(BindInstanceIdsToIndexedFormParams.class) Set<String> instanceIds);
    
    @POST
    @Path("/")

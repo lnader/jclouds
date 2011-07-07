@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.jclouds.aws.util.AWSUtils.parseHandle;
 
-import java.util.List;
+import java.util.Set;
 import java.util.NoSuchElementException;
 
 import javax.inject.Inject;
@@ -50,7 +50,7 @@ public class ELBAddMembersToLoadBalancerStrategy implements AddMembersToLoadBala
 
    @Override
    public LoadBalancerMetadata addMembersToLoadBalancer(String id,
-           List<String> members) {
+           Set<String> members) {
       String[] parts = parseHandle(id);
       String region = parts[0];
       String name = parts[1];

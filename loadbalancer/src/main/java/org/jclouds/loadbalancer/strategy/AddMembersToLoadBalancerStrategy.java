@@ -18,13 +18,12 @@
  */
 package org.jclouds.loadbalancer.strategy;
 
-import java.util.List;
+import java.util.Set;
 
 import org.jclouds.loadbalancer.domain.LoadBalancerMetadata;
 
 
 public interface AddMembersToLoadBalancerStrategy {
 
-   LoadBalancerMetadata addMembersToLoadBalancer(String id, List<String> members);
-
+   LoadBalancerMetadata addMembersToLoadBalancer(String id, Set<String> members);
 }

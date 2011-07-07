@@ -51,7 +51,7 @@ public class ELBRemoveMembersFromLoadBalancerStrategy implements RemoveMembersFr
 
    @Override
    public LoadBalancerMetadata removeMembersFromLoadBalancer(String id,
-           List<String> members) {
+           Set<String> members) {
       String[] parts = parseHandle(id);
       String region = parts[0];
       String name = parts[1];
